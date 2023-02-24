@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -12,9 +13,7 @@ import androidx.compose.material.icons.rounded.ArrowDropUp
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +31,7 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.ui.components.ReadField
+import com.arnyminerz.filmagentaproto.ui.components.WheelNumberCard
 import com.arnyminerz.filmagentaproto.ui.theme.AppTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -53,7 +53,10 @@ fun ProfilePage(
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { expanded = !expanded }.menuAnchor(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .menuAnchor(),
             ) {
                 Text(
                     text = data.fullName,
@@ -83,6 +86,11 @@ fun ProfilePage(
                 }
             }
         }
+        WheelNumberCard(
+            white = data.nrRodaBlancos,
+            black = data.nrRodaNegros,
+            gloria = data.nrAntiguedad,
+        )
         ReadField(
             value = data.eMail,
             label = R.string.profile_email,

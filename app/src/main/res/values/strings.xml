@@ -28,6 +28,11 @@
     <string name="profile_mobile_phone">Mobile Phone</string>
     <string name="profile_work_phone">Work Phone</string>
     <string name="profile_email">Email</string>
+    <string name="profile_wheel_title">Wheel Number</string>
+    <string name="profile_wheel_whites">Whites</string>
+    <string name="profile_wheel_blacks">Blacks</string>
+    <string name="profile_wheel_gloria">Gloria</string>
+    <string name="profile_wheel_no_number">W/o Num.</string>
 
     <string name="error_find_data">Could not find your personal data in the database.</string>
 </resources>
