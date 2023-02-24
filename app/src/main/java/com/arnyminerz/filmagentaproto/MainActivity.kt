@@ -58,6 +58,7 @@ import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.ProfileImage
 import com.arnyminerz.filmagentaproto.ui.dialogs.AccountsDialog
 import com.arnyminerz.filmagentaproto.ui.screens.ProfilePage
+import com.arnyminerz.filmagentaproto.ui.screens.SettingsScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -220,6 +221,7 @@ class MainActivity : AppCompatActivity() {
                                             }
                                         }
                                     } ?: ErrorCard(stringResource(R.string.error_find_data))
+                                    2 -> SettingsScreen()
                                 }
                             }
                         }
