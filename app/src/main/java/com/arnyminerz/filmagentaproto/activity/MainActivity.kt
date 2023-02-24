@@ -1,4 +1,4 @@
-package com.arnyminerz.filmagentaproto
+package com.arnyminerz.filmagentaproto.activity
 
 import android.accounts.Account
 import android.accounts.AccountManager
@@ -45,8 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import com.arnyminerz.filmagentaproto.R
+import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.account.Authenticator
-import com.arnyminerz.filmagentaproto.activity.LoginActivity
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.ui.screens.MainPage
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
@@ -213,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                                     ),
                             ) { page ->
                                 when (page) {
-                                    0 -> MainPage(data)
+                                    0 -> MainPage(data, viewModel)
                                     1 -> socio?.let { socio ->
                                         ProfilePage(socio, accounts) { _, index ->
                                             CoroutineScope(Dispatchers.IO).launch {
@@ -229,12 +231,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        SyncWorker.run(this)
     }
 
     override fun onResume() {
@@ -260,6 +256,10 @@ class MainActivity : AppCompatActivity() {
         val personalData = personalDataDao.getAllLive()
 
         val databaseData = remoteDatabaseDao.getAllLive()
+
+        val isLoading = Transformations.map(SyncWorker.getLiveState(application)) {
+            it.isNotEmpty()
+        }
 
         init {
             CoroutineScope(Dispatchers.IO).launch {

@@ -5,6 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 
@@ -25,6 +27,12 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "magenta-proto",
                 )
+                .addCallback(object : Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        super.onCreate(db)
+                        SyncWorker.run(context)
+                    }
+                })
                 .build()
                 .also { INSTANCE = it }
         }

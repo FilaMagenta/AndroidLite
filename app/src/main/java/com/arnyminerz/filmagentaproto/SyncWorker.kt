@@ -9,6 +9,8 @@ import androidx.work.CoroutineWorker
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest.Companion.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
@@ -17,12 +19,29 @@ import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
 import com.arnyminerz.filmagentaproto.database.remote.RemoteServer
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
     companion object {
         private const val TAG = "sync_worker"
+
+        fun schedule(context: Context) {
+            val request = PeriodicWorkRequest
+                .Builder(
+                    SyncWorker::class.java,
+                    8,
+                    TimeUnit.HOURS,
+                    15,
+                    TimeUnit.MINUTES,
+                )
+                .addTag(TAG)
+                .setConstraints(Constraints(NetworkType.CONNECTED))
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 15, TimeUnit.MINUTES)
+                .build()
+            WorkManager.getInstance(context).enqueue(request)
+        }
 
         fun run(context: Context): Operation {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
@@ -37,6 +56,10 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             return WorkManager.getInstance(context)
                 .enqueue(request)
         }
+
+        fun getLiveState(context: Context) = WorkManager
+            .getInstance(context)
+            .getWorkInfosByTagLiveData(TAG)
     }
 
     override suspend fun doWork(): Result {
