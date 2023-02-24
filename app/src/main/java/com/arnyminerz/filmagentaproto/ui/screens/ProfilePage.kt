@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowDropUp
@@ -30,13 +32,15 @@ import androidx.compose.ui.unit.sp
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
+import com.arnyminerz.filmagentaproto.ui.components.PersonalDataCard
 import com.arnyminerz.filmagentaproto.ui.components.ReadField
+import com.arnyminerz.filmagentaproto.ui.components.TrebuchetCard
 import com.arnyminerz.filmagentaproto.ui.components.WheelNumberCard
 import com.arnyminerz.filmagentaproto.ui.theme.AppTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-private val DateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+val DateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
 
 @Composable
 @ExperimentalMaterial3Api
@@ -46,7 +50,9 @@ fun ProfilePage(
     onAccountSelected: (account: Account, index: Int) -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
     ) {
         var expanded by remember { mutableStateOf(false) }
 
@@ -91,38 +97,13 @@ fun ProfilePage(
             black = data.nrRodaNegros,
             gloria = data.nrAntiguedad,
         )
-        ReadField(
-            value = data.eMail,
-            label = R.string.profile_email,
-        )
-        ReadField(
-            value = data.Direccion,
-            label = R.string.profile_address,
-        )
-        ReadField(
-            value = data.FecNacimiento?.let { DateFormatter.format(it) },
-            label = R.string.profile_birth_date,
-        )
-        ReadField(
-            value = data.Dni,
-            label = R.string.profile_nif,
-        )
-        ReadField(
-            value = data.TlfParticular,
-            label = R.string.profile_personal_phone,
-        )
-        ReadField(
-            value = data.TlfMovil,
-            label = R.string.profile_mobile_phone,
-        )
-        ReadField(
-            value = data.TlfTrabajo,
-            label = R.string.profile_work_phone,
-        )
-        ReadField(
-            value = data.FecAlta?.let { DateFormatter.format(it) },
-            label = R.string.profile_registration_date,
-        )
+        if (data.bCarnetAvancarga == true)
+            TrebuchetCard(
+                data.bDisparaAvancarga,
+                data.FecExpedicionAvancarga,
+                data.FecCaducidadAvancarga,
+            )
+        PersonalDataCard(data)
     }
 }
 

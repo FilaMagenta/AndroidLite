@@ -11,6 +11,7 @@
     <string name="login_name_aux">Your first name, without any tildes or accents</string>
     <string name="login_nif">NIF</string>
     <string name="login_nif_aux">Your DNI, NIE, or whatever your NIF is</string>
+    <string name="login_action">Login</string>
 
     <string name="balance_balance">Balance</string>
     <string name="balance_in">Inwards</string>
@@ -20,6 +21,7 @@
     <string name="navigation_profile">Profile</string>
     <string name="navigation_settings">Settings</string>
 
+    <string name="profile_title">Personal Data</string>
     <string name="profile_address">Address</string>
     <string name="profile_nif">NIF</string>
     <string name="profile_birth_date">Birth date</string>
@@ -33,6 +35,13 @@
     <string name="profile_wheel_blacks">Blacks</string>
     <string name="profile_wheel_gloria">Gloria</string>
     <string name="profile_wheel_no_number">W/o Num.</string>
+    <string name="profile_trebuchet">Guns Authorization</string>
+    <string name="profile_trebuchet_obtained">Obtained</string>
+    <string name="profile_trebuchet_expires">Expires</string>
 
     <string name="error_find_data">Could not find your personal data in the database.</string>
+    <string name="error_toast_wrong_credentials">Wrong name or NIF</string>
+
+    <string name="calendar_trebuchet_title">Guns Authorization Expiration</string>
+    <string name="calendar_trebuchet_description">Remember to renew your guns permission.</string>
 </resources>

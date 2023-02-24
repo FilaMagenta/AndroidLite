@@ -32,7 +32,9 @@ fun FormInput(
     onValueChange: (value: String) -> Unit,
     label: String,
     supportingText: String,
+    autofillType: AutofillType,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     focusRequester: FocusRequester? = null,
     nextFocusRequester: FocusRequester? = null,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.Words,
@@ -41,7 +43,7 @@ fun FormInput(
     onGo: (() -> Unit)? = null,
 ) {
     val autofillNode = AutofillNode(
-        autofillTypes = listOf(AutofillType.EmailAddress),
+        autofillTypes = listOf(autofillType),
         onFill = onValueChange,
     )
     val autofill = LocalAutofill.current
@@ -58,6 +60,7 @@ fun FormInput(
             keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Ascii,
             imeAction = if (nextFocusRequester != null) ImeAction.Next else ImeAction.Go,
         ),
+        enabled = enabled,
         singleLine = true,
         maxLines = 1,
         keyboardActions = KeyboardActions { nextFocusRequester?.requestFocus() ?: onGo?.invoke() },

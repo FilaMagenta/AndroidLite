@@ -197,7 +197,7 @@ class MainActivity : AppCompatActivity() {
                             }
                             LaunchedEffect(currentPage) {
                                 snapshotFlow { currentPage }.collect {
-                                    pagerState.animateScrollToPage(it)
+                                    pagerState.scrollToPage(it)
                                 }
                             }
 
