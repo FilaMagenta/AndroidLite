@@ -4,6 +4,8 @@ plugins {
     id 'com.google.devtools.ksp'
 }
 
+apply from: './version.gradle'
+
 android {
     namespace 'com.arnyminerz.filmagentaproto'
     compileSdk 33
@@ -12,8 +14,8 @@ android {
         applicationId "com.arnyminerz.filmagentaproto"
         minSdk 24
         targetSdk 33
-        versionCode 1
-        versionName "1.0.0"
+        versionCode findProperty("android.versionCode") as Integer
+        versionName VERSION_NAME
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -32,10 +34,24 @@ android {
         buildConfigField "String", "DB_PASSWORD", "\"${properties.getProperty("db.password")}\""
     }
 
+    // Configures the APK and AAB signing config
+    signingConfigs {
+        release {
+            def props = new Properties()
+            file("${rootDir}/local.properties").withInputStream { props.load(it) }
+
+            storeFile file("keystore.jks")
+            storePassword props.getProperty("SIGNING_KEYSTORE_PASSWORD")
+            keyAlias props.getProperty("SIGNING_KEY_ALIAS")
+            keyPassword props.getProperty("SIGNING_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -54,6 +70,21 @@ android {
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+android.applicationVariants.all { variant ->
+    if (variant.buildType.name == "release") {
+        variant.assemble.doLast {
+            // This increases version code on release
+            def versionPropsFile = file("../gradle.properties")
+            Properties versionProps = new Properties()
+            versionProps.load(new FileInputStream(versionPropsFile))
+            def code = versionProps['android.versionCode'].toInteger() + 1
+            versionProps['android.versionCode'] = code.toString()
+            versionProps.store(versionPropsFile.newWriter(), null)
+            logger.lifecycle("Increased version code to $code")
         }
     }
 }

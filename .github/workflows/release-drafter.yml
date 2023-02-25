@@ -40,11 +40,11 @@ jobs:
           echo 'db.password=${{ secrets.DB_PASSWORD }}' >> local.properties
       - name: Prepare Gradle version file
         run: |
-          truncate -s 0 base/version.gradle
-          echo "ext {" >> base/version.gradle
+          truncate -s 0 app/version.gradle
+          echo "ext {" >> app/version.gradle
           echo "VERSION_NAME=\"${{ steps.create_release.outputs.tag_name }}\"" >> app/version.gradle
-          echo "}" >> base/version.gradle
-          cat base/version.gradle
+          echo "}" >> app/version.gradle
+          cat app/version.gradle
       - name: Build APK
         id: build_apk
         run: |
