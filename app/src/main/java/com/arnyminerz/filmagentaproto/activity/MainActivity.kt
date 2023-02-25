@@ -46,6 +46,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.work.WorkInfo
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.account.Authenticator
@@ -257,8 +258,8 @@ class MainActivity : AppCompatActivity() {
 
         val databaseData = remoteDatabaseDao.getAllLive()
 
-        val isLoading = Transformations.map(SyncWorker.getLiveState(application)) {
-            it.isNotEmpty()
+        val isLoading = Transformations.map(SyncWorker.getLiveState(application)) { list ->
+            list.any { it.state == WorkInfo.State.RUNNING }
         }
 
         init {
