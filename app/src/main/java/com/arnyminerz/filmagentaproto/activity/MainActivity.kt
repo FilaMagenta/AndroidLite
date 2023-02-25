@@ -63,6 +63,9 @@ import com.arnyminerz.filmagentaproto.ui.dialogs.AccountsDialog
 import com.arnyminerz.filmagentaproto.ui.screens.ProfilePage
 import com.arnyminerz.filmagentaproto.ui.screens.SettingsScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
+import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
+import com.arnyminerz.filmagentaproto.utils.doAsync
+import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -103,7 +106,7 @@ class MainActivity : AppCompatActivity() {
                     accountsList = accounts,
                     selectedAccountIndex = selectedAccountIndex ?: -1,
                     onAccountSelected = { index, _ ->
-                        CoroutineScope(Dispatchers.IO).launch {
+                        doAsync {
                             dataStore.edit {
                                 it[SELECTED_ACCOUNT] = index
                                 showingAccountsDialog = false
@@ -188,22 +191,14 @@ class MainActivity : AppCompatActivity() {
                             data?.let { account to it }
                         }
                         ?.let { (account, data) ->
-                            val dni = am.getPassword(account).trim().capitalize(Locale.current)
-                            data to databaseData.find {
-                                it.Dni?.trim()?.capitalize(Locale.current) == dni
-                            }
+                            val dni = am.getPassword(account).trimmedAndCaps
+                            data to databaseData.find { it.Dni?.trimmedAndCaps == dni }
                         }
                         ?.let { (data, socio) ->
                             val pagerState = rememberPagerState()
 
-                            LaunchedEffect(pagerState) {
-                                snapshotFlow { pagerState.currentPage }.collect { currentPage = it }
-                            }
-                            LaunchedEffect(currentPage) {
-                                snapshotFlow { currentPage }.collect {
-                                    pagerState.scrollToPage(it)
-                                }
-                            }
+                            LaunchedEffectFlow(pagerState, { it.currentPage }) { currentPage = it }
+                            LaunchedEffectFlow(currentPage, { it }) { pagerState.scrollToPage(it) }
 
                             HorizontalPager(
                                 count = 3,
@@ -219,7 +214,7 @@ class MainActivity : AppCompatActivity() {
                                     0 -> MainPage(data, viewModel)
                                     1 -> socio?.let { socio ->
                                         ProfilePage(socio, accounts) { _, index ->
-                                            CoroutineScope(Dispatchers.IO).launch {
+                                            doAsync {
                                                 dataStore.edit { it[SELECTED_ACCOUNT] = index }
                                             }
                                         }
@@ -263,8 +258,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         init {
-            CoroutineScope(Dispatchers.IO).launch {
-                getApplication<Application>().dataStore
+            doAsync {
+                getApplication<Application>()
+                    .dataStore
                     .data
                     .map { preferences -> preferences[SELECTED_ACCOUNT] ?: 0 }
                     .collect { selectedAccount.postValue(it) }
