@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Filà Magenta</string>
+    <string name="back">Enrere</string>
+    <string name="accounts_list">Comptes</string>
+    <string name="accounts_new">Afegeix un compte</string>
+    <string name="login_title">Inici de Sessió</string>
+    <string name="login_name">Nom</string>
+    <string name="login_name_aux">El teu nom, sense cap accent</string>
+    <string name="login_nif">NIF</string>
+    <string name="login_nif_aux">El teu DNI, NIE, o el que aplique</string>
+    <string name="balance_balance">Balanç</string>
+    <string name="balance_in">Ingressos</string>
+    <string name="balance_out">Despeses</string>
+    <string name="navigation_balance">Balanç</string>
+    <string name="navigation_profile">Perfil</string>
+    <string name="navigation_settings">Configuració</string>
+    <string name="profile_address">Direcció</string>
+    <string name="profile_nif">NIF</string>
+    <string name="profile_birth_date">Data de naixement</string>
+    <string name="profile_registration_date">Data de registre</string>
+    <string name="profile_personal_phone">Telèfon Personal</string>
+    <string name="profile_mobile_phone">Telèfon Mòbil</string>
+    <string name="profile_work_phone">Telèfon de Feina</string>
+    <string name="profile_email">Correu electrònic</string>
+    <string name="error_find_data">No s\'han pogut trobar les teues dades a la base de dades.</string>
+    <string name="login_action">Iniciar sessió</string>
+    <string name="profile_title">Dades Personals</string>
+    <string name="profile_wheel_title">Número de Roda</string>
+    <string name="profile_wheel_whites">Blancs</string>
+    <string name="profile_wheel_blacks">Negres</string>
+    <string name="profile_wheel_gloria">Glòria</string>
+    <string name="profile_wheel_no_number">Sense Num.</string>
+    <string name="profile_trebuchet">Permís d\'Armes</string>
+    <string name="profile_trebuchet_obtained">Obtingut el</string>
+    <string name="profile_trebuchet_expires">Caduca el</string>
+    <string name="error_toast_wrong_credentials">Nom o NIF incorrectes</string>
+    <string name="calendar_trebuchet_title">Caducitat Permís d\'armes</string>
+    <string name="calendar_trebuchet_description">Recorda renovar el teu permís d\'armes</string>
+</resources>
