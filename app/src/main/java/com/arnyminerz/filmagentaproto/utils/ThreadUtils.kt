@@ -4,6 +4,8 @@ import androidx.annotation.WorkerThread
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,3 +19,6 @@ fun <T: Any, R: Any> LaunchedEffectFlow(obj: T, property: (obj: T) -> R, @Worker
         snapshotFlow { property(obj) }.collect { block(it) }
     }
 }
+
+fun ViewModel.async(@WorkerThread block: suspend CoroutineScope.() -> Unit) =
+    viewModelScope.launch(Dispatchers.IO, block = block)

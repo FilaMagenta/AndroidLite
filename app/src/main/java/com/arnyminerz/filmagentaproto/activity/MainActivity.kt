@@ -4,6 +4,7 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,19 +29,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
@@ -50,8 +48,9 @@ import androidx.work.WorkInfo
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.account.Authenticator
+import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
-import com.arnyminerz.filmagentaproto.ui.screens.MainPage
+import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
 import com.arnyminerz.filmagentaproto.ui.components.ErrorCard
@@ -60,24 +59,25 @@ import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.ProfileImage
 import com.arnyminerz.filmagentaproto.ui.dialogs.AccountsDialog
+import com.arnyminerz.filmagentaproto.ui.screens.MainPage
 import com.arnyminerz.filmagentaproto.ui.screens.ProfilePage
 import com.arnyminerz.filmagentaproto.ui.screens.SettingsScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
+import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTextApi::class, ExperimentalPagerApi::class)
 class MainActivity : AppCompatActivity() {
     companion object {
         val TOP_BAR_HEIGHT = (56 + 16).dp
+
+        private const val TAG = "MainActivity"
     }
 
     private val viewModel by viewModels<MainViewModel>()
@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentThemed {
-            val selectedAccountIndex by viewModel.selectedAccount.observeAsState()
+            val selectedAccountIndex by viewModel.selectedAccount.collectAsState(null)
             val accounts by viewModel.accounts.observeAsState(emptyArray())
 
             var showingAccountsDialog by remember { mutableStateOf(false) }
@@ -106,6 +106,7 @@ class MainActivity : AppCompatActivity() {
                     accountsList = accounts,
                     selectedAccountIndex = selectedAccountIndex ?: -1,
                     onAccountSelected = { index, _ ->
+                        Log.i(TAG, "Switching account to #$index")
                         doAsync {
                             dataStore.edit {
                                 it[SELECTED_ACCOUNT] = index
@@ -134,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                                 actions = {
                                     accounts
                                         .takeIf { it.isNotEmpty() }
-                                        ?.let { it[accountIndex] }
+                                        ?.getOrNull(accountIndex)
                                         ?.let {
                                             ProfileImage(
                                                 name = it.name.uppercase(),
@@ -142,6 +143,12 @@ class MainActivity : AppCompatActivity() {
                                                     .clip(CircleShape)
                                                     .clickable { showingAccountsDialog = true },
                                             )
+                                        }
+                                        ?: doAsync {
+                                            if (selectedAccountIndex != 0)
+                                                dataStore.edit {
+                                                    it[SELECTED_ACCOUNT] = 0
+                                                }
                                         }
                                 },
                             )
@@ -183,6 +190,14 @@ class MainActivity : AppCompatActivity() {
                             0.dp,
                         animationSpec = tween(durationMillis = 300),
                     )
+
+                    LaunchedEffectFlow(selectedAccountIndex ?: -1, { it }) { index ->
+                        if (index < 0) return@LaunchedEffectFlow
+                        val account = accounts.getOrNull(index) ?: return@LaunchedEffectFlow
+                        val dni = am.getPassword(account).trimmedAndCaps
+                        val socio = databaseData.find { it.Dni?.trimmedAndCaps == dni } ?: return@LaunchedEffectFlow
+                        viewModel.getAssociatedAccounts(socio.idSocio)
+                    }
 
                     selectedAccount
                         ?.let { account ->
@@ -245,7 +260,10 @@ class MainActivity : AppCompatActivity() {
         private val personalDataDao = database.personalDataDao()
         private val remoteDatabaseDao = database.remoteDatabaseDao()
 
-        val selectedAccount = MutableLiveData<Int>()
+        val selectedAccount = application
+            .dataStore
+            .data
+            .map { preferences -> preferences[SELECTED_ACCOUNT] ?: 0 }
 
         val accounts: MutableLiveData<Array<out Account>> = MutableLiveData()
 
@@ -257,14 +275,14 @@ class MainActivity : AppCompatActivity() {
             list.any { it.state == WorkInfo.State.RUNNING }
         }
 
-        init {
-            doAsync {
-                getApplication<Application>()
-                    .dataStore
-                    .data
-                    .map { preferences -> preferences[SELECTED_ACCOUNT] ?: 0 }
-                    .collect { selectedAccount.postValue(it) }
-            }
+        val associatedAccounts = MutableLiveData<List<Pair<Socio, PersonalData?>>>()
+
+        fun getAssociatedAccounts(associatedWithId: Int) = async {
+            val socios = remoteDatabaseDao.getAllAssociatedWith(associatedWithId)
+            val personalDataList = personalDataDao.getAll()
+            val accounts = socios.map { socio -> socio to personalDataList.find { it.name == socio.Nombre } }
+            Log.i(TAG, "Got ${accounts.size} associated accounts for #$associatedWithId")
+            associatedAccounts.postValue(accounts)
         }
     }
 }

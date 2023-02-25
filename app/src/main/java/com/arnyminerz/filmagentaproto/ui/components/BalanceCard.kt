@@ -60,7 +60,12 @@ private fun RowScope.TextCol(
 }
 
 @Composable
-fun BalanceCard(inwards: Double, outwards: Double, modifier: Modifier = Modifier) {
+fun BalanceCard(
+    inwards: Double,
+    outwards: Double,
+    modifier: Modifier = Modifier,
+    title: String? = null,
+) {
     ElevatedCard(
         modifier = modifier,
         colors = CardDefaults.elevatedCardColors(
@@ -68,6 +73,15 @@ fun BalanceCard(inwards: Double, outwards: Double, modifier: Modifier = Modifier
             contentColor = MaterialTheme.colorScheme.onSurface,
         )
     ) {
+        title?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+            )
+        }
         Row(Modifier.padding(8.dp)) {
             TextCol(
                 value = inwards + outwards,

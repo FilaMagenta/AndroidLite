@@ -3,6 +3,7 @@ package com.arnyminerz.filmagentaproto.database.remote
 import android.net.Uri
 import android.util.Log
 import com.arnyminerz.filmagentaproto.BuildConfig
+import com.arnyminerz.filmagentaproto.exceptions.UserHasNotAcceptedPolicyException
 import com.arnyminerz.filmagentaproto.exceptions.WrongCredentialsException
 import java.io.IOException
 import java.net.URL
@@ -99,6 +100,8 @@ object RemoteServer {
             when(connection.responseCode) {
                 in 200 until 300 -> {
                     // Get the response
+                    if (connection.url.path.endsWith("home.php"))
+                        throw UserHasNotAcceptedPolicyException()
                     connection.inputStream.use { it.bufferedReader().readText() }
                 }
                 else -> throw IOException("Response error: ${connection.responseCode}")

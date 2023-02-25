@@ -41,6 +41,7 @@
 
     <string name="error_find_data">Could not find your personal data in the database.</string>
     <string name="error_toast_wrong_credentials">Wrong name or NIF</string>
+    <string name="error_policy">%s has not accepted the privacy policy on the website. Please, log in the web version as the given user and do so.</string>
 
     <string name="calendar_trebuchet_title">Guns Authorization Expiration</string>
     <string name="calendar_trebuchet_description">Remember to renew your guns permission.</string>

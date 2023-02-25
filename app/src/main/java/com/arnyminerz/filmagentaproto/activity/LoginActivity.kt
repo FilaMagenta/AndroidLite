@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.WorkerThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -23,7 +24,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.account.Authenticator
+import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.AuthTokenType
 import com.arnyminerz.filmagentaproto.ui.screens.LoginScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
@@ -86,12 +87,15 @@ class LoginActivity: AppCompatActivity() {
         }
     }
 
+    @WorkerThread
     private fun addAccount(name: String, nif: String, token: String) {
         val am = AccountManager.get(this)
 
         val account = Account(name, accountType)
         am.addAccountExplicitly(account, nif, Bundle())
         am.setAuthToken(account, authTokenType, token)
+
+        SyncWorker.run(this).result.get()
 
         setResult(Activity.RESULT_OK)
         finish()

@@ -14,7 +14,7 @@ interface RemoteDatabaseDao {
     suspend fun getAll(): List<Socio>
 
     @Query("SELECT * FROM socios WHERE AsociadoCon=:id")
-    suspend fun getAllAssociatedWith(id: Long): List<Socio>
+    suspend fun getAllAssociatedWith(id: Int): List<Socio>
 
     @Query("SELECT * FROM socios")
     fun getAllLive(): LiveData<List<Socio>>

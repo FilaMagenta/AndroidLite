@@ -1,11 +1,8 @@
 package com.arnyminerz.filmagentaproto.database.data
 
 import android.accounts.Account
-import android.view.animation.BounceInterpolator
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
-import androidx.room.PrimaryKey
 import org.jsoup.Jsoup
 
 @Entity(tableName = "user_data", primaryKeys = ["accountName", "accountType"])
@@ -45,12 +42,14 @@ data class PersonalData(
             val inwards = inOutRows[3].text()
                 .replace(".", "")
                 .replace(',', '.')
-                .toDouble()
+                .toDoubleOrNull()
+                ?: 0.0
             val outwards = inOutRows[4].text()
                 .replace(".", "")
                 .replace(',', '.')
-                .toDouble()
-                .times(-1)
+                .toDoubleOrNull()
+                ?.times(-1)
+                ?: 0.0
 
             return PersonalData(account.name, account.type, name, inwards, outwards, transactions)
         }
