@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Filà Magenta</string>
+    <string name="back">Atrás</string>
+    <string name="accounts_list">Lista de Cuentas</string>
+    <string name="accounts_new">Añadir Nueva Cuenta</string>
+    <string name="login_title">Inicio de Sesión</string>
+    <string name="login_name">Nombre</string>
+    <string name="login_name_aux">Tu nombre, sin acentos ni tildes</string>
+    <string name="login_nif">NIF</string>
+    <string name="login_nif_aux">Tu DNI, NIE, o sea cual sea tu NIF</string>
+    <string name="login_action">Iniciar Sesión</string>
+    <string name="balance_balance">Balance</string>
+    <string name="balance_in">Ingresos</string>
+    <string name="balance_out">Gastos</string>
+    <string name="navigation_balance">Balance</string>
+    <string name="navigation_profile">Perfil</string>
+    <string name="navigation_settings">Ajustes</string>
+    <string name="profile_title">Datos Personales</string>
+    <string name="profile_address">Dirección</string>
+    <string name="profile_nif">NIF</string>
+    <string name="profile_birth_date">Fecha de nacimiento</string>
+    <string name="profile_registration_date">Fecha de registro</string>
+    <string name="profile_personal_phone">Teléfono Personal</string>
+    <string name="profile_mobile_phone">Teléfono Móvil</string>
+    <string name="profile_work_phone">Teléfono de Trabajo</string>
+    <string name="profile_email">Correo electrónico</string>
+    <string name="profile_wheel_title">Número de Roda</string>
+    <string name="profile_wheel_whites">Blancos</string>
+    <string name="profile_wheel_blacks">Negros</string>
+    <string name="profile_wheel_gloria">Gloria</string>
+    <string name="profile_wheel_no_number">Sin Núm.</string>
+    <string name="profile_trebuchet">Permiso de Armas</string>
+    <string name="profile_trebuchet_obtained">Obtenido el</string>
+    <string name="profile_trebuchet_expires">Caduca el</string>
+    <string name="error_find_data">No se han encontrado tus datos en la base de datos.</string>
+    <string name="error_toast_wrong_credentials">Nombre o NIF incorrectos</string>
+    <string name="error_policy">%s no ha aceptado la política de privacidad en la web. Por favor, inicia sesión en la versión web con el usuario en cuestión, y hazlo ahora</string>
+    <string name="calendar_trebuchet_title">Caducidad Permiso de Armas</string>
+    <string name="calendar_trebuchet_description">Recuerda Renovar tu permiso de armas.</string>
+</resources>
