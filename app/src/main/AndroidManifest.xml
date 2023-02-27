@@ -30,6 +30,7 @@
 
         <service
             android:name=".account.AuthenticatorService"
+            android:permission="android.permission.GET_ACCOUNTS"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -37,5 +38,21 @@
             <meta-data android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
+
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
+        <!-- For observing changes in the app language -->
+        <receiver android:name=".service.LanguageChangeReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="ACTION_LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

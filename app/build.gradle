@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
+    id 'com.arnyminerz.locator' version '1.0.2'
 }
 
 apply from: './version.gradle'
@@ -40,7 +41,7 @@ android {
             def props = new Properties()
             file("${rootDir}/local.properties").withInputStream { props.load(it) }
 
-            storeFile file("keystore.jks")
+            storeFile file("${rootDir}/keystore.jks")
             storePassword props.getProperty("SIGNING_KEYSTORE_PASSWORD")
             keyAlias props.getProperty("SIGNING_KEY_ALIAS")
             keyPassword props.getProperty("SIGNING_KEY_PASSWORD")

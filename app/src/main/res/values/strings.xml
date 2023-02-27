@@ -13,6 +13,9 @@
     <string name="login_nif_aux">Your DNI, NIE, or whatever your NIF is</string>
     <string name="login_action">Login</string>
 
+    <string name="settings_language">Language</string>
+    <string name="settings_language_default">System Default</string>
+
     <string name="balance_balance">Balance</string>
     <string name="balance_in">Inwards</string>
     <string name="balance_out">Outwards</string>

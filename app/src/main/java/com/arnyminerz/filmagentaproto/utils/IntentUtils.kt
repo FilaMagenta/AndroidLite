@@ -2,10 +2,12 @@ package com.arnyminerz.filmagentaproto.utils
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
 import com.arnyminerz.filmagentaproto.R
 import java.util.Date
+import kotlin.reflect.KClass
 
 fun Context.launchCalendarInsert(begin: Date, end: Date? = null) {
     val intent = Intent(Intent.ACTION_INSERT).apply {
@@ -18,3 +20,11 @@ fun Context.launchCalendarInsert(begin: Date, end: Date? = null) {
     }
     startActivity(intent)
 }
+
+fun <T: Any> Intent.getParcelableExtraCompat(key: String, kClass: KClass<T>) =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableExtra(key, kClass.java)
+    } else {
+        @Suppress("DEPRECATION")
+        getParcelableExtra(key)
+    }
