@@ -2,6 +2,7 @@ package com.arnyminerz.filmagentaproto.activity
 
 import android.accounts.Account
 import android.accounts.AccountManager
+import android.accounts.OnAccountsUpdateListener
 import android.app.Application
 import android.os.Bundle
 import android.util.Log
@@ -40,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
+import androidx.core.os.HandlerCompat
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -73,7 +75,7 @@ import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.flow.map
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTextApi::class, ExperimentalPagerApi::class)
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
     companion object {
         val TOP_BAR_HEIGHT = (56 + 16).dp
 
@@ -117,6 +119,7 @@ class MainActivity : AppCompatActivity() {
                     onNewAccountRequested = {
                         loginRequestLauncher.launch(LoginActivity.Contract.Data(true, null))
                     },
+                    onAccountRemoved = { am.removeAccountExplicitly(it) },
                     onDismissRequested = { showingAccountsDialog = false },
                 )
 
@@ -194,8 +197,10 @@ class MainActivity : AppCompatActivity() {
                     LaunchedEffectFlow(selectedAccountIndex ?: -1, { it }) { index ->
                         if (index < 0) return@LaunchedEffectFlow
                         val account = accounts.getOrNull(index) ?: return@LaunchedEffectFlow
-                        val dni = am.getPassword(account).trimmedAndCaps
-                        val socio = databaseData.find { it.Dni?.trimmedAndCaps == dni } ?: return@LaunchedEffectFlow
+                        val password: String? = am.getPassword(account)
+                        val dni = password?.trimmedAndCaps
+                        val socio = databaseData.find { it.Dni?.trimmedAndCaps == dni }
+                            ?: return@LaunchedEffectFlow
                         viewModel.getAssociatedAccounts(socio.idSocio)
                     }
 
@@ -247,12 +252,22 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+        am.addOnAccountsUpdatedListener(this, HandlerCompat.createAsync(mainLooper), true)
+
         val accounts = am.getAccountsByType(Authenticator.AuthTokenType)
-        viewModel.accounts.postValue(accounts)
         if (accounts.isEmpty())
             loginRequestLauncher.launch(
                 LoginActivity.Contract.Data(true, null)
             )
+    }
+
+    override fun onPause() {
+        super.onPause()
+        am.removeOnAccountsUpdatedListener(this)
+    }
+
+    override fun onAccountsUpdated(accounts: Array<out Account>?) {
+        viewModel.accounts.postValue(accounts)
     }
 
     class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -280,7 +295,8 @@ class MainActivity : AppCompatActivity() {
         fun getAssociatedAccounts(associatedWithId: Int) = async {
             val socios = remoteDatabaseDao.getAllAssociatedWith(associatedWithId)
             val personalDataList = personalDataDao.getAll()
-            val accounts = socios.map { socio -> socio to personalDataList.find { it.name == socio.Nombre } }
+            val accounts =
+                socios.map { socio -> socio to personalDataList.find { it.name == socio.Nombre } }
             Log.i(TAG, "Got ${accounts.size} associated accounts for #$associatedWithId")
             associatedAccounts.postValue(accounts)
         }

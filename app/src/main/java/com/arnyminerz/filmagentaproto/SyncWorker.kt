@@ -16,6 +16,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest.Companion.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import com.arnyminerz.filmagentaproto.account.Authenticator
+import com.arnyminerz.filmagentaproto.account.credentials.WCCredentials
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
@@ -73,7 +74,14 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         val am = AccountManager.get(applicationContext)
         val accounts = am.getAccountsByType(Authenticator.AuthTokenType)
         accounts.forEach { account ->
-            val authToken = am.peekAuthToken(account, Authenticator.AuthTokenType)
+            val authToken: String? = am.peekAuthToken(account, Authenticator.AuthTokenType)
+            val wcCredentials = WCCredentials.fromAccount(am, account)
+
+            if (authToken == null || wcCredentials == null) {
+                Log.e(TAG, "Credentials for ${account.name} are not valid, clearing password...")
+                am.clearPassword(account)
+                return@forEach
+            }
 
             // Fetch the data and update the database
             val html = RemoteServer.fetch(authToken)

@@ -33,6 +33,7 @@ jobs:
           echo 'SIGNING_KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}' >> local.properties
           echo 'SIGNING_KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}' >> local.properties
           echo 'host=${{ secrets.HOST }}' >> local.properties
+          echo 'ws_relay=${{ secrets.WS_RELAY }}' >> local.properties
           echo 'db.hostname=${{ secrets.DB_HOSTNAME }}' >> local.properties
           echo 'db.port=${{ secrets.DB_PORT }}' >> local.properties
           echo 'db.database=${{ secrets.DB_DATABASE }}' >> local.properties
