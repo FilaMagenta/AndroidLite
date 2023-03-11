@@ -2,13 +2,14 @@ package com.arnyminerz.filmagentaproto.ui.screens
 
 import android.util.Log
 import androidx.annotation.WorkerThread
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,22 +21,18 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.remote.RemoteServer
 import com.arnyminerz.filmagentaproto.exceptions.WrongCredentialsException
 import com.arnyminerz.filmagentaproto.ui.components.FormInput
-import com.arnyminerz.filmagentaproto.utils.toast
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.arnyminerz.filmagentaproto.utils.doAsync
+import com.arnyminerz.filmagentaproto.utils.toastAsync
 
 @Composable
 @ExperimentalComposeUiApi
@@ -54,16 +51,14 @@ fun LoginScreen(@WorkerThread onLogin: (name: String, nif: String, token: String
 
         fun performLogin() {
             fieldsEnabled = false
-            CoroutineScope(Dispatchers.IO).launch {
+            doAsync {
                 try {
                     val token = RemoteServer.login(username, nif)
                     onLogin(username, nif, token)
                 } catch (e: WrongCredentialsException) {
                     Log.e("LoginScreen", "Wrong credentials.")
 
-                    withContext(Dispatchers.Main) {
-                        context.toast(R.string.error_toast_wrong_credentials)
-                    }
+                    context.toastAsync(R.string.error_toast_wrong_credentials)
                 }
             }.invokeOnCompletion { fieldsEnabled = true }
         }
@@ -108,5 +103,18 @@ fun LoginScreen(@WorkerThread onLogin: (name: String, nif: String, token: String
         ) {
             Text(stringResource(R.string.login_action))
         }
+        Text(
+            text = stringResource(R.string.login_commerce),
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = .5f),
+        )
     }
+}
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+fun LoginScreenPreview() {
+    LoginScreen { _, _, _ -> }
 }

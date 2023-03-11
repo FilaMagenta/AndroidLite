@@ -12,6 +12,7 @@
     <string name="login_nif">NIF</string>
     <string name="login_nif_aux">Your DNI, NIE, or whatever your NIF is</string>
     <string name="login_action">Login</string>
+    <string name="login_commerce">When clicking "Login", if your credentials are correct. You will be redirected to Filà Magenta\'s website to also authorize there.</string>
 
     <string name="settings_language">Language</string>
     <string name="settings_language_default">System Default</string>
