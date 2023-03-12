@@ -42,6 +42,12 @@
     <string name="error_policy">%s no ha aceptado la política de privacidad en la web. Por favor, inicia sesión en la versión web con el usuario en cuestión, y hazlo ahora</string>
     <string name="events_confirmed_title">Eventos Confirmados</string>
     <string name="events_available_title">Eventos Disponibles</string>
+    <string name="payments_make_title">Hacer un Pago</string>
+    <string name="payments_make_message">Por favor, introduce la cantidad de dinero que quieres transferir. Cuando tu petición sea procesada, serás redirigidx a la página de pagos. También puedes introducir un concepto que represente el pago. Ten en cuenta que los pagos tardan en aparecer en la aplicación.</string>
+    <string name="payments_make_amount">Cantidad</string>
+    <string name="payments_make_concept">Concepto</string>
+    <string name="payments_make_euros">Euros</string>
+    <string name="payments_make_action">Pagar</string>
     <string name="calendar_trebuchet_title">Caducidad Permiso de Armas</string>
     <string name="calendar_trebuchet_description">Recuerda Renovar tu permiso de armas.</string>
     <string name="events_modal_notes">Notas Adicionales</string>

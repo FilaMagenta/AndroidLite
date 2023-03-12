@@ -41,6 +41,12 @@
     <string name="error_toast_wrong_credentials">Nom o NIF incorrectes</string>
     <string name="events_confirmed_title">Esdeveniments Confirmats</string>
     <string name="events_available_title">Esdeveniments Disponibles</string>
+    <string name="payments_make_title">Fer un Pagament</string>
+    <string name="payments_make_message">Per favor, introdueix la quantitat de diners que vols transferir. Una vegada es processi la teua petició, seràs redirigit a la pàgina de pagament. També pots introduïr un concepte per a representar el pagament. Tingues en compte que els pagaments triguen en aparéixer a l\'app.</string>
+    <string name="payments_make_amount">Quantitat</string>
+    <string name="payments_make_concept">Concepte</string>
+    <string name="payments_make_euros">Euros</string>
+    <string name="payments_make_action">Pagar</string>
     <string name="calendar_trebuchet_title">Caducitat Permís d\'armes</string>
     <string name="calendar_trebuchet_description">Recorda renovar el teu permís d\'armes</string>
     <string name="error_policy">%s no ha acceptat la política de privacitat a la pàgina web. Per favor, inicia sessió a la versió web amb el seu usuari, i signa el contracte.</string>
