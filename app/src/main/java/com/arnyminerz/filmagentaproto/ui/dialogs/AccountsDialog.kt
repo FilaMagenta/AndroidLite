@@ -54,7 +54,7 @@ fun AccountsDialog(
                                 Icon(Icons.Rounded.Remove, stringResource(R.string.accounts_remove))
                             }
                         },
-                        headlineText = { Text(account.name.capitalize(Locale.current)) },
+                        headlineContent = { Text(account.name.capitalize(Locale.current)) },
                         modifier = Modifier
                             .clickable {
                                 onAccountSelected(index, account)
@@ -66,7 +66,7 @@ fun AccountsDialog(
                         leadingContent = {
                             Icon(Icons.Rounded.Add, stringResource(R.string.accounts_new))
                         },
-                        headlineText = { Text(stringResource(R.string.accounts_new)) },
+                        headlineContent = { Text(stringResource(R.string.accounts_new)) },
                         modifier = Modifier
                             .clickable { onNewAccountRequested() },
                     )

@@ -114,7 +114,7 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling'
 
     // Jetpack Compose - Material 3
-    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material3:material3:1.1.0-alpha08'
 
     // Jetpack Compose - Icons
     implementation 'androidx.compose.material:material-icons-extended'
