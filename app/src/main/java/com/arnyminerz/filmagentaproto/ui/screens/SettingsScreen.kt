@@ -1,6 +1,5 @@
 package com.arnyminerz.filmagentaproto.ui.screens
 
-import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,48 +37,46 @@ fun SettingsScreen() {
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                var expanded by remember { mutableStateOf(false) }
-                val languages by LanguageChangeReceiver.currentLanguage.observeAsState()
+            var expanded by remember { mutableStateOf(false) }
+            val languages by LanguageChangeReceiver.currentLanguage.observeAsState()
 
-                ExposedDropdownMenuBox(
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }) {
+                OutlinedTextField(
+                    value = languages
+                        ?.firstOrNull()
+                        ?.let { it.getDisplayName(it).capitalized(it) }
+                        ?: stringResource(R.string.settings_language_default),
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    label = { Text(stringResource(R.string.settings_language)) },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .menuAnchor(),
+                )
+                ExposedDropdownMenu(
                     expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }) {
-                    OutlinedTextField(
-                        value = languages
-                            ?.firstOrNull()
-                            ?.let { it.getDisplayName(it).capitalized(it) }
-                            ?: stringResource(R.string.settings_language_default),
-                        onValueChange = {},
-                        readOnly = true,
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                        },
-                        label = { Text(stringResource(R.string.settings_language)) },
-                        colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .menuAnchor(),
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                    ) {
-                        Locator.Locales.forEach { locale ->
-                            DropdownMenuItem(
-                                text = { Text(locale.getDisplayName(locale).capitalized(locale)) },
-                                onClick = {
-                                    LanguageChangeReceiver.currentLanguage.postValue(
-                                        listOf(locale)
-                                    )
-                                    AppCompatDelegate.setApplicationLocales(
-                                        LocaleListCompat.create(locale)
-                                    )
-                                    expanded = false
-                                },
-                            )
-                        }
+                    onDismissRequest = { expanded = false },
+                ) {
+                    Locator.Locales.forEach { locale ->
+                        DropdownMenuItem(
+                            text = { Text(locale.getDisplayName(locale).capitalized(locale)) },
+                            onClick = {
+                                LanguageChangeReceiver.currentLanguage.postValue(
+                                    listOf(locale)
+                                )
+                                AppCompatDelegate.setApplicationLocales(
+                                    LocaleListCompat.create(locale)
+                                )
+                                expanded = false
+                            },
+                        )
                     }
                 }
             }

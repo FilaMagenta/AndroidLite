@@ -6,13 +6,11 @@ import android.content.Intent
 import android.content.Intent.EXTRA_LOCALE_LIST
 import android.os.Build
 import android.os.LocaleList
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.MutableLiveData
 import com.arnyminerz.filmagentaproto.utils.getParcelableExtraCompat
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class LanguageChangeReceiver: BroadcastReceiver() {
     companion object {
         val currentLanguage = MutableLiveData(
@@ -23,6 +21,7 @@ class LanguageChangeReceiver: BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         val localesList = intent?.getParcelableExtraCompat(EXTRA_LOCALE_LIST, LocaleList::class) ?: return
         val locales = LocaleListCompat.wrap(localesList)
 
