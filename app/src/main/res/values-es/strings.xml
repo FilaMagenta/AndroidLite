@@ -44,4 +44,7 @@
     <string name="events_available_title">Eventos Disponibles</string>
     <string name="calendar_trebuchet_title">Caducidad Permiso de Armas</string>
     <string name="calendar_trebuchet_description">Recuerda Renovar tu permiso de armas.</string>
+    <string name="events_modal_notes">Notas Adicionales</string>
+    <string name="events_modal_submit">Confirmar</string>
+    <string name="events_reservations_until">Se aceptan reservas hasta %s</string>
 </resources>

@@ -44,4 +44,7 @@
     <string name="calendar_trebuchet_title">Caducitat Permís d\'armes</string>
     <string name="calendar_trebuchet_description">Recorda renovar el teu permís d\'armes</string>
     <string name="error_policy">%s no ha acceptat la política de privacitat a la pàgina web. Per favor, inicia sessió a la versió web amb el seu usuari, i signa el contracte.</string>
+    <string name="events_modal_notes">Notes Addicionals</string>
+    <string name="events_modal_submit">Confirmar</string>
+    <string name="events_reservations_until">S\'accepten reserves fins a %s</string>
 </resources>
