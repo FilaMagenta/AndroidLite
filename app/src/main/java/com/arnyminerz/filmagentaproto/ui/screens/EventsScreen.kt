@@ -1,11 +1,14 @@
 package com.arnyminerz.filmagentaproto.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,8 +28,9 @@ import com.arnyminerz.filmagentaproto.ui.components.EventItem
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import kotlinx.coroutines.flow.filterNotNull
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
+@ExperimentalMaterial3Api
+@ExperimentalFoundationApi
 fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
     val customerState by mainViewModel.customer.collectAsState(initial = null)
     val events by mainViewModel.events.observeAsState()
@@ -54,34 +58,36 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
                 .padding(top = 8.dp),
         ) {
             stickyHeader {
-                Text(
-                    text = stringResource(R.string.events_confirmed_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .fillMaxWidth(),
-                )
+                Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
+                    Text(
+                        text = stringResource(R.string.events_confirmed_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .fillMaxWidth(),
+                    )
+                }
             }
             items(confirmedEvents ?: emptyList()) { event ->
                 EventItem(event, true)
             }
             stickyHeader {
-                Text(
-                    text = stringResource(R.string.events_available_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .fillMaxWidth(),
-                )
+                Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
+                    Text(
+                        text = stringResource(R.string.events_available_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .fillMaxWidth(),
+                    )
+                }
             }
             items(availableEvents ?: emptyList()) { event ->
-                EventItem(event, false) {
-
-                }
+                EventItem(event, false)
             }
         }
 }
