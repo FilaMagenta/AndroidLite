@@ -29,9 +29,9 @@ jobs:
 
       - name: Prepare Gradle secure file
         run: |
-          echo 'SIGNING_KEYSTORE_PASSWORD=${{ secrets.SIGNING_KEYSTORE_PASSWORD }}' >> local.properties
-          echo 'SIGNING_KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}' >> local.properties
-          echo 'SIGNING_KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}' >> local.properties
+          echo 'SIGNING_KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
+          echo 'SIGNING_KEY_ALIAS=${{ secrets.KEYSTORE_USERNAME }}' >> local.properties
+          echo 'SIGNING_KEY_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
           echo 'host=${{ secrets.HOST }}' >> local.properties
           echo 'ws_relay=${{ secrets.WS_RELAY }}' >> local.properties
           echo 'woo.consumer_key=${{ secrets.WOO_CONSUMER_KEY }}' >> local.properties
