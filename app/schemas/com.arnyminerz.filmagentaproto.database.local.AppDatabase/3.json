@@ -1,0 +1,693 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "956f47dab64bff798f9aa02974bce5a5",
+    "entities": [
+      {
+        "tableName": "user_data",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountName` TEXT NOT NULL, `accountType` TEXT NOT NULL, `name` TEXT NOT NULL, `inwards` REAL NOT NULL, `outwards` REAL NOT NULL, `transactions` TEXT NOT NULL, PRIMARY KEY(`accountName`, `accountType`))",
+        "fields": [
+          {
+            "fieldPath": "accountName",
+            "columnName": "accountName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accountType",
+            "columnName": "accountType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inwards",
+            "columnName": "inwards",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "outwards",
+            "columnName": "outwards",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "transactions",
+            "columnName": "transactions",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "accountName",
+            "accountType"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "socios",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idSocio` INTEGER NOT NULL, `Nombre` TEXT NOT NULL, `Apellidos` TEXT NOT NULL, `Direccion` TEXT, `idCodPostal` INTEGER, `Dni` TEXT, `FecNacimiento` INTEGER, `TlfParticular` TEXT, `TlfTrabajo` TEXT, `TlfMovil` TEXT, `eMail` TEXT, `idEstadoCivil` INTEGER, `idEstadoFicha` INTEGER, `bDerechoActos` INTEGER, `FecAlta` INTEGER, `FecUltAlta` INTEGER, `AnyAltaJuvenil` INTEGER, `AnyAltaFester` INTEGER, `FecBaja` INTEGER, `AnyMuntanyesMerit` INTEGER, `bRodaBlancos` INTEGER, `bRodaNegros` INTEGER, `nrAntiguedad` INTEGER, `bArrancoDianaJuvenil` INTEGER, `AnyAltaRodaBlancos` INTEGER, `nrRodaBlancos` INTEGER, `AnyAltaRodaNegros` INTEGER, `nrRodaNegros` INTEGER, `AnyUltEscuadra` INTEGER, `idPuestoEscuadra` INTEGER, `AnyUltEscuadraEspecial` INTEGER, `idPuestoEscuadraEspecial` INTEGER, `AnyGloriero` INTEGER, `idFormaPago` INTEGER, `Sexo` INTEGER, `idTipoFestero` INTEGER, `idCargo` INTEGER, `Obs` TEXT, `Fotografia` TEXT, `AsociadoCon` INTEGER, `bCarnetAvancarga` INTEGER, `FecCaducidadAvancarga` INTEGER, `bDisparaAvancarga` INTEGER, `idParentesco` INTEGER, `bEnviadoAsociacion` INTEGER, `bTipoFesteroBloqueado` INTEGER, `ImpLoteriaAbonado` REAL, `bAbonadoLoteria` INTEGER, `idBanco` INTEGER, `Iban` TEXT, `Bic` TEXT, `bUsaMontepio` INTEGER, `TiempoBaja` INTEGER, `IdentificadorBanco` INTEGER, `IdentificadorClienteBanco` INTEGER, `UltNrRemesa` INTEGER, `esAutorizoProteccionDatos` INTEGER NOT NULL, `filaPrincipal` INTEGER, `FecExpedicionAvancarga` INTEGER, `RodaBlancaBloqueada` INTEGER, `CtaContable` INTEGER, PRIMARY KEY(`idSocio`))",
+        "fields": [
+          {
+            "fieldPath": "idSocio",
+            "columnName": "idSocio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "Nombre",
+            "columnName": "Nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "Apellidos",
+            "columnName": "Apellidos",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "Direccion",
+            "columnName": "Direccion",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idCodPostal",
+            "columnName": "idCodPostal",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Dni",
+            "columnName": "Dni",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FecNacimiento",
+            "columnName": "FecNacimiento",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "TlfParticular",
+            "columnName": "TlfParticular",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "TlfTrabajo",
+            "columnName": "TlfTrabajo",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "TlfMovil",
+            "columnName": "TlfMovil",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "eMail",
+            "columnName": "eMail",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idEstadoCivil",
+            "columnName": "idEstadoCivil",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idEstadoFicha",
+            "columnName": "idEstadoFicha",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bDerechoActos",
+            "columnName": "bDerechoActos",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FecAlta",
+            "columnName": "FecAlta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FecUltAlta",
+            "columnName": "FecUltAlta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AnyAltaJuvenil",
+            "columnName": "AnyAltaJuvenil",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AnyAltaFester",
+            "columnName": "AnyAltaFester",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FecBaja",
+            "columnName": "FecBaja",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AnyMuntanyesMerit",
+            "columnName": "AnyMuntanyesMerit",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bRodaBlancos",
+            "columnName": "bRodaBlancos",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bRodaNegros",
+            "columnName": "bRodaNegros",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nrAntiguedad",
+            "columnName": "nrAntiguedad",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bArrancoDianaJuvenil",
+            "columnName": "bArrancoDianaJuvenil",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AnyAltaRodaBlancos",
+            "columnName": "AnyAltaRodaBlancos",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nrRodaBlancos",
+            "columnName": "nrRodaBlancos",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AnyAltaRodaNegros",
+            "columnName": "AnyAltaRodaNegros",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nrRodaNegros",
+            "columnName": "nrRodaNegros",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AnyUltEscuadra",
+            "columnName": "AnyUltEscuadra",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idPuestoEscuadra",
+            "columnName": "idPuestoEscuadra",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AnyUltEscuadraEspecial",
+            "columnName": "AnyUltEscuadraEspecial",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idPuestoEscuadraEspecial",
+            "columnName": "idPuestoEscuadraEspecial",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AnyGloriero",
+            "columnName": "AnyGloriero",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idFormaPago",
+            "columnName": "idFormaPago",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Sexo",
+            "columnName": "Sexo",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idTipoFestero",
+            "columnName": "idTipoFestero",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idCargo",
+            "columnName": "idCargo",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Obs",
+            "columnName": "Obs",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Fotografia",
+            "columnName": "Fotografia",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AsociadoCon",
+            "columnName": "AsociadoCon",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bCarnetAvancarga",
+            "columnName": "bCarnetAvancarga",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FecCaducidadAvancarga",
+            "columnName": "FecCaducidadAvancarga",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bDisparaAvancarga",
+            "columnName": "bDisparaAvancarga",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idParentesco",
+            "columnName": "idParentesco",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bEnviadoAsociacion",
+            "columnName": "bEnviadoAsociacion",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bTipoFesteroBloqueado",
+            "columnName": "bTipoFesteroBloqueado",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ImpLoteriaAbonado",
+            "columnName": "ImpLoteriaAbonado",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bAbonadoLoteria",
+            "columnName": "bAbonadoLoteria",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idBanco",
+            "columnName": "idBanco",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Iban",
+            "columnName": "Iban",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Bic",
+            "columnName": "Bic",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bUsaMontepio",
+            "columnName": "bUsaMontepio",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "TiempoBaja",
+            "columnName": "TiempoBaja",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "IdentificadorBanco",
+            "columnName": "IdentificadorBanco",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "IdentificadorClienteBanco",
+            "columnName": "IdentificadorClienteBanco",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "UltNrRemesa",
+            "columnName": "UltNrRemesa",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "esAutorizoProteccionDatos",
+            "columnName": "esAutorizoProteccionDatos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filaPrincipal",
+            "columnName": "filaPrincipal",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FecExpedicionAvancarga",
+            "columnName": "FecExpedicionAvancarga",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "RodaBlancaBloqueada",
+            "columnName": "RodaBlancaBloqueada",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "CtaContable",
+            "columnName": "CtaContable",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idSocio"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `slug` TEXT NOT NULL, `permalink` TEXT NOT NULL, `dateCreated` INTEGER NOT NULL, `dateModified` INTEGER NOT NULL, `description` TEXT NOT NULL, `shortDescription` TEXT NOT NULL, `price` REAL NOT NULL, `attributes` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "slug",
+            "columnName": "slug",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "permalink",
+            "columnName": "permalink",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateCreated",
+            "columnName": "dateCreated",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateModified",
+            "columnName": "dateModified",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shortDescription",
+            "columnName": "shortDescription",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attributes",
+            "columnName": "attributes",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "orders",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `status` TEXT NOT NULL, `currency` TEXT NOT NULL, `dateCreated` INTEGER NOT NULL, `dateModified` INTEGER NOT NULL, `total` REAL NOT NULL, `customerId` INTEGER NOT NULL, `items` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currency",
+            "columnName": "currency",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateCreated",
+            "columnName": "dateCreated",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateModified",
+            "columnName": "dateModified",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "total",
+            "columnName": "total",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerId",
+            "columnName": "customerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "items",
+            "columnName": "items",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "customers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `dateCreated` INTEGER NOT NULL, `dateModified` INTEGER NOT NULL, `email` TEXT NOT NULL, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `role` TEXT NOT NULL, `username` TEXT NOT NULL, `billing` TEXT NOT NULL, `shipping` TEXT NOT NULL, `isPayingCustomer` INTEGER NOT NULL, `avatarUrl` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateCreated",
+            "columnName": "dateCreated",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateModified",
+            "columnName": "dateModified",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "firstName",
+            "columnName": "firstName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastName",
+            "columnName": "lastName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "billing",
+            "columnName": "billing",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shipping",
+            "columnName": "shipping",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPayingCustomer",
+            "columnName": "isPayingCustomer",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "avatarUrl",
+            "columnName": "avatarUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "available_payments",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `price` REAL NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '956f47dab64bff798f9aa02974bce5a5')"
+    ]
+  }
+}

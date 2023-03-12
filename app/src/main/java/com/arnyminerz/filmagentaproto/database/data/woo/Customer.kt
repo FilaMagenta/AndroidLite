@@ -5,7 +5,6 @@ import androidx.room.PrimaryKey
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
-import com.arnyminerz.filmagentaproto.utils.getIntOrNull
 import com.arnyminerz.filmagentaproto.utils.getStringOrNull
 import java.util.Date
 import org.json.JSONObject
@@ -49,7 +48,7 @@ data class Customer(
         val address1: String?,
         val address2: String?,
         val city: String?,
-        val postcode: Int?,
+        val postcode: String?,
         val country: String?,
         val state: String?,
         val email: String?,
@@ -63,7 +62,7 @@ data class Customer(
                 json.getStringOrNull("address_1"),
                 json.getStringOrNull("address_2"),
                 json.getStringOrNull("city"),
-                json.getIntOrNull("postcode"),
+                json.getStringOrNull("postcode"),
                 json.getStringOrNull("country"),
                 json.getStringOrNull("state"),
                 json.getStringOrNull("email"),
