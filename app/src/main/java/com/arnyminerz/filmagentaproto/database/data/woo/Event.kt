@@ -36,6 +36,14 @@ data class Event(
             )
         )
 
+        private val untilKeywordLine = Regex(
+            "<.*>Reservas? hasta el.*</.*>",
+            setOf(
+                RegexOption.MULTILINE,
+                RegexOption.IGNORE_CASE,
+            )
+        )
+
         private val yearRegex = Regex(
             "20\\d\\d",
             setOf(
@@ -193,4 +201,9 @@ data class Event(
 
         calendar.time
     }
+
+    @Ignore
+    val cutDescription: String = shortDescription
+        .replace(untilKeywordLine, "")
+        .trim('\n', '\r', ' ')
 }
