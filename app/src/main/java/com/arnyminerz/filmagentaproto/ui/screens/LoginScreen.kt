@@ -37,11 +37,14 @@ import com.arnyminerz.filmagentaproto.utils.toastAsync
 @Composable
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
-fun LoginScreen(@WorkerThread onLogin: (name: String, nif: String, token: String) -> Unit) {
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    @WorkerThread onLogin: (name: String, nif: String, token: String) -> Unit,
+) {
     val context = LocalContext.current
 
     Column(
-        Modifier.fillMaxSize(),
+        Modifier.fillMaxSize().then(modifier),
     ) {
         var username by remember { mutableStateOf("") }
         var nif by remember { mutableStateOf("") }

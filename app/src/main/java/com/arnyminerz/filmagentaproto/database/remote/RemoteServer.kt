@@ -5,8 +5,8 @@ import android.util.Log
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.exceptions.UserHasNotAcceptedPolicyException
 import com.arnyminerz.filmagentaproto.exceptions.WrongCredentialsException
+import com.arnyminerz.filmagentaproto.utils.toURL
 import java.io.IOException
-import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,7 +14,6 @@ import kotlinx.coroutines.withContext
 private const val TAG = "RemoteServer"
 
 object RemoteServer {
-    private fun Uri.toURL(): URL = URL(toString())
 
     private val loginEndpoint = Uri.Builder()
         .scheme("https")

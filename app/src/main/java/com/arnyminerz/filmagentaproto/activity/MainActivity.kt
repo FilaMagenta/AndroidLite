@@ -19,9 +19,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Wallet
+import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Wallet
@@ -45,13 +47,16 @@ import androidx.core.os.HandlerCompat
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import androidx.work.WorkInfo
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
+import com.arnyminerz.filmagentaproto.database.data.woo.Customer
+import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
+import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
@@ -61,6 +66,7 @@ import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.ProfileImage
 import com.arnyminerz.filmagentaproto.ui.dialogs.AccountsDialog
+import com.arnyminerz.filmagentaproto.ui.screens.EventsScreen
 import com.arnyminerz.filmagentaproto.ui.screens.MainPage
 import com.arnyminerz.filmagentaproto.ui.screens.ProfilePage
 import com.arnyminerz.filmagentaproto.ui.screens.SettingsScreen
@@ -169,6 +175,11 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                                         R.string.navigation_balance,
                                     ),
                                     NavigationBarItem(
+                                        Icons.Rounded.CalendarMonth,
+                                        Icons.Outlined.CalendarMonth,
+                                        R.string.navigation_events,
+                                    ),
+                                    NavigationBarItem(
                                         Icons.Rounded.Person,
                                         Icons.Outlined.Person,
                                         R.string.navigation_profile,
@@ -221,7 +232,7 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                             LaunchedEffectFlow(currentPage, { it }) { pagerState.scrollToPage(it) }
 
                             HorizontalPager(
-                                count = 3,
+                                count = 4,
                                 state = pagerState,
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -232,14 +243,15 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                             ) { page ->
                                 when (page) {
                                     0 -> MainPage(data, viewModel)
-                                    1 -> socio?.let { socio ->
+                                    1 -> EventsScreen(viewModel)
+                                    2 -> socio?.let { socio ->
                                         ProfilePage(socio, accounts) { _, index ->
                                             doAsync {
                                                 dataStore.edit { it[SELECTED_ACCOUNT] = index }
                                             }
                                         }
                                     } ?: ErrorCard(stringResource(R.string.error_find_data))
-                                    2 -> SettingsScreen()
+                                    3 -> SettingsScreen()
                                 }
                             }
                         }
@@ -274,6 +286,9 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
         private val database = AppDatabase.getInstance(application)
         private val personalDataDao = database.personalDataDao()
         private val remoteDatabaseDao = database.remoteDatabaseDao()
+        private val wooCommerceDao = database.wooCommerceDao()
+
+        private val am = AccountManager.get(application)
 
         val selectedAccount = application
             .dataStore
@@ -286,11 +301,22 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
 
         val databaseData = remoteDatabaseDao.getAllLive()
 
-        val isLoading = Transformations.map(SyncWorker.getLiveState(application)) { list ->
+        val isLoading = SyncWorker.getLiveState(application).map { list ->
             list.any { it.state == WorkInfo.State.RUNNING }
         }
 
         val associatedAccounts = MutableLiveData<List<Pair<Socio, PersonalData?>>>()
+
+        val customer = selectedAccount
+            .map { index ->
+                accounts.value?.get(index)?.let { account ->
+                    val customerId: Long = am.getUserData(account, "customer_id")
+                        ?.toLongOrNull() ?: return@let null
+                    wooCommerceDao.getAllCustomers().find { it.id == customerId }
+                }
+            }
+
+        val events = wooCommerceDao.getAllEventsLive()
 
         fun getAssociatedAccounts(associatedWithId: Int) = async {
             val socios = remoteDatabaseDao.getAllAssociatedWith(associatedWithId)
@@ -299,6 +325,13 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                 socios.map { socio -> socio to personalDataList.find { it.name == socio.Nombre } }
             Log.i(TAG, "Got ${accounts.size} associated accounts for #$associatedWithId")
             associatedAccounts.postValue(accounts)
+        }
+
+        fun isConfirmed(event: Event, customer: Customer) = MutableLiveData<Boolean?>().apply {
+            doAsync {
+                val confirmed = event.isConfirmed(getApplication(), customer)
+                postValue(confirmed)
+            }
         }
     }
 }

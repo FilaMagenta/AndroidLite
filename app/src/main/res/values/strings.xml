@@ -23,6 +23,7 @@
     <string name="balance_out">Outwards</string>
 
     <string name="navigation_balance">Balance</string>
+    <string name="navigation_events">Events</string>
     <string name="navigation_profile">Profile</string>
     <string name="navigation_settings">Settings</string>
 
