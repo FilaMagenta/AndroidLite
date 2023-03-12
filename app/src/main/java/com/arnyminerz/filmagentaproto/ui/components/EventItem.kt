@@ -8,28 +8,49 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.ireward.htmlcompose.HtmlText
+import com.arnyminerz.filmagentaproto.ui.dialogs.EventBottomSheet
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+private val dateFormat: SimpleDateFormat
+    get() = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
 @Composable
-fun EventItem(event: Event, isConfirmed: Boolean, onClick: () -> Unit = {}) {
+@ExperimentalMaterial3Api
+fun EventItem(event: Event, isConfirmed: Boolean) {
+    var showingCard by remember { mutableStateOf(false) }
+
+    if (showingCard)
+        EventBottomSheet(
+            event = event,
+            onDismissRequest = { showingCard = false },
+            onSubmit = {
+
+            },
+        )
+
     Card(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable(!isConfirmed, onClick = onClick),
+            .clickable(!isConfirmed) { showingCard = true },
     ) {
         Column(
             Modifier
@@ -47,19 +68,27 @@ fun EventItem(event: Event, isConfirmed: Boolean, onClick: () -> Unit = {}) {
                 if (isConfirmed)
                     Icon(Icons.Rounded.Star, "Confirmed")
             }
+
             HtmlText(
-                event.shortDescription,
+                text = event.cutDescription,
                 modifier = Modifier.fillMaxWidth(),
-                style = TextStyle(
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = .5f)
-                ),
-                // color = MaterialTheme.colorScheme.onSurface.copy(alpha = .5f),
-                // fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
             )
-            val acceptsReservationsUntil = event.acceptsReservationsUntil
-            acceptsReservationsUntil?.let {
-                Text("Reservations: ${SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(it)}")
+            if (!isConfirmed) {
+                val acceptsReservationsUntil = event.acceptsReservationsUntil
+                acceptsReservationsUntil?.let {
+                    Text(
+                        text = stringResource(
+                            R.string.events_reservations_until,
+                            dateFormat.format(it),
+                        ),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .fillMaxWidth(),
+                    )
+                }
             }
         }
     }

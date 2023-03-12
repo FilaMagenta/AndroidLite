@@ -50,6 +50,9 @@
 
     <string name="events_confirmed_title">Confirmed Events</string>
     <string name="events_available_title">Available Events</string>
+    <string name="events_reservations_until">Accepts reservations until %s</string>
+    <string name="events_modal_notes">Extra Notes</string>
+    <string name="events_modal_submit">Confirm</string>
 
     <string name="calendar_trebuchet_title">Guns Authorization Expiration</string>
     <string name="calendar_trebuchet_description">Remember to renew your guns permission.</string>
