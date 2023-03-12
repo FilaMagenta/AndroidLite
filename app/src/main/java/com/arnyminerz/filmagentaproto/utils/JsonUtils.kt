@@ -41,6 +41,11 @@ fun Iterable<JsonSerializable>.toJSON(): JSONArray = JSONArray().apply {
         put(serializable.toJSON())
 }
 
+fun Iterable<JSONObject>.toJSONObjectsArray(): JSONArray = JSONArray().apply {
+    for (serializable in this@toJSONObjectsArray)
+        put(serializable)
+}
+
 fun Iterable<String>.toJSONArray(): JSONArray = JSONArray().apply {
     for (serializable in this@toJSONArray)
         put(serializable)

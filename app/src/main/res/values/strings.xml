@@ -54,6 +54,14 @@
     <string name="events_modal_notes">Extra Notes</string>
     <string name="events_modal_submit">Confirm</string>
 
+    <string name="payments_make_title">Make a Payment</string>
+    <string name="payments_make_message">Please, introduce the amount of money that you want to transfer. Once your request is processed, you will be redirected to the payments gateway. You can also introduce a concept to represent the payment. Note that payments may take a while to appear in the app.</string>
+    <string name="payments_make_amount">Amount</string>
+    <string name="payments_make_concept">Concept</string>
+    <string name="payments_make_euros">Euros</string>
+    <string name="payments_make_action">Pay</string>
+    <string name="payments_make_placeholder" translatable="false">_.__</string>
+
     <string name="calendar_trebuchet_title">Guns Authorization Expiration</string>
     <string name="calendar_trebuchet_description">Remember to renew your guns permission.</string>
 </resources>

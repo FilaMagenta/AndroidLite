@@ -4,11 +4,14 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
 import android.app.Application
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.browser.customtabs.CustomTabsIntent.SHARE_STATE_OFF
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -30,6 +33,8 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Wallet
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,6 +44,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -58,6 +64,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
+import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
@@ -67,6 +74,7 @@ import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.ProfileImage
 import com.arnyminerz.filmagentaproto.ui.dialogs.AccountsDialog
+import com.arnyminerz.filmagentaproto.ui.dialogs.PaymentBottomSheet
 import com.arnyminerz.filmagentaproto.ui.screens.EventsScreen
 import com.arnyminerz.filmagentaproto.ui.screens.MainPage
 import com.arnyminerz.filmagentaproto.ui.screens.ProfilePage
@@ -77,14 +85,17 @@ import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.io
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
+import com.arnyminerz.filmagentaproto.utils.ui
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 @OptIn(
     ExperimentalTextApi::class,
     ExperimentalPagerApi::class,
+    ExperimentalComposeUiApi::class,
     ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class
 )
@@ -134,6 +145,23 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                     },
                     onAccountRemoved = { am.removeAccountExplicitly(it) },
                     onDismissRequested = { showingAccountsDialog = false },
+                )
+
+            val processingPayment by viewModel.processingPayment.observeAsState(false)
+            var showingPaymentBottomSheet by remember { mutableStateOf(false) }
+            if (showingPaymentBottomSheet)
+                PaymentBottomSheet(
+                    isLoading = processingPayment,
+                    onPaymentRequested = { amount, concept ->
+                        viewModel.makePayment(amount, concept) { paymentUrl ->
+                            showingPaymentBottomSheet = false
+                            val intent = CustomTabsIntent.Builder()
+                                .setShareState(SHARE_STATE_OFF)
+                                .build()
+                            intent.launchUrl(this, Uri.parse(paymentUrl))
+                        }
+                    },
+                    onDismissRequest = { showingPaymentBottomSheet = false },
                 )
 
             var currentPage by remember { mutableStateOf(0) }
@@ -198,6 +226,11 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                                     ),
                                 ),
                             )
+                        }
+                    },
+                    floatingActionButton = {
+                        FloatingActionButton(onClick = { showingPaymentBottomSheet = true }) {
+                            Icon(Icons.Rounded.Wallet, "")
                         }
                     },
                 ) { paddingValues ->
@@ -328,6 +361,8 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
         val confirmedEvents = MutableLiveData<List<Event>>()
         val availableEvents = MutableLiveData<List<Event>>()
 
+        val processingPayment = MutableLiveData(false)
+
         fun getAssociatedAccounts(associatedWithId: Int) = async {
             val socios = remoteDatabaseDao.getAllAssociatedWith(associatedWithId)
             val personalDataList = personalDataDao.getAll()
@@ -356,6 +391,32 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             }
             confirmedEvents.postValue(confirmed)
             availableEvents.postValue(available)
+        }
+
+        fun makePayment(
+            amount: Double,
+            concept: String,
+            onComplete: (paymentUrl: String) -> Unit
+        ) = async {
+            val paymentUrl = try {
+                processingPayment.postValue(true)
+                Log.d(TAG, "Requesting a payment of $amount €. Getting customer...")
+                val customer = customer.first() ?: throw IllegalStateException("Could not get current customer.")
+                Log.d(TAG, "Customer ID for payment: ${customer.id}")
+                val payments = wooCommerceDao.getAllAvailablePayments()
+                Log.d(TAG, "Making request...")
+                val url = RemoteCommerce.transferAmount(amount, concept, payments, customer)
+                Log.i(TAG, "Payment url: $url")
+                url
+            } catch (e: Exception) {
+                Log.e(TAG, "Could not make payment: ${e.message}")
+                null
+            } finally {
+                processingPayment.postValue(false)
+            } ?: return@async
+            ui {
+                onComplete(paymentUrl)
+            }
         }
     }
 }
