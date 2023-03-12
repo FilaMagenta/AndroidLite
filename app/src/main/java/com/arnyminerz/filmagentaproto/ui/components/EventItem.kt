@@ -1,5 +1,6 @@
 package com.arnyminerz.filmagentaproto.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,13 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.ireward.htmlcompose.HtmlText
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
-fun EventItem(event: Event, isConfirmed: Boolean) {
+fun EventItem(event: Event, isConfirmed: Boolean, onClick: () -> Unit = {}) {
     Card(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clickable(!isConfirmed, onClick = onClick),
     ) {
         Column(
             Modifier
@@ -53,6 +57,10 @@ fun EventItem(event: Event, isConfirmed: Boolean) {
                 // fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
             )
+            val acceptsReservationsUntil = event.acceptsReservationsUntil
+            acceptsReservationsUntil?.let {
+                Text("Reservations: ${SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(it)}")
+            }
         }
     }
 }

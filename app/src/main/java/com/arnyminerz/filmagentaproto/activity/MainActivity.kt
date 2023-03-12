@@ -74,6 +74,7 @@ import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.doAsync
+import com.arnyminerz.filmagentaproto.utils.io
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -318,6 +319,9 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
 
         val events = wooCommerceDao.getAllEventsLive()
 
+        val confirmedEvents = MutableLiveData<List<Event>>()
+        val availableEvents = MutableLiveData<List<Event>>()
+
         fun getAssociatedAccounts(associatedWithId: Int) = async {
             val socios = remoteDatabaseDao.getAllAssociatedWith(associatedWithId)
             val personalDataList = personalDataDao.getAll()
@@ -327,11 +331,25 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             associatedAccounts.postValue(accounts)
         }
 
-        fun isConfirmed(event: Event, customer: Customer) = MutableLiveData<Boolean?>().apply {
-            doAsync {
-                val confirmed = event.isConfirmed(getApplication(), customer)
-                postValue(confirmed)
+        private suspend fun isConfirmed(event: Event, customer: Customer?): Boolean {
+            if (customer == null) return false
+            return event.isConfirmed(getApplication(), customer)
+        }
+
+        suspend fun updateConfirmedEvents(customer: Customer?) {
+            if (customer == null) return
+            val events = events.value ?: return
+            val (confirmed, available) = io {
+                val confirmed = mutableMapOf<Event, Boolean>()
+                events.forEach { event ->
+                    confirmed[event] = isConfirmed(event, customer)
+                }
+                val confirmedEvents = confirmed.filter { it.value }.keys.toList()
+                val availableEvents = confirmed.filter { !it.value }.keys.toList()
+                confirmedEvents to availableEvents
             }
+            confirmedEvents.postValue(confirmed)
+            availableEvents.postValue(available)
         }
     }
 }
