@@ -34,6 +34,8 @@ jobs:
           echo 'SIGNING_KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}' >> local.properties
           echo 'host=${{ secrets.HOST }}' >> local.properties
           echo 'ws_relay=${{ secrets.WS_RELAY }}' >> local.properties
+          echo 'woo.consumer_key=${{ secrets.WOO_CONSUMER_KEY }}' >> local.properties
+          echo 'woo.consumer_secret=${{ secrets.WOO_CONSUMER_SECRET }}' >> local.properties
           echo 'db.hostname=${{ secrets.DB_HOSTNAME }}' >> local.properties
           echo 'db.port=${{ secrets.DB_PORT }}' >> local.properties
           echo 'db.database=${{ secrets.DB_DATABASE }}' >> local.properties
