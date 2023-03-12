@@ -65,9 +65,9 @@ fun MainPage(data: PersonalData, viewModel: MainActivity.MainViewModel) {
                         title = "${associatedSocio.Nombre} ${associatedSocio.Apellidos}",
                     )
             }
-            items(data.transactions) { transaction ->
-                TransactionCard(transaction)
-            }
+            items(
+                data.transactions.sortedByDescending { it.timestamp?.time ?: 0L },
+            ) { TransactionCard(it) }
         }
     }
 }
