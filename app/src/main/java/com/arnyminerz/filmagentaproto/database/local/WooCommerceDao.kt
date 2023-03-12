@@ -7,6 +7,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import com.arnyminerz.filmagentaproto.database.data.woo.AvailablePayment
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
@@ -60,5 +61,20 @@ interface WooCommerceDao {
 
     @Update
     suspend fun update(vararg data: Customer)
+
+
+
+    @WorkerThread
+    @Query("SELECT * FROM available_payments")
+    suspend fun getAllAvailablePayments(): List<AvailablePayment>
+
+    @Insert
+    suspend fun insert(vararg data: AvailablePayment)
+
+    @Delete
+    suspend fun delete(vararg data: AvailablePayment)
+
+    @Update
+    suspend fun update(vararg data: AvailablePayment)
 
 }

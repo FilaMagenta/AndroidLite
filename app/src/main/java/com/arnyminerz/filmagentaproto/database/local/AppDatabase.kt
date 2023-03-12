@@ -9,6 +9,7 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
+import com.arnyminerz.filmagentaproto.database.data.woo.AvailablePayment
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
@@ -16,10 +17,14 @@ import com.arnyminerz.filmagentaproto.database.data.woo.WooConverters
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 
 @Database(
-    entities = [PersonalData::class, Socio::class, Event::class, Order::class, Customer::class],
-    version = 2,
+    entities = [
+        PersonalData::class, Socio::class, Event::class, Order::class, Customer::class,
+        AvailablePayment::class,
+    ],
+    version = 3,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3),
     ]
 )
 @TypeConverters(Converters::class, WooConverters::class)

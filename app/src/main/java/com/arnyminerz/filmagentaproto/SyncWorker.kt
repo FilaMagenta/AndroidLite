@@ -166,9 +166,20 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 wooCommerceDao.update(item)
             }
 
+        // Fetch all payments available
+        Log.d(TAG, "Getting available payments list...")
+        val payments = RemoteCommerce.paymentsList()
+        Log.d(TAG, "Updating available payments in database...")
+        for (item in payments)
+            try {
+                wooCommerceDao.insert(item)
+            } catch (e: SQLiteConstraintException) {
+                wooCommerceDao.update(item)
+            }
+
         // Fetch all orders available
         Log.d(TAG, "Getting orders list...")
-        val orders = RemoteCommerce.orderList()
+        val orders = RemoteCommerce.orderList(customerId)
         Log.d(TAG, "Updating orders in database...")
         for (item in orders)
             try {
