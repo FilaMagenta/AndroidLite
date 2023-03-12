@@ -14,6 +14,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -81,7 +82,12 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.flow.map
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalTextApi::class, ExperimentalPagerApi::class)
+@OptIn(
+    ExperimentalTextApi::class,
+    ExperimentalPagerApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
 class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
     companion object {
         val TOP_BAR_HEIGHT = (56 + 16).dp
