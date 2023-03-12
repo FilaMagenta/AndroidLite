@@ -18,7 +18,7 @@
     <string name="navigation_balance">Balanç</string>
     <string name="navigation_events">Actes</string>
     <string name="navigation_profile">Perfil</string>
-    <string name="navigation_settings">Configuració</string>
+    <string name="navigation_settings">Ajustos</string>
     <string name="profile_address">Direcció</string>
     <string name="profile_nif">NIF</string>
     <string name="profile_birth_date">Data de naixement</string>
