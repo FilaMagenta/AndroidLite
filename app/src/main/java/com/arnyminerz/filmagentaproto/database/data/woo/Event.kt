@@ -1,12 +1,14 @@
 package com.arnyminerz.filmagentaproto.database.data.woo
 
 import android.util.Log
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
+import com.arnyminerz.filmagentaproto.utils.getJSONArray
 import com.arnyminerz.filmagentaproto.utils.getStringJSONArray
 import com.arnyminerz.filmagentaproto.utils.mapObjects
 import com.arnyminerz.filmagentaproto.utils.toJSONArray
@@ -26,6 +28,7 @@ data class Event(
     val shortDescription: String,
     val price: Double,
     val attributes: List<Attribute>,
+    @ColumnInfo(defaultValue = "[]") val variations: List<Long>,
 ) {
     companion object : JsonSerializer<Event> {
         private val untilKeyword = Regex(
@@ -96,6 +99,7 @@ data class Event(
             json.getString("short_description"),
             json.getDouble("price"),
             json.getJSONArray("attributes").mapObjects { Attribute.fromJSON(it) },
+            json.getJSONArray("variations") { (it as Int).toLong() },
         )
     }
 

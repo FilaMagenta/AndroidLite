@@ -37,7 +37,11 @@ private val dateFormat: SimpleDateFormat
 
 @Composable
 @ExperimentalMaterial3Api
-fun EventItem(event: Event, isConfirmed: Boolean) {
+fun EventItem(
+    event: Event,
+    isConfirmed: Boolean,
+    onSignUp: (variationId: Long, onComplete: () -> Unit) -> Unit,
+) {
     val context = LocalContext.current
     var showingCard by remember { mutableStateOf(false) }
 
@@ -45,9 +49,7 @@ fun EventItem(event: Event, isConfirmed: Boolean) {
         EventBottomSheet(
             event = event,
             onDismissRequest = { showingCard = false },
-            onSubmit = {
-
-            },
+            onSubmit = onSignUp,
         )
 
     OutlinedCard(

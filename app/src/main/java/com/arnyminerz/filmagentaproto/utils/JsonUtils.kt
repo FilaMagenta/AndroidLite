@@ -59,6 +59,13 @@ fun JSONObject.getStringJSONArray(key: String): List<String> = getJSONArray(key)
     (0 until array.length()).map { array.getString(it) }
 }
 
+fun <T: Any> JSONObject.getJSONArray(key: String, mapper: (Any) -> T): List<T> = getJSONArray(key).let { array ->
+    (0 until array.length()).map { mapper(array.get(it)) }
+}
+
+fun <T: Any> JSONObject.toMap(converter: (Any) -> T): Map<String, T> =
+    keys().asSequence().associateWith { converter(get(it)) }
+
 private val dateFormatter: SimpleDateFormat
     get() = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
 

@@ -401,7 +401,8 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             val paymentUrl = try {
                 processingPayment.postValue(true)
                 Log.d(TAG, "Requesting a payment of $amount €. Getting customer...")
-                val customer = customer.first() ?: throw IllegalStateException("Could not get current customer.")
+                val customer = customer.first()
+                    ?: throw IllegalStateException("Could not get current customer.")
                 Log.d(TAG, "Customer ID for payment: ${customer.id}")
                 val payments = wooCommerceDao.getAllAvailablePayments()
                 Log.d(TAG, "Making request...")
@@ -417,6 +418,25 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             ui {
                 onComplete(paymentUrl)
             }
+        }
+
+        fun signUpForEvent(customer: Customer, variant: Pair<Long, Long>) = async {
+            Log.i(TAG, "Signing up for event ${variant.first} variant ${variant.second}")
+            RemoteCommerce.eventSignup(
+                customer,
+                "", // FIXME: Set notes
+                variants = mapOf(
+                    variant
+                ),
+            )
+            Log.i(TAG, "Confirmed sign up. Syncing...")
+            SyncWorker.run(
+                getApplication(),
+                syncCustomers = false,
+                syncEvents = false,
+                syncTransactions = false,
+                syncSocios = false,
+            )
         }
     }
 }

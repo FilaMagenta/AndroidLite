@@ -32,7 +32,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Event
 fun EventBottomSheet(
     event: Event,
     onDismissRequest: () -> Unit,
-    onSubmit: () -> Unit,
+    onSubmit: (variationId: Long, onComplete: () -> Unit) -> Unit,
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -49,12 +49,16 @@ fun EventBottomSheet(
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
         )
+
+        var selectedAttributeOption by remember { mutableStateOf(0) }
+
+        // Only first attribute will be taken
         event.attributes
             .takeIf { it.isNotEmpty() }
-            ?.filter { it.visible && it.options.isNotEmpty() }
-            ?.sortedBy { it.position }
-            ?.forEach { attribute ->
-                var selectedOption by remember { mutableStateOf(attribute.options[0]) }
+            ?.get(0)
+            ?.takeIf { it.visible && it.options.isNotEmpty() }
+            ?.let { attribute ->
+                val selectedOption = attribute.options[selectedAttributeOption]
 
                 Text(
                     text = attribute.name,
@@ -66,7 +70,7 @@ fun EventBottomSheet(
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    for (option in attribute.options) {
+                    for ((index, option) in attribute.options.withIndex()) {
                         ListItem(
                             headlineContent = { Text(option) },
                             colors = ListItemDefaults.colors(
@@ -76,9 +80,7 @@ fun EventBottomSheet(
                                     Color.Unspecified,
                             ),
                             modifier = Modifier
-                                .clickable {
-                                    selectedOption = option
-                                }
+                                .clickable { selectedAttributeOption = index }
                         )
                     }
                 }
@@ -114,8 +116,15 @@ fun EventBottomSheet(
         //         .padding(bottom = 8.dp),
         // )
 
+        var confirming by remember { mutableStateOf(false) }
         Button(
-            onClick = onSubmit,
+            onClick = {
+                confirming = true
+                onSubmit(event.variations[selectedAttributeOption]) {
+                    confirming = false
+                    onDismissRequest()
+                }
+            },
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(8.dp),

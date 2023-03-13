@@ -249,4 +249,32 @@ object RemoteCommerce {
         val json = JSONObject(response)
         return json.getString("payment_url")
     }
+
+    /**
+     * Signs up the customer to the desired event.
+     * @param notes Some extra notes, if any, to leave.
+     * @param variants If any, variants selected for the event. Key is product id, and value variant id.
+     * @param customer The customer that is making the request.
+     */
+    @WorkerThread
+    suspend fun eventSignup(customer: Customer, notes: String, variants: Map<Long, Long>) {
+        val items = variants.map { (key, value) ->
+            JSONObject().apply {
+                put("product_id", key)
+                put("variation_id", value)
+                put("quantity", 1)
+            }
+        }
+
+        val body = JSONObject().apply {
+            put("customer_id", customer.id)
+            put("customer_note", notes.takeIf { it.isNotBlank() })
+            put("billing", customer.billing.toJSON())
+            put("shipping", customer.shipping.toJSON())
+            put("set_paid", true)
+            put("line_items", items.toJSONObjectsArray())
+        }
+        Log.d(TAG, "Making POST request to $OrdersEndpoint with: $body")
+        post(OrdersEndpoint, body)
+    }
 }

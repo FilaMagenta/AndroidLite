@@ -22,6 +22,18 @@ fun Context.toast(@StringRes textRes: Int, @ToastDuration duration: Int = Toast.
     Toast.makeText(this, textRes, duration).also { it.show() }
 
 /**
+ * Shows a toast with the given text and duration.
+ * @param text The text to display.
+ * @param duration The duration of the toast. Must be one of:
+ * - [Toast.LENGTH_SHORT]
+ * - [Toast.LENGTH_LONG]
+ * @return The created toast.
+ */
+@UiThread
+fun Context.toast(text: String, @ToastDuration duration: Int = Toast.LENGTH_SHORT): Toast =
+    Toast.makeText(this, text, duration).also { it.show() }
+
+/**
  * Runs the [toast] method in the UI thread.
  * @see toast
  */

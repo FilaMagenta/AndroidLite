@@ -16,6 +16,13 @@ class WooConverters {
     fun toDate(value: Long?): Date? = value?.let { Date(it) }
 
     @TypeConverter
+    fun fromLongList(value: List<Long>?): String? = value?.let { JSONArray(it) }?.toString()
+
+    @TypeConverter
+    fun toLongList(value: String?): List<Long>? =
+        value?.let { JSONArray(it).let { array -> (0 until array.length()).map { i -> array.getLong(i) } } }
+
+    @TypeConverter
     fun fromAttributeList(value: List<Event.Attribute>?): String? = value?.toJSON()?.toString()
 
     @TypeConverter

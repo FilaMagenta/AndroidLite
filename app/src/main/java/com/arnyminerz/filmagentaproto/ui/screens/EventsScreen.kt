@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.activity.MainActivity
 import com.arnyminerz.filmagentaproto.ui.components.EventItem
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
+import com.arnyminerz.filmagentaproto.utils.toast
 import java.util.Calendar
 import kotlinx.coroutines.flow.filterNotNull
 
@@ -33,6 +35,8 @@ import kotlinx.coroutines.flow.filterNotNull
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
+    val context = LocalContext.current
+
     val customerState by mainViewModel.customer.collectAsState(initial = null)
     val events by mainViewModel.events.observeAsState()
 
@@ -64,7 +68,8 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.background)) {
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
                     Text(
                         text = stringResource(R.string.events_confirmed_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -82,13 +87,14 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
                     ?.filter { event -> event.eventDate?.time?.let { it >= now } ?: true }
                     ?: emptyList()
             ) { event ->
-                EventItem(event, true)
+                EventItem(event, true) { _, _ -> }
             }
             stickyHeader {
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.background)) {
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
                     Text(
                         text = stringResource(R.string.events_available_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -102,11 +108,20 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
             }
             items(
                 availableEvents
-                // Filter past events
-                ?.filter { event -> event.eventDate?.time?.let { it >= now } ?: true }
-                ?: emptyList()
+                    // Filter past events
+                    ?.filter { event -> event.eventDate?.time?.let { it >= now } ?: true }
+                    ?: emptyList()
             ) { event ->
-                EventItem(event, false)
+                EventItem(event, false) { variationId, onComplete ->
+                    mainViewModel
+                        .signUpForEvent(customerState!!, event.id to variationId)
+                        .invokeOnCompletion { error ->
+                            if (error != null)
+                                context.toast(error.message ?: error.localizedMessage)
+                            else
+                                onComplete()
+                        }
+                }
             }
         }
 }

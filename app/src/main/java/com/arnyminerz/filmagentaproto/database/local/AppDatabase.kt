@@ -21,10 +21,11 @@ import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
         PersonalData::class, Socio::class, Event::class, Order::class, Customer::class,
         AvailablePayment::class,
     ],
-    version = 3,
+    version = 4,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4),
     ]
 )
 @TypeConverters(Converters::class, WooConverters::class)
@@ -43,6 +44,11 @@ abstract class AppDatabase : RoomDatabase() {
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
+                        SyncWorker.run(context)
+                    }
+
+                    override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                        super.onDestructiveMigration(db)
                         SyncWorker.run(context)
                     }
                 })
