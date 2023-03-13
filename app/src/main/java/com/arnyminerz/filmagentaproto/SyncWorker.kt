@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
@@ -30,6 +31,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
     companion object {
         private const val TAG = "sync_worker"
+
+        private const val UNIQUE_WORK_NAME = "sync"
 
         private const val SYNC_CUSTOMERS = "sync_customers"
 
@@ -56,7 +59,12 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 .setConstraints(Constraints(NetworkType.CONNECTED))
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 15, TimeUnit.MINUTES)
                 .build()
-            WorkManager.getInstance(context).enqueue(request)
+            WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(
+                    UNIQUE_WORK_NAME,
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    request,
+                )
         }
 
         fun run(
