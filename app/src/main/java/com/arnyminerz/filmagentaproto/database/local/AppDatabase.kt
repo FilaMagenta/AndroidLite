@@ -21,11 +21,10 @@ import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
         PersonalData::class, Socio::class, Event::class, Order::class, Customer::class,
         AvailablePayment::class,
     ],
-    version = 4,
+    version = 3,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
-        AutoMigration(from = 3, to = 4),
     ]
 )
 @TypeConverters(Converters::class, WooConverters::class)
