@@ -68,6 +68,16 @@
 
     <string name="add_to_calendar">Add to Calendar</string>
 
+    <string name="sync_running">Synchronizing data…</string>
+    <string name="sync_step_initializing">Initializing synchronization…</string>
+    <string name="sync_step_customers">Fetching customers…</string>
+    <string name="sync_step_orders">Fetching orders…</string>
+    <string name="sync_step_events">Fetching events…</string>
+    <string name="sync_step_payments">Fetching payments…</string>
+    <string name="sync_step_transactions">Fetching transactions…</string>
+    <string name="sync_step_socios">Fetching socios data…</string>
+    <string name="sync_step_intermediate">Processing…</string>
+
     <string name="calendar_trebuchet_title">Guns Authorization Expiration</string>
     <string name="calendar_trebuchet_description">Remember to renew your guns permission.</string>
 </resources>
