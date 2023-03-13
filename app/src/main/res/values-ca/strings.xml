@@ -48,6 +48,15 @@
     <string name="payments_make_concept">Concepte</string>
     <string name="payments_make_euros">Euros</string>
     <string name="payments_make_action">Pagar</string>
+    <string name="sync_running">Sincronitzant dades…</string>
+    <string name="sync_step_initializing">Iniciant sincronització…</string>
+    <string name="sync_step_customers">Obtenint clients…</string>
+    <string name="sync_step_orders">Obtenint comandes…</string>
+    <string name="sync_step_events">Obtenint esdeveniments…</string>
+    <string name="sync_step_payments">Obtenint pagaments…</string>
+    <string name="sync_step_transactions">Obtenint transaccions…</string>
+    <string name="sync_step_socios">Obtenint les dades dels socis…</string>
+    <string name="sync_step_intermediate">Processant…</string>
     <string name="calendar_trebuchet_title">Caducitat Permís d\'armes</string>
     <string name="calendar_trebuchet_description">Recorda renovar el teu permís d\'armes</string>
     <string name="error_policy">%s no ha acceptat la política de privacitat a la pàgina web. Per favor, inicia sessió a la versió web amb el seu usuari, i signa el contracte.</string>
