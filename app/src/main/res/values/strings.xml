@@ -65,6 +65,8 @@
     <string name="payments_make_action">Pay</string>
     <string name="payments_make_placeholder" translatable="false">_.__</string>
 
+    <string name="add_to_calendar">Add to Calendar</string>
+
     <string name="calendar_trebuchet_title">Guns Authorization Expiration</string>
     <string name="calendar_trebuchet_description">Remember to renew your guns permission.</string>
 </resources>

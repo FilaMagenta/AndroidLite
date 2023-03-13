@@ -55,4 +55,5 @@
     <string name="events_modal_notes">Notas Adicionales</string>
     <string name="events_modal_submit">Confirmar</string>
     <string name="events_reservations_until">Se aceptan reservas hasta %s</string>
+    <string name="add_to_calendar">Añadir al Calendario</string>
 </resources>
