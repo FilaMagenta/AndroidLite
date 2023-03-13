@@ -342,7 +342,9 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
 
         val databaseData = remoteDatabaseDao.getAllLive()
 
-        val isLoading = SyncWorker.getLiveState(application).map { list ->
+        val workerState = SyncWorker.getLiveState(application)
+
+        val isLoading = workerState.map { list ->
             list.any { it.state == WorkInfo.State.RUNNING }
         }
 
@@ -424,23 +426,24 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
         }
 
         @Suppress("BlockingMethodInNonBlockingContext")
-        fun signUpForEvent(customer: Customer, event: Event, metadata: List<Order.Metadata>) = async {
-            Log.i(TAG, "Signing up for event. Metadata: $metadata")
-            RemoteCommerce.eventSignup(
-                customer,
-                "", // FIXME: Set notes
-                event = event,
-                metadata = metadata,
-            )
-            Log.i(TAG, "Confirmed sign up. Syncing...")
-            SyncWorker.run(
-                getApplication(),
-                syncCustomers = false,
-                syncEvents = false,
-                syncPayments = false,
-                syncTransactions = false,
-                syncSocios = false,
-            ).result.get()
-        }
+        fun signUpForEvent(customer: Customer, event: Event, metadata: List<Order.Metadata>) =
+            async {
+                Log.i(TAG, "Signing up for event. Metadata: $metadata")
+                RemoteCommerce.eventSignup(
+                    customer,
+                    "", // FIXME: Set notes
+                    event = event,
+                    metadata = metadata,
+                )
+                Log.i(TAG, "Confirmed sign up. Syncing...")
+                SyncWorker.run(
+                    getApplication(),
+                    syncCustomers = false,
+                    syncEvents = false,
+                    syncPayments = false,
+                    syncTransactions = false,
+                    syncSocios = false,
+                ).result.get()
+            }
     }
 }

@@ -5,6 +5,7 @@ import android.accounts.AccountManager
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -28,8 +29,20 @@ import com.arnyminerz.filmagentaproto.database.remote.RemoteServer
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import java.util.concurrent.TimeUnit
 
+enum class ProgressStep(@StringRes val textRes: Int) {
+    INITIALIZING(R.string.sync_step_initializing),
+    SYNC_CUSTOMERS(R.string.sync_step_customers),
+    SYNC_ORDERS(R.string.sync_step_orders),
+    SYNC_EVENTS(R.string.sync_step_events),
+    SYNC_PAYMENTS(R.string.sync_step_payments),
+    SYNC_TRANSACTIONS(R.string.sync_step_transactions),
+    SYNC_SOCIOS(R.string.sync_step_socios),
+    INTERMEDIATE(R.string.sync_step_intermediate)
+}
+
 class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
+
     companion object {
         private const val TAG = "sync_worker"
 
@@ -46,6 +59,10 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         private const val SYNC_TRANSACTIONS = "sync_transactions"
 
         private const val SYNC_SOCIOS = "sync_socios"
+
+        const val PROGRESS_STEP = "step"
+
+        const val PROGRESS = "progress"
 
         fun schedule(context: Context) {
             val request = PeriodicWorkRequest
@@ -107,6 +124,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
     override suspend fun doWork(): Result {
         Log.i(TAG, "Running Synchronization...")
+        setProgress(ProgressStep.INITIALIZING)
 
         // Get access to the database
         val database = AppDatabase.getInstance(applicationContext)
@@ -131,6 +149,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
             if (syncTransactions) {
                 // Fetch the data and update the database
+                setProgress(ProgressStep.SYNC_TRANSACTIONS)
+
                 val html = RemoteServer.fetch(authToken)
                 val data = PersonalData.fromHtml(html, account)
                 val dbData = personalDataDao.getByAccount(account.name, account.type)
@@ -138,6 +158,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     personalDataDao.insert(data)
                 else
                     personalDataDao.update(dbData)
+
+                setProgress(ProgressStep.INTERMEDIATE)
             }
 
             // Fetch the data from woo
@@ -145,18 +167,26 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         }
 
         // Fetch all the data from users in database
-        if (syncSocios)
-            RemoteDatabaseInterface.fetchAll().forEach { socio ->
+        if (syncSocios) {
+            setProgress(ProgressStep.SYNC_SOCIOS)
+            val socios = RemoteDatabaseInterface.fetchAll()
+            for ((index, socio) in socios.withIndex()) {
+                setProgress(ProgressStep.SYNC_SOCIOS, index to socios.size)
                 try {
                     remoteDatabaseDao.insert(socio)
                 } catch (e: SQLiteConstraintException) {
                     remoteDatabaseDao.update(socio)
                 }
             }
+            setProgress(ProgressStep.INTERMEDIATE)
+        }
 
         // Also fetch the data of all the associated accounts
-        if (syncTransactions)
-            for (account in accounts) {
+        if (syncTransactions) {
+            setProgress(ProgressStep.SYNC_TRANSACTIONS)
+            for ((index, account) in accounts.withIndex()) {
+                setProgress(ProgressStep.SYNC_TRANSACTIONS, index to accounts.size)
+
                 val dni = am.getPassword(account).trimmedAndCaps
                 val socios = remoteDatabaseDao.getAll()
                 val socio = socios.find { it.Dni?.trimmedAndCaps == dni } ?: continue
@@ -189,6 +219,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     continue
                 }
             }
+            setProgress(ProgressStep.INTERMEDIATE)
+        }
 
         return Result.success()
     }
@@ -205,6 +237,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         // Fetch all customers data
         val shouldSyncCustomers = inputData.getBoolean(SYNC_CUSTOMERS, true)
         if (shouldSyncCustomers) {
+            setProgress(ProgressStep.SYNC_CUSTOMERS)
             Log.d(TAG, "Getting customers data...")
             val customers = RemoteCommerce.customersList()
             Log.d(TAG, "Got ${customers.size} customers.")
@@ -218,54 +251,83 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             }
 
             Log.d(TAG, "Updating customers in database...")
-            for (item in customers)
+            for ((index, item) in customers.withIndex()) {
+                setProgress(ProgressStep.SYNC_CUSTOMERS, index to customers.size)
                 try {
                     wooCommerceDao.insert(item)
                 } catch (e: SQLiteConstraintException) {
                     wooCommerceDao.update(item)
                 }
+            }
+            setProgress(ProgressStep.INTERMEDIATE)
         }
 
         // Fetch all payments available
         val shouldSyncPayments = inputData.getBoolean(SYNC_PAYMENTS, true)
         if (shouldSyncPayments) {
+            setProgress(ProgressStep.SYNC_PAYMENTS)
             Log.d(TAG, "Getting available payments list...")
             val payments = RemoteCommerce.paymentsList()
             Log.d(TAG, "Updating available payments in database...")
-            for (item in payments)
+            for ((index, item) in payments.withIndex()) {
+                setProgress(ProgressStep.SYNC_PAYMENTS, index to payments.size)
                 try {
                     wooCommerceDao.insert(item)
                 } catch (e: SQLiteConstraintException) {
                     wooCommerceDao.update(item)
                 }
+            }
+            setProgress(ProgressStep.INTERMEDIATE)
         }
 
         // Fetch all orders available
         val shouldSyncOrders = inputData.getBoolean(SYNC_ORDERS, true)
         if (shouldSyncOrders && customerId != null) {
+            setProgress(ProgressStep.SYNC_ORDERS)
             Log.d(TAG, "Getting orders list...")
             val orders = RemoteCommerce.orderList(customerId)
             Log.d(TAG, "Updating orders in database...")
-            for (item in orders)
+            for ((index, item) in orders.withIndex()) {
+                setProgress(ProgressStep.SYNC_ORDERS, index to orders.size)
                 try {
                     wooCommerceDao.insert(item)
                 } catch (e: SQLiteConstraintException) {
                     wooCommerceDao.update(item)
                 }
+            }
         }
 
         // Fetch all events available
         val shouldSyncEvents = inputData.getBoolean(SYNC_EVENTS, true)
         if (shouldSyncEvents) {
+            setProgress(ProgressStep.SYNC_EVENTS)
             Log.d(TAG, "Getting events list...")
             val events = RemoteCommerce.eventList()
             Log.d(TAG, "Updating events in database...")
-            for (item in events)
+            for ((index, item) in events.withIndex()) {
+                setProgress(ProgressStep.SYNC_EVENTS, index to events.size)
                 try {
                     wooCommerceDao.insert(item)
                 } catch (e: SQLiteConstraintException) {
                     wooCommerceDao.update(item)
                 }
+            }
+            setProgress(ProgressStep.INTERMEDIATE)
         }
+    }
+
+    /**
+     * Updates the progress of the worker.
+     * @param step The step currently being ran.
+     * @param progress The current progress reported, if any. Can be null. First is current, second
+     * is max.
+     */
+    private suspend fun setProgress(step: ProgressStep, progress: Pair<Int, Int>? = null) {
+        setProgress(
+            workDataOf(
+                PROGRESS_STEP to step.name,
+                PROGRESS to progress?.let { (current, max) -> current.toDouble() / max.toDouble() },
+            )
+        )
     }
 }
