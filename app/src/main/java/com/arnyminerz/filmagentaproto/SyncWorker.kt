@@ -9,6 +9,7 @@ import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
@@ -96,15 +97,17 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 )
                 .build()
             return WorkManager.getInstance(context)
-                .enqueue(request)
+                .enqueueUniqueWork(UNIQUE_WORK_NAME, ExistingWorkPolicy.REPLACE, request)
         }
 
         fun getLiveState(context: Context) = WorkManager
             .getInstance(context)
-            .getWorkInfosByTagLiveData(TAG)
+            .getWorkInfosForUniqueWorkLiveData(UNIQUE_WORK_NAME)
     }
 
     override suspend fun doWork(): Result {
+        Log.i(TAG, "Running Synchronization...")
+
         // Get access to the database
         val database = AppDatabase.getInstance(applicationContext)
         val personalDataDao = database.personalDataDao()
