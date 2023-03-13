@@ -56,4 +56,6 @@
     <string name="events_modal_submit">Confirmar</string>
     <string name="events_reservations_until">S\'accepten reserves fins a %s</string>
     <string name="add_to_calendar">Afegeix al calendari</string>
+    <string name="events_only_free">Actualment només et pots apuntar en l\'app a esdeveniments inclosos</string>
+    <string name="events_only_free">A</string>
 </resources>
