@@ -1,6 +1,7 @@
 package com.arnyminerz.filmagentaproto.ui.dialogs
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.filmagentaproto.R
+import com.arnyminerz.filmagentaproto.ui.components.Keyboard
 
 @Composable
 @ExperimentalComposeUiApi
@@ -94,14 +96,23 @@ fun PaymentBottomSheet(
             placeholder = { Text(stringResource(R.string.payments_make_placeholder)) },
             singleLine = true,
             enabled = !isLoading,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done,
-            ),
-            keyboardActions = KeyboardActions { keyboard?.hide() },
+            readOnly = true,
             trailingIcon = {
                 Icon(Icons.Rounded.EuroSymbol, stringResource(R.string.payments_make_euros))
             },
+        )
+        Keyboard(
+            onKeyPressed = {
+                amount += it
+            },
+            onBackspacePressed = {
+                amount = amount.substring(0, amount.length - 1)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            buttonModifier = Modifier.height(56.dp).padding(vertical = 4.dp),
+            backspaceIconSize = 16.dp,
         )
         OutlinedButton(
             onClick = { onPaymentRequested(amount.toDouble(), concept) },

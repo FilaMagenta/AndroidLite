@@ -3,6 +3,8 @@
 
     <string name="back">Back</string>
 
+    <string name="keyboard_backspace">Backspace</string>
+
     <string name="accounts_list">Accounts list</string>
     <string name="accounts_new">Add new Account</string>
     <string name="accounts_remove">Remove Account</string>
