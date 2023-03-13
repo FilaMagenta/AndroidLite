@@ -69,7 +69,7 @@ fun EventItem(
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    event.name,
+                    event.title,
                     modifier = Modifier.weight(1f),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold,
