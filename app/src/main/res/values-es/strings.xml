@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Filà Magenta</string>
     <string name="back">Atrás</string>
+    <string name="keyboard_backspace">Borrar</string>
     <string name="accounts_list">Lista de Cuentas</string>
     <string name="accounts_new">Añadir Nueva Cuenta</string>
     <string name="accounts_remove">Eliminar Cuenta</string>
@@ -50,6 +51,7 @@
     <string name="payments_make_action">Pagar</string>
     <string name="calendar_trebuchet_title">Caducidad Permiso de Armas</string>
     <string name="calendar_trebuchet_description">Recuerda Renovar tu permiso de armas.</string>
+    <string name="events_event_date">Fecha: %s</string>
     <string name="events_modal_notes">Notas Adicionales</string>
     <string name="events_modal_submit">Confirmar</string>
     <string name="events_reservations_until">Se aceptan reservas hasta %s</string>

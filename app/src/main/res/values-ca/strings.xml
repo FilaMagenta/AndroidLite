@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Filà Magenta</string>
     <string name="back">Enrere</string>
+    <string name="keyboard_backspace">Esborrar</string>
     <string name="accounts_list">Comptes</string>
     <string name="accounts_new">Afegeix un compte</string>
     <string name="accounts_remove">Eliminar Compte</string>
@@ -50,6 +51,7 @@
     <string name="calendar_trebuchet_title">Caducitat Permís d\'armes</string>
     <string name="calendar_trebuchet_description">Recorda renovar el teu permís d\'armes</string>
     <string name="error_policy">%s no ha acceptat la política de privacitat a la pàgina web. Per favor, inicia sessió a la versió web amb el seu usuari, i signa el contracte.</string>
+    <string name="events_event_date">Data: %s</string>
     <string name="events_modal_notes">Notes Addicionals</string>
     <string name="events_modal_submit">Confirmar</string>
     <string name="events_reservations_until">S\'accepten reserves fins a %s</string>
