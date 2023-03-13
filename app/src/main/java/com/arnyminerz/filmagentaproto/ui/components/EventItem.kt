@@ -86,7 +86,10 @@ fun EventItem(
             }
 
             if (!isFree)
-                Text(stringResource(R.string.events_only_free))
+                Text(
+                    stringResource(R.string.events_only_free),
+                    color = MaterialTheme.colorScheme.error,
+                )
 
             event.cutDescription.takeIf { it.isNotBlank() }?.let {
                 HtmlText(
