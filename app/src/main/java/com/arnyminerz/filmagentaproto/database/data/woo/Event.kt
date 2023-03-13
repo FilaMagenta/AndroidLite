@@ -296,4 +296,14 @@ data class Event(
         cutDescription = cutDescription.replace(found, "")
         calendar.time
     }
+
+    @Ignore
+    val index: Int = Regex("^\\d+").find(name)
+        ?.value
+        ?.toIntOrNull() ?: Int.MAX_VALUE
+
+    @Ignore
+    val title: String = Regex("^\\d+ ?").find(name)?.let {
+        name.replace(it.value, "")
+    } ?: name
 }
