@@ -51,7 +51,7 @@ fun Iterable<String>.toJSONArray(): JSONArray = JSONArray().apply {
         put(serializable)
 }
 
-fun <R> JSONArray.mapObjects(mapper: (JSONObject) -> R): List<R> = (0 until length()).map {
+inline fun <R> JSONArray.mapObjects(mapper: (JSONObject) -> R): List<R> = (0 until length()).map {
     mapper(getJSONObject(it))
 }
 

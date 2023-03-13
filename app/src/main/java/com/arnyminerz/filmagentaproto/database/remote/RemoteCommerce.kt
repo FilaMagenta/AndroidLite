@@ -11,8 +11,10 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.divideMoney
+import com.arnyminerz.filmagentaproto.utils.getStringJSONArray
 import com.arnyminerz.filmagentaproto.utils.io
 import com.arnyminerz.filmagentaproto.utils.mapObjects
+import com.arnyminerz.filmagentaproto.utils.toJSON
 import com.arnyminerz.filmagentaproto.utils.toJSONObjectsArray
 import com.arnyminerz.filmagentaproto.utils.toURL
 import java.io.IOException
@@ -34,6 +36,10 @@ object RemoteCommerce {
 
     private val ProductsEndpoint = BaseEndpoint.buildUpon()
         .appendPath("products")
+        .build()
+
+    private val AttributesEndpoint = ProductsEndpoint.buildUpon()
+        .appendPath("attributes")
         .build()
 
     private val OrdersEndpoint = BaseEndpoint.buildUpon()
@@ -130,7 +136,7 @@ object RemoteCommerce {
         uri: Uri,
         page: Int = 1,
         perPage: Int = 40,
-        pageProcessor: (json: JSONObject) -> T,
+        pageProcessor: suspend (json: JSONObject) -> T,
     ): List<T> {
         Log.d(TAG, "Getting page $page of $uri...")
         val endpoint = uri.buildUpon()
@@ -139,7 +145,7 @@ object RemoteCommerce {
             .build()
         val raw = get(endpoint)
         val json = JSONArray(raw)
-        val objects = json.mapObjects(pageProcessor).toMutableList()
+        val objects = json.mapObjects { pageProcessor(it) }.toMutableList()
         if (objects.size >= perPage)
             objects.addAll(multiPageGet(uri, page + 1, perPage, pageProcessor))
         return objects
@@ -171,7 +177,32 @@ object RemoteCommerce {
             .appendQueryParameter("status", "publish")
             .appendQueryParameter("category", CATEGORY_EVENTOS.toString())
             .build()
-        return multiPageGet(endpoint, Event.Companion)
+
+        val cachedAttributes = mutableMapOf<Long, Event.Attribute>()
+
+        return multiPageGet(endpoint) { eventJson ->
+            Log.d(TAG, "Event parsing. Processing attributes...")
+            val attributes = eventJson.getJSONArray("attributes").mapObjects { attribute ->
+                val id = attribute.getLong("id")
+                val options = attribute.getStringJSONArray("options")
+
+                cachedAttributes.getOrPut(id) {
+                    val attributeEndpoint = AttributesEndpoint.buildUpon()
+                        .appendPath(id.toString())
+                        .build()
+                    Log.d(TAG, "Fetching event attributes...")
+                    val attributeDataRaw = get(attributeEndpoint)
+                    val attributeDataJson = JSONObject(attributeDataRaw)
+
+                    Log.d(TAG, "Processing event attributes...")
+                    Event.Attribute.fromJSON(attributeDataJson).copy(
+                        options = options.map { Event.Attribute.Option(it) }
+                    )
+                }
+            }
+            Log.d(TAG, "Converting JSON to Event...")
+            Event.fromJSON(eventJson).copy(attributes = attributes)
+        }
     }
 
     /**
@@ -253,26 +284,26 @@ object RemoteCommerce {
     /**
      * Signs up the customer to the desired event.
      * @param notes Some extra notes, if any, to leave.
-     * @param variants If any, variants selected for the event. Key is product id, and value variant id.
+     * @param event The event to sign up for.
      * @param customer The customer that is making the request.
      */
     @WorkerThread
-    suspend fun eventSignup(customer: Customer, notes: String, variants: Map<Long, Long>) {
-        val items = variants.map { (key, value) ->
-            JSONObject().apply {
-                put("product_id", key)
-                put("variation_id", value)
-                put("quantity", 1)
-            }
+    suspend fun eventSignup(customer: Customer, notes: String, event: Event, metadata: List<Order.Metadata>) {
+        Log.d(TAG, "Creating item for event...")
+        val item = JSONObject().apply {
+            put("product_id", event.id)
+            put("quantity", 1)
+            put("meta_data", metadata.toJSON())
         }
 
+        Log.d(TAG, "Building body for request...")
         val body = JSONObject().apply {
             put("customer_id", customer.id)
             put("customer_note", notes.takeIf { it.isNotBlank() })
             put("billing", customer.billing.toJSON())
             put("shipping", customer.shipping.toJSON())
             put("set_paid", true)
-            put("line_items", items.toJSONObjectsArray())
+            put("line_items", JSONArray().apply { put(item) })
         }
         Log.d(TAG, "Making POST request to $OrdersEndpoint with: $body")
         post(OrdersEndpoint, body)

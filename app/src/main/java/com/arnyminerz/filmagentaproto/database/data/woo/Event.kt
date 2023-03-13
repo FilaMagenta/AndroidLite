@@ -1,16 +1,15 @@
 package com.arnyminerz.filmagentaproto.database.data.woo
 
 import android.util.Log
-import androidx.room.ColumnInfo
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toLowerCase
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
-import com.arnyminerz.filmagentaproto.utils.getJSONArray
 import com.arnyminerz.filmagentaproto.utils.getStringJSONArray
-import com.arnyminerz.filmagentaproto.utils.mapObjects
 import com.arnyminerz.filmagentaproto.utils.toJSONArray
 import java.util.Calendar
 import java.util.Date
@@ -28,7 +27,6 @@ data class Event(
     val shortDescription: String,
     val price: Double,
     val attributes: List<Attribute>,
-    @ColumnInfo(defaultValue = "[]") val variations: List<Long>,
 ) {
     companion object : JsonSerializer<Event> {
         private val untilKeyword = Regex(
@@ -88,6 +86,11 @@ data class Event(
             "noviembre", "diciembre"
         )
 
+        /**
+         * Initializes the event from a JSONObject.
+         *
+         * **Note: [attributes] are set empty.**
+         */
         override fun fromJSON(json: JSONObject): Event = Event(
             json.getLong("id"),
             json.getString("name"),
@@ -98,39 +101,56 @@ data class Event(
             json.getString("description"),
             json.getString("short_description"),
             json.getDouble("price"),
-            json.getJSONArray("attributes").mapObjects { Attribute.fromJSON(it) },
-            json.getJSONArray("variations") { (it as Int).toLong() },
+            emptyList(),
         )
     }
 
     data class Attribute(
         val id: Long,
         val name: String,
-        val position: Long,
-        val visible: Boolean,
-        val variation: Boolean,
-        val options: List<String>,
+        val slug: String,
+        val options: List<Option>,
     ) : JsonSerializable {
         companion object : JsonSerializer<Attribute> {
+            /**
+             * Initializes the attribute from a JSONObject.
+             *
+             * **Note: [options] are set empty.**
+             */
             override fun fromJSON(json: JSONObject): Attribute = Attribute(
                 json.getLong("id"),
                 json.getString("name"),
-                json.getLong("position"),
-                json.getBoolean("visible"),
-                json.getBoolean("variation"),
-                json.getStringJSONArray("options"),
+                json.getString("slug"),
+                if (json.has("options"))
+                    json.getStringJSONArray("options").map {
+                        Option(it)
+                    }
+                else
+                    emptyList(),
             )
+        }
+
+        data class Option(val displayValue: String) {
+            val value = displayValue.toLowerCase(Locale.current).replace(' ', '-')
         }
 
         override fun toJSON(): JSONObject = JSONObject().apply {
             put("id", id)
             put("name", name)
-            put("position", position)
-            put("visible", visible)
-            put("variation", variation)
-            put("options", options.toJSONArray())
+            put("slug", slug)
+            put("options", options.map { it.displayValue }.toJSONArray())
         }
+
+        fun toMetadata(option: Option = options[0]): Order.Metadata = Order.Metadata(
+            id = id,
+            key = slug,
+            displayKey = name,
+            value = option.value,
+            displayValue = option.displayValue,
+        )
     }
+
+    override fun toString(): String = id.toString()
 
     @Ignore
     val acceptsReservationsUntil: Date? = shortDescription.let { desc ->

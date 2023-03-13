@@ -1,5 +1,6 @@
 package com.arnyminerz.filmagentaproto.ui.dialogs
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,13 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
+import com.arnyminerz.filmagentaproto.database.data.woo.Order
 
 @Composable
 @ExperimentalMaterial3Api
 fun EventBottomSheet(
     event: Event,
     onDismissRequest: () -> Unit,
-    onSubmit: (variationId: Long, onComplete: () -> Unit) -> Unit,
+    onSubmit: (metadata: List<Order.Metadata>, onComplete: () -> Unit) -> Unit,
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -50,15 +53,16 @@ fun EventBottomSheet(
             fontWeight = FontWeight.SemiBold,
         )
 
-        var selectedAttributeOption by remember { mutableStateOf(0) }
+        val selectedAttributesOption = remember { mutableStateMapOf<Long, Order.Metadata>() }
 
         // Only first attribute will be taken
         event.attributes
-            .takeIf { it.isNotEmpty() }
-            ?.get(0)
-            ?.takeIf { it.visible && it.options.isNotEmpty() }
-            ?.let { attribute ->
-                val selectedOption = attribute.options[selectedAttributeOption]
+            .onEach { Log.i("EventBottomSheet", "Attributes for $event: $it") }
+            .filter { it.options.isNotEmpty() }
+            .forEach { attribute ->
+                val selectedAttributeOption = selectedAttributesOption.getOrPut(
+                    attribute.id,
+                ) { attribute.toMetadata() }
 
                 Text(
                     text = attribute.name,
@@ -70,19 +74,20 @@ fun EventBottomSheet(
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    for ((index, option) in attribute.options.withIndex()) {
+                    for (option in attribute.options)
                         ListItem(
-                            headlineContent = { Text(option) },
+                            headlineContent = { Text(option.displayValue) },
                             colors = ListItemDefaults.colors(
-                                containerColor = if (option == selectedOption)
+                                containerColor = if (selectedAttributeOption.value == option.value)
                                     MaterialTheme.colorScheme.surfaceVariant
                                 else
                                     Color.Unspecified,
                             ),
                             modifier = Modifier
-                                .clickable { selectedAttributeOption = index }
+                                .clickable {
+                                    selectedAttributesOption[attribute.id] = attribute.toMetadata(option)
+                                }
                         )
-                    }
                 }
 
                 // FIXME: Add dropdown when fixed
@@ -118,9 +123,11 @@ fun EventBottomSheet(
 
         var confirming by remember { mutableStateOf(false) }
         Button(
+            enabled = !confirming,
             onClick = {
                 confirming = true
-                onSubmit(event.variations[selectedAttributeOption]) {
+                Log.d("EventBottomSheet", "Submitting event ${event.id}. Selected: $selectedAttributesOption")
+                onSubmit(selectedAttributesOption.values.toList()) {
                     confirming = false
                     onDismissRequest()
                 }

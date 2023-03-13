@@ -62,6 +62,7 @@ import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
+import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
@@ -358,6 +359,8 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
 
         val events = wooCommerceDao.getAllEventsLive()
 
+        val orders = wooCommerceDao.getAllOrdersLive()
+
         val confirmedEvents = MutableLiveData<List<Event>>()
         val availableEvents = MutableLiveData<List<Event>>()
 
@@ -420,23 +423,24 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             }
         }
 
-        fun signUpForEvent(customer: Customer, variant: Pair<Long, Long>) = async {
-            Log.i(TAG, "Signing up for event ${variant.first} variant ${variant.second}")
+        @Suppress("BlockingMethodInNonBlockingContext")
+        fun signUpForEvent(customer: Customer, event: Event, metadata: List<Order.Metadata>) = async {
+            Log.i(TAG, "Signing up for event. Metadata: $metadata")
             RemoteCommerce.eventSignup(
                 customer,
                 "", // FIXME: Set notes
-                variants = mapOf(
-                    variant
-                ),
+                event = event,
+                metadata = metadata,
             )
             Log.i(TAG, "Confirmed sign up. Syncing...")
             SyncWorker.run(
                 getApplication(),
                 syncCustomers = false,
                 syncEvents = false,
+                syncPayments = false,
                 syncTransactions = false,
                 syncSocios = false,
-            )
+            ).result.get()
         }
     }
 }

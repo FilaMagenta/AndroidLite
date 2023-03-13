@@ -73,4 +73,20 @@ data class Order(
             put("price", price)
         }
     }
+
+    data class Metadata(
+        val id: Long,
+        val key: String,
+        val value: String,
+        val displayKey: String,
+        val displayValue: String,
+    ): JsonSerializable {
+        override fun toJSON(): JSONObject = JSONObject().apply {
+            put("id", id)
+            put("key", key)
+            put("value", value)
+            put("display_key", displayKey)
+            put("display_value", displayValue)
+        }
+    }
 }

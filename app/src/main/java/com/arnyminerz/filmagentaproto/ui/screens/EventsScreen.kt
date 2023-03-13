@@ -39,12 +39,18 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
 
     val customerState by mainViewModel.customer.collectAsState(initial = null)
     val events by mainViewModel.events.observeAsState()
+    val orders by mainViewModel.orders.observeAsState()
 
     val confirmedEvents by mainViewModel.confirmedEvents.observeAsState()
     val availableEvents by mainViewModel.availableEvents.observeAsState()
 
     LaunchedEffect(events) {
         snapshotFlow { events }
+            .filterNotNull()
+            .collect { mainViewModel.updateConfirmedEvents(customerState) }
+    }
+    LaunchedEffect(orders) {
+        snapshotFlow { orders }
             .filterNotNull()
             .collect { mainViewModel.updateConfirmedEvents(customerState) }
     }
@@ -112,9 +118,9 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
                     ?.filter { event -> event.eventDate?.time?.let { it >= now } ?: true }
                     ?: emptyList()
             ) { event ->
-                EventItem(event, false) { variationId, onComplete ->
+                EventItem(event, false) { metadata, onComplete ->
                     mainViewModel
-                        .signUpForEvent(customerState!!, event.id to variationId)
+                        .signUpForEvent(customerState!!, event, metadata)
                         .invokeOnCompletion { error ->
                             if (error != null)
                                 context.toast(error.message ?: error.localizedMessage)
