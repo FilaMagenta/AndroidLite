@@ -90,6 +90,20 @@ fun EventItem(event: Event, isConfirmed: Boolean) {
                     )
                 }
             }
+
+            event.eventDate?.let { eventDate ->
+                Text(
+                    text = stringResource(
+                        R.string.events_event_date,
+                        dateFormat.format(eventDate),
+                    ),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
+                )
+            }
         }
     }
 }

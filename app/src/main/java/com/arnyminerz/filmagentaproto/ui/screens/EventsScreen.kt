@@ -26,6 +26,7 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.activity.MainActivity
 import com.arnyminerz.filmagentaproto.ui.components.EventItem
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
+import java.util.Calendar
 import kotlinx.coroutines.flow.filterNotNull
 
 @Composable
@@ -57,8 +58,13 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
                 .fillMaxSize()
                 .padding(top = 8.dp),
         ) {
+            val now = Calendar.getInstance().time.time
+
             stickyHeader {
-                Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)) {
                     Text(
                         text = stringResource(R.string.events_confirmed_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -70,11 +76,19 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
                     )
                 }
             }
-            items(confirmedEvents ?: emptyList()) { event ->
+            items(
+                confirmedEvents
+                    // Filter past events
+                    ?.filter { event -> event.eventDate?.time?.let { it >= now } ?: true }
+                    ?: emptyList()
+            ) { event ->
                 EventItem(event, true)
             }
             stickyHeader {
-                Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)) {
                     Text(
                         text = stringResource(R.string.events_available_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -86,7 +100,12 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
                     )
                 }
             }
-            items(availableEvents ?: emptyList()) { event ->
+            items(
+                availableEvents
+                // Filter past events
+                ?.filter { event -> event.eventDate?.time?.let { it >= now } ?: true }
+                ?: emptyList()
+            ) { event ->
                 EventItem(event, false)
             }
         }

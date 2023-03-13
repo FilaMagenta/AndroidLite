@@ -60,6 +60,14 @@ data class Event(
             )
         )
 
+        private val dateRegex = Regex(
+            "^.*(lunes|martes|mi[ée]rcoles|jueves|viernes|s[aá]bado|domingo) ?(d[ií]a)? ?\\d+ ?(de)? ?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) ?(del?)? ?(20\\d{2})?[ .,]*(\\d{1,2}:\\d{2})?.*$",
+            setOf(
+                RegexOption.MULTILINE,
+                RegexOption.IGNORE_CASE,
+            ),
+        )
+
         private val days = listOf(
             "lunes",
             "martes",
@@ -74,7 +82,7 @@ data class Event(
 
         private val months = listOf(
             "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "septiembre", "octubre",
-            "noviembre"
+            "noviembre", "diciembre"
         )
 
         override fun fromJSON(json: JSONObject): Event = Event(
@@ -203,7 +211,65 @@ data class Event(
     }
 
     @Ignore
-    val cutDescription: String = shortDescription
+    var cutDescription: String = shortDescription
         .replace(untilKeywordLine, "")
         .trim('\n', '\r', ' ')
+        private set
+
+    @Ignore
+    val eventDate: Date? = cutDescription.let { desc ->
+        val find = dateRegex.find(desc) ?: return@let null
+        val found = find.value
+
+        val calendar = Calendar.getInstance()
+
+        // Update time
+        var timeUpdated = false
+        val timeFind = timeRegex.find(found)
+        if (timeFind != null) {
+            val timeString = timeFind.value
+            val timeParts = timeString.split(':')
+            val hours = timeParts.getOrNull(0)?.toIntOrNull()
+            val minutes = timeParts.getOrNull(1)?.toIntOrNull()
+            if (hours != null && minutes != null) {
+                calendar.set(Calendar.HOUR_OF_DAY, hours)
+                calendar.set(Calendar.MINUTE, minutes)
+                timeUpdated = true
+            }
+        }
+        if (!timeUpdated) {
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+        }
+
+        // Update day
+        val day = found.split(" ")
+            .find { it.toIntOrNull() != null }
+            ?.toInt() ?: return@let null
+        calendar.set(Calendar.DAY_OF_MONTH, day)
+
+        // Update month
+        val monthIndex = months.indexOfFirst { found.contains(it, ignoreCase = true) }
+            .takeIf { it >= 0 } ?: return@let null
+        calendar.set(Calendar.MONTH, monthIndex)
+
+        // Update year
+        val yearFind = yearRegex.find(found)
+        if (yearFind != null) {
+            val yearString = yearFind.value
+            yearString.toIntOrNull()?.let { year ->
+                calendar.set(Calendar.YEAR, year)
+            }
+        } else {
+            // If current month is greater than the month specified in event, increase year
+            val currentMonth = calendar.get(Calendar.MONTH)
+            if (currentMonth > monthIndex) {
+                val year = calendar.get(Calendar.YEAR)
+                calendar.set(Calendar.YEAR, year + 1)
+            }
+        }
+
+        cutDescription = cutDescription.replace(found, "")
+        calendar.time
+    }
 }
