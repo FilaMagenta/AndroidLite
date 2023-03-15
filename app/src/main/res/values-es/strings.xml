@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Filà Magenta</string>
     <string name="back">Atrás</string>
+    <string name="cancel">Cancelar</string>
     <string name="keyboard_backspace">Borrar</string>
     <string name="accounts_list">Lista de Cuentas</string>
     <string name="accounts_new">Añadir Nueva Cuenta</string>
@@ -41,6 +42,7 @@
     <string name="error_find_data">No se han encontrado tus datos en la base de datos.</string>
     <string name="error_toast_wrong_credentials">Nombre o NIF incorrectos</string>
     <string name="error_policy">%s no ha aceptado la política de privacidad en la web. Por favor, inicia sesión en la versión web con el usuario en cuestión, y hazlo ahora</string>
+    <string name="error_toast_notifications">No se mostrarán notificaciones</string>
     <string name="events_confirmed_title">Eventos Confirmados</string>
     <string name="events_available_title">Eventos Disponibles</string>
     <string name="payments_make_title">Hacer un Pago</string>
@@ -58,11 +60,18 @@
     <string name="sync_step_transactions">Obteniendo transacciones…</string>
     <string name="sync_step_socios">Obteniendo los datos de los socios…</string>
     <string name="sync_step_intermediate">Procesando…</string>
+    <string name="notification_group_sync_name">Sincronización</string>
+    <string name="notification_group_sync_desc">Todas las notificaciones sobre el progreso de sincronización.</string>
+    <string name="notification_channel_sync_name">Sincronización</string>
+    <string name="notification_channel_sync_desc">Notifica sobre el progreso y estado del proceso de sincronización.</string>
+    <string name="notification_channel_sync_error_name">Error de Sincronización</string>
+    <string name="notification_channel_sync_error_desc">Avisa sobre los posibles errores durante el proceso de sincronización.</string>
     <string name="calendar_trebuchet_title">Caducidad Permiso de Armas</string>
     <string name="calendar_trebuchet_description">Recuerda Renovar tu permiso de armas.</string>
     <string name="events_event_date">Fecha: %s</string>
     <string name="events_modal_notes">Notas Adicionales</string>
     <string name="events_modal_submit">Confirmar</string>
+    <string name="events_error_stock">No hay sitios libres.</string>
     <string name="events_reservations_until">Se aceptan reservas hasta %s</string>
     <string name="add_to_calendar">Añadir al Calendario</string>
     <string name="events_only_free">Actualmente sólo puedes apuntarte a eventos incluídos desde la app.</string>

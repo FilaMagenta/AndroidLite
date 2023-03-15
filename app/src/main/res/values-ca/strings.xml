@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Filà Magenta</string>
     <string name="back">Enrere</string>
+    <string name="cancel">Cancel·la</string>
     <string name="keyboard_backspace">Esborrar</string>
     <string name="accounts_list">Comptes</string>
     <string name="accounts_new">Afegeix un compte</string>
@@ -40,6 +41,7 @@
     <string name="profile_trebuchet_obtained">Obtingut el</string>
     <string name="profile_trebuchet_expires">Caduca el</string>
     <string name="error_toast_wrong_credentials">Nom o NIF incorrectes</string>
+    <string name="error_toast_notifications">No es mostraran notificacions</string>
     <string name="events_confirmed_title">Esdeveniments Confirmats</string>
     <string name="events_available_title">Esdeveniments Disponibles</string>
     <string name="payments_make_title">Fer un Pagament</string>
@@ -57,12 +59,19 @@
     <string name="sync_step_transactions">Obtenint transaccions…</string>
     <string name="sync_step_socios">Obtenint les dades dels socis…</string>
     <string name="sync_step_intermediate">Processant…</string>
+    <string name="notification_group_sync_name">Sincronització</string>
+    <string name="notification_group_sync_desc">Totes les notificacions sobre el progrés de sincronització.</string>
+    <string name="notification_channel_sync_name">Sincronització</string>
+    <string name="notification_channel_sync_desc">Notifica sobre el progrés i estat del procés de sincronització.</string>
+    <string name="notification_channel_sync_error_name">Error de Sincronització</string>
+    <string name="notification_channel_sync_error_desc">Avisa dels possibles errors del procés de sincronització.</string>
     <string name="calendar_trebuchet_title">Caducitat Permís d\'armes</string>
     <string name="calendar_trebuchet_description">Recorda renovar el teu permís d\'armes</string>
     <string name="error_policy">%s no ha acceptat la política de privacitat a la pàgina web. Per favor, inicia sessió a la versió web amb el seu usuari, i signa el contracte.</string>
     <string name="events_event_date">Data: %s</string>
     <string name="events_modal_notes">Notes Addicionals</string>
     <string name="events_modal_submit">Confirmar</string>
+    <string name="events_error_stock">No hi ha llocs disponibles.</string>
     <string name="events_reservations_until">S\'accepten reserves fins a %s</string>
     <string name="add_to_calendar">Afegeix al calendari</string>
     <string name="events_only_free">Actualment només et pots apuntar en l\'app a esdeveniments inclosos</string>
