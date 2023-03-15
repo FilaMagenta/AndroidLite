@@ -14,10 +14,12 @@ import com.arnyminerz.filmagentaproto.database.data.woo.StockStatus.Companion.Ou
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
-import com.arnyminerz.filmagentaproto.utils.getStringJSONArray
-import com.arnyminerz.filmagentaproto.utils.toJSONArray
+import com.arnyminerz.filmagentaproto.utils.getObjectOrNull
+import com.arnyminerz.filmagentaproto.utils.mapObjects
+import com.arnyminerz.filmagentaproto.utils.toJSON
 import java.util.Calendar
 import java.util.Date
+import org.json.JSONException
 import org.json.JSONObject
 
 @StringDef(InStock, OutOfStock, OnBackOrder)
@@ -128,35 +130,58 @@ data class Event(
         val name: String,
         val slug: String,
         val options: List<Option>,
+        val variation: Variation?,
     ) : JsonSerializable {
         companion object : JsonSerializer<Attribute> {
             /**
              * Initializes the attribute from a JSONObject.
              *
-             * **Note: [options] are set empty.**
+             * **Note: [options] are set empty; [variation] is set to `null`**
              */
             override fun fromJSON(json: JSONObject): Attribute = Attribute(
                 json.getLong("id"),
                 json.getString("name"),
                 json.getString("slug"),
                 if (json.has("options"))
-                    json.getStringJSONArray("options").map {
-                        Option(it)
-                    }
+                    json.getJSONArray("options")
+                        .let { array ->
+                            try {
+                                array.mapObjects { Option.fromJSON(it) }
+                            } catch (e: JSONException) {
+                                // This is for compatibility with old versions
+                                (0 until array.length())
+                                    .map { array.getString(it) }
+                                    .map { Option(it, 0.0) }
+                            }
+                        }
                 else
                     emptyList(),
+                json.getObjectOrNull("variation", Variation.Companion),
             )
         }
 
-        data class Option(val displayValue: String) {
+        data class Option(val displayValue: String, val price: Double): JsonSerializable {
             val value = displayValue.toLowerCase(Locale.current).replace(' ', '-')
+
+            companion object: JsonSerializer<Option> {
+                override fun fromJSON(json: JSONObject): Option = Option(
+                    json.getString("displayValue"),
+                    json.getDouble("price"),
+                )
+            }
+
+            override fun toJSON(): JSONObject = JSONObject().apply {
+                put("displayValue", displayValue)
+                put("price", price)
+            }
         }
 
         override fun toJSON(): JSONObject = JSONObject().apply {
             put("id", id)
             put("name", name)
             put("slug", slug)
-            put("options", options.map { it.displayValue }.toJSONArray())
+            put("options", options.toJSON())
+            put("variation", variation?.toJSON())
         }
 
         fun toMetadata(option: Option = options[0]): Order.Metadata = Order.Metadata(
@@ -166,6 +191,46 @@ data class Event(
             value = option.value,
             displayValue = option.displayValue,
         )
+    }
+
+    data class Variation(
+        val id: Long,
+        val price: Double,
+        val attributes: List<ShortAttribute>,
+    ): JsonSerializable {
+        companion object: JsonSerializer<Variation> {
+            override fun fromJSON(json: JSONObject): Variation = Variation(
+                json.getLong("id"),
+                json.getString("price").toDoubleOrNull() ?: 0.0,
+                json.getJSONArray("attributes").mapObjects { ShortAttribute.fromJSON(it) },
+            )
+        }
+
+        data class ShortAttribute(
+            val id: Long,
+            val name: String,
+            val option: String,
+        ): JsonSerializable {
+            companion object: JsonSerializer<ShortAttribute> {
+                override fun fromJSON(json: JSONObject): ShortAttribute = ShortAttribute(
+                    json.getLong("id"),
+                    json.getString("name"),
+                    json.getString("option")
+                )
+            }
+
+            override fun toJSON(): JSONObject = JSONObject().apply {
+                put("id", id)
+                put("name", name)
+                put("option", option)
+            }
+        }
+
+        override fun toJSON(): JSONObject = JSONObject().apply {
+            put("id", id)
+            put("price", price)
+            put("attributes", attributes.toJSON())
+        }
     }
 
     override fun toString(): String = id.toString()

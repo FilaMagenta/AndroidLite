@@ -351,7 +351,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         fetchAndUpdateDatabase(
             SYNC_EVENTS,
             ProgressStep.SYNC_EVENTS,
-            { RemoteCommerce.eventList() },
+            { RemoteCommerce.eventList { progress -> setProgress(ProgressStep.SYNC_EVENTS, progress) } },
             { wooCommerceDao.getAllEvents() },
             { wooCommerceDao.insert(it) },
             { wooCommerceDao.update(it) },

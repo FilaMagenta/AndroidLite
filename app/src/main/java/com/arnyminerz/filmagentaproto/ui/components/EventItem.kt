@@ -63,7 +63,7 @@ fun EventItem(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable(!isConfirmed && isFree) { showingCard = true },
+            .clickable(!isConfirmed) { showingCard = true },
     ) {
         Column(
             Modifier

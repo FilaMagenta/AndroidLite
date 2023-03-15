@@ -65,6 +65,9 @@ inline fun <R> JSONArray.mapObjects(mapper: (JSONObject) -> R): List<R> = (0 unt
     mapper(getJSONObject(it))
 }
 
+inline fun <R> JSONArray.mapObjectsIndexed(mapper: (json: JSONObject, index: Int) -> R): List<R> =
+    (0 until length()).map { index -> mapper(getJSONObject(index), index) }
+
 fun JSONObject.getStringJSONArray(key: String): List<String> = getJSONArray(key).let { array ->
     (0 until array.length()).map { array.getString(it) }
 }

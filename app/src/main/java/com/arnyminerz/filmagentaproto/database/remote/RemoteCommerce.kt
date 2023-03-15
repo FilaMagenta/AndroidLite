@@ -11,9 +11,11 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.divideMoney
+import com.arnyminerz.filmagentaproto.utils.getJSONArray
 import com.arnyminerz.filmagentaproto.utils.getStringJSONArray
 import com.arnyminerz.filmagentaproto.utils.io
 import com.arnyminerz.filmagentaproto.utils.mapObjects
+import com.arnyminerz.filmagentaproto.utils.mapObjectsIndexed
 import com.arnyminerz.filmagentaproto.utils.toJSON
 import com.arnyminerz.filmagentaproto.utils.toJSONObjectsArray
 import com.arnyminerz.filmagentaproto.utils.toURL
@@ -85,6 +87,14 @@ object RemoteCommerce {
     }
 
     @WorkerThread
+    private suspend fun <T: Any> get(endpoint: Uri, serializer: JsonSerializer<T>): T =
+        JSONObject(get(endpoint)).let { serializer.fromJSON(it) }
+
+    @WorkerThread
+    private suspend fun <T: Any> getList(endpoint: Uri, serializer: JsonSerializer<T>): List<T> =
+        JSONArray(get(endpoint)).mapObjects { serializer.fromJSON(it) }
+
+    @WorkerThread
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun post(endpoint: Uri, body: JSONObject): String = io {
         val url = endpoint.toURL()
@@ -136,7 +146,7 @@ object RemoteCommerce {
         uri: Uri,
         page: Int = 1,
         perPage: Int = 40,
-        pageProcessor: suspend (json: JSONObject) -> T,
+        pageProcessor: suspend (json: JSONObject, progress: Pair<Int, Int>) -> T,
     ): List<T> {
         Log.d(TAG, "Getting page $page of $uri...")
         val endpoint = uri.buildUpon()
@@ -145,7 +155,9 @@ object RemoteCommerce {
             .build()
         val raw = get(endpoint)
         val json = JSONArray(raw)
-        val objects = json.mapObjects { pageProcessor(it) }.toMutableList()
+        val objects = json.mapObjectsIndexed { obj, index ->
+            pageProcessor(obj, index to json.length())
+        }.toMutableList()
         if (objects.size >= perPage)
             objects.addAll(multiPageGet(uri, page + 1, perPage, pageProcessor))
         return objects
@@ -163,7 +175,7 @@ object RemoteCommerce {
         serializer: JsonSerializer<T>,
         page: Int = 1,
         perPage: Int = 40,
-    ): List<T> = multiPageGet(uri, page, perPage) { serializer.fromJSON(it) }
+    ): List<T> = multiPageGet(uri, page, perPage) { json, _ -> serializer.fromJSON(json) }
 
     /**
      * Fetches all the events available from the server.
@@ -172,21 +184,37 @@ object RemoteCommerce {
      * @throws NullPointerException If there's an invalid field in the response.
      */
     @WorkerThread
-    suspend fun eventList(): List<Event> {
+    suspend fun eventList(progressCallback: suspend (progress: Pair<Int, Int>) -> Unit): List<Event> {
         val endpoint = ProductsEndpoint.buildUpon()
             .appendQueryParameter("status", "publish")
             .appendQueryParameter("category", CATEGORY_EVENTOS.toString())
             .build()
 
-        val cachedAttributes = mutableMapOf<Long, Event.Attribute>()
+        val cachedAttributes = mutableMapOf<Int, Event.Attribute>()
 
-        return multiPageGet(endpoint) { eventJson ->
-            Log.d(TAG, "Event parsing. Processing attributes...")
-            val attributes = eventJson.getJSONArray("attributes").mapObjects { attribute ->
-                val id = attribute.getLong("id")
-                val options = attribute.getStringJSONArray("options")
+        return multiPageGet(endpoint) { eventJson, progress ->
+            progressCallback(progress)
 
-                cachedAttributes.getOrPut(id) {
+            Log.d(TAG, "Parsing event.")
+            val eventId = eventJson.getLong("id")
+            val price = eventJson.getDouble("price")
+
+            Log.d(TAG, "Getting variations...")
+            val variationEndpoint = ProductsEndpoint.buildUpon()
+                .appendPath(eventId.toString())
+                .appendPath("variations")
+                .build()
+            val variations = getList(variationEndpoint, Event.Variation.Companion)
+            Log.d(TAG, "Got ${variations.size} variations for event #$eventId: $variations")
+
+            val eventVariations = eventJson.getJSONArray("variations") { it as Int }
+
+            Log.d(TAG, "Event parsing. Processing attributes (variations hash=${eventVariations.hashCode()})...")
+            val attributes = eventJson.getJSONArray("attributes").mapObjects { attributeJson ->
+                val id = attributeJson.getLong("id")
+                val options = attributeJson.getStringJSONArray("options")
+
+                cachedAttributes.getOrPut(eventVariations.hashCode()) {
                     val attributeEndpoint = AttributesEndpoint.buildUpon()
                         .appendPath(id.toString())
                         .build()
@@ -195,9 +223,20 @@ object RemoteCommerce {
                     val attributeDataJson = JSONObject(attributeDataRaw)
 
                     Log.d(TAG, "Processing event attributes...")
-                    Event.Attribute.fromJSON(attributeDataJson).copy(
-                        options = options.map { Event.Attribute.Option(it) }
-                    )
+                    Event.Attribute.fromJSON(attributeDataJson).let { attribute ->
+                        val variation = variations.find { variation ->
+                            variation.attributes.find { it.id == attribute.id } != null
+                        }
+                        attribute.copy(
+                            options = options.map { optionName ->
+                                val optionVar = variations.find { variation ->
+                                    variation.attributes.find { it.option == optionName } != null
+                                }
+                                Event.Attribute.Option(optionName, optionVar?.price ?: price)
+                            },
+                            variation = variation,
+                        )
+                    }
                 }
             }
             Log.d(TAG, "Converting JSON to Event...")

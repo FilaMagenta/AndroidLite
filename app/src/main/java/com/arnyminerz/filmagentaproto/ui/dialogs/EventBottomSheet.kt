@@ -61,7 +61,6 @@ fun EventBottomSheet(
 
         // Only first attribute will be taken
         event.attributes
-            .onEach { Log.i("EventBottomSheet", "Attributes for $event: $it") }
             .filter { it.options.isNotEmpty() }
             .forEach { attribute ->
                 val selectedAttributeOption = selectedAttributesOption.getOrPut(
@@ -83,7 +82,7 @@ fun EventBottomSheet(
                             headlineContent = {
                                 Text(
                                     if (option.price > 0.0)
-                                        "${option.displayValue} (${option.price} €)"
+                                        "%s (%.2f €)".format(option.displayValue, option.price)
                                     else
                                         option.displayValue
                                 )
