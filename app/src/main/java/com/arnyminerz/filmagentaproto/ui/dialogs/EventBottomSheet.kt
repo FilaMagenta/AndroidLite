@@ -3,6 +3,7 @@ package com.arnyminerz.filmagentaproto.ui.dialogs
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -132,27 +133,30 @@ fun EventBottomSheet(
         //         .padding(bottom = 8.dp),
         // )
 
-        Button(
-            enabled = !isConfirming,
-            onClick = {
-                isConfirming = true
-                Log.d(
-                    "EventBottomSheet",
-                    "Submitting event ${event.id}. Selected: $selectedAttributesOption"
-                )
-                onSubmit(selectedAttributesOption.values.toList()) {
-                    isConfirming = false
-                    onDismissRequest()
-                }
-            },
+        Row(
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            AnimatedVisibility(visible = isConfirming) {
-                CircularProgressIndicator()
-            }
-            Text(stringResource(R.string.events_modal_submit))
+            AnimatedVisibility(
+                visible = isConfirming,
+                modifier = Modifier.padding(end = 8.dp)
+            ) { CircularProgressIndicator() }
+            Button(
+                enabled = !isConfirming,
+                onClick = {
+                    isConfirming = true
+                    Log.d(
+                        "EventBottomSheet",
+                        "Submitting event ${event.id}. Selected: $selectedAttributesOption"
+                    )
+                    onSubmit(selectedAttributesOption.values.toList()) {
+                        isConfirming = false
+                        onDismissRequest()
+                    }
+                },
+            ) { Text(stringResource(R.string.events_modal_submit)) }
         }
     }
 }
