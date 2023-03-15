@@ -84,7 +84,7 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
                 .padding(top = 8.dp),
         ) {
             stickyHeaderWithIcon(
-                textRes = R.string.events_available_title,
+                textRes = R.string.events_confirmed_title,
                 icon = Icons.Outlined.EventAvailable,
             )
             items(
