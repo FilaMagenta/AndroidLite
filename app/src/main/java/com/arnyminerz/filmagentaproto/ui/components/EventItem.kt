@@ -82,7 +82,13 @@ fun EventItem(
                 )
                 event.eventDate?.let {
                     IconButton(
-                        onClick = { context.launchCalendarInsert(it) },
+                        onClick = {
+                            context.launchCalendarInsert(
+                                begin = it,
+                                title = event.title,
+                                description = event.shortDescription,
+                            )
+                        },
                     ) {
                         Icon(Icons.Rounded.EditCalendar, stringResource(R.string.add_to_calendar))
                     }
