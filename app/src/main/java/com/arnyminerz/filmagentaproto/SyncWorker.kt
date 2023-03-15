@@ -2,7 +2,6 @@ package com.arnyminerz.filmagentaproto
 
 import android.accounts.Account
 import android.accounts.AccountManager
-import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.database.sqlite.SQLiteConstraintException
@@ -129,9 +128,6 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             .getInstance(context)
             .getWorkInfosForUniqueWorkLiveData(UNIQUE_WORK_NAME)
     }
-
-    private val notificationManager =
-        appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     override suspend fun doWork(): Result {
         Log.i(TAG, "Running Synchronization...")
