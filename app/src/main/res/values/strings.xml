@@ -2,6 +2,7 @@
     <string name="app_name">Filà Magenta</string>
 
     <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
 
     <string name="keyboard_backspace">Backspace</string>
 
@@ -49,10 +50,12 @@
     <string name="error_find_data">Could not find your personal data in the database.</string>
     <string name="error_toast_wrong_credentials">Wrong name or NIF</string>
     <string name="error_policy">%s has not accepted the privacy policy on the website. Please, log in the web version as the given user and do so.</string>
+    <string name="error_toast_notifications">Notifications won\'t be displayed</string>
 
     <string name="events_confirmed_title">Confirmed Events</string>
     <string name="events_available_title">Available Events</string>
     <string name="events_only_free">Only included events are currently supported.</string>
+    <string name="events_error_stock">No more places are available.</string>
     <string name="events_reservations_until">Accepts reservations until %s</string>
     <string name="events_event_date">Date: %s</string>
     <string name="events_modal_notes">Extra Notes</string>
@@ -77,6 +80,14 @@
     <string name="sync_step_transactions">Fetching transactions…</string>
     <string name="sync_step_socios">Fetching socios data…</string>
     <string name="sync_step_intermediate">Processing…</string>
+
+    <string name="notification_group_sync_name">Synchronization</string>
+    <string name="notification_group_sync_desc">All the notifications regarding the synchronization process.</string>
+
+    <string name="notification_channel_sync_name">Synchronization</string>
+    <string name="notification_channel_sync_desc">Notifies about the progress and state of the synchronization process.</string>
+    <string name="notification_channel_sync_error_name">Synchronization Error</string>
+    <string name="notification_channel_sync_error_desc">Warns about a failure during the synchronization process.</string>
 
     <string name="calendar_trebuchet_title">Guns Authorization Expiration</string>
     <string name="calendar_trebuchet_description">Remember to renew your guns permission.</string>

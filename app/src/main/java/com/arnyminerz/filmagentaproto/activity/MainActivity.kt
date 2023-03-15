@@ -1,13 +1,17 @@
 package com.arnyminerz.filmagentaproto.activity
 
+import android.Manifest
 import android.accounts.Account
 import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
 import android.app.Application
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
@@ -50,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.os.HandlerCompat
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
@@ -85,6 +90,7 @@ import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.io
+import com.arnyminerz.filmagentaproto.utils.toast
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import com.arnyminerz.filmagentaproto.utils.ui
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -112,6 +118,12 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
     private lateinit var am: AccountManager
 
     private lateinit var loginRequestLauncher: ActivityResultLauncher<LoginActivity.Contract.Data>
+
+    private val notificationPermissionRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (!granted) toast(R.string.error_toast_notifications)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -312,6 +324,13 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             loginRequestLauncher.launch(
                 LoginActivity.Contract.Data(true, null)
             )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) != PackageManager.PERMISSION_GRANTED
+        ) notificationPermissionRequestLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     override fun onPause() {

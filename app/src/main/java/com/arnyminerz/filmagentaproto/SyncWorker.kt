@@ -2,15 +2,21 @@ package com.arnyminerz.filmagentaproto
 
 import android.accounts.Account
 import android.accounts.AccountManager
+import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.ServiceInfo
 import android.database.sqlite.SQLiteConstraintException
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
+import androidx.core.app.NotificationCompat
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
+import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
@@ -63,6 +69,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         const val PROGRESS_STEP = "step"
 
         const val PROGRESS = "progress"
+
+        private const val NOTIFICATION_ID = 20230315
 
         fun schedule(context: Context) {
             val request = PeriodicWorkRequest
@@ -121,6 +129,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             .getInstance(context)
             .getWorkInfosForUniqueWorkLiveData(UNIQUE_WORK_NAME)
     }
+
+    private val notificationManager =
+        appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     override suspend fun doWork(): Result {
         Log.i(TAG, "Running Synchronization...")
@@ -317,6 +328,56 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     }
 
     /**
+     * Creates the required notification channels.
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createChannels() {
+        NotificationChannels.createSyncGroup(applicationContext)
+        NotificationChannels.createSyncProgressChannel(applicationContext)
+        NotificationChannels.createSyncErrorChannel(applicationContext)
+    }
+
+    private fun createForegroundInfo(
+        step: ProgressStep,
+        progress: Pair<Int, Int>?
+    ): ForegroundInfo {
+        val cancel = applicationContext.getString(R.string.cancel)
+        val cancelIntent = WorkManager.getInstance(applicationContext)
+            .createCancelPendingIntent(id)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createChannels()
+        }
+
+        val notification =
+            NotificationCompat.Builder(applicationContext, NotificationChannels.SYNC_PROGRESS)
+                .setContentTitle(applicationContext.getString(R.string.sync_running))
+                .setContentText(applicationContext.getString(step.textRes))
+                .apply {
+                    progress?.let { (current, max) ->
+                        setProgress(max, current, false)
+                        setTicker("$current / $max")
+                    } ?: {
+                        setProgress(0, 0, true)
+                        setTicker(null)
+                    }
+                }
+                .setSmallIcon(R.drawable.logo_magenta_mono)
+                .setOnlyAlertOnce(true)
+                .setOngoing(true)
+                .addAction(android.R.drawable.ic_delete, cancel, cancelIntent)
+                .build()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            ForegroundInfo(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        else
+            ForegroundInfo(NOTIFICATION_ID, notification)
+    }
+
+    /**
      * Updates the progress of the worker.
      * @param step The step currently being ran.
      * @param progress The current progress reported, if any. Can be null. First is current, second
@@ -328,6 +389,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 PROGRESS_STEP to step.name,
                 PROGRESS to progress?.let { (current, max) -> current.toDouble() / max.toDouble() },
             )
+        )
+        setForeground(
+            createForegroundInfo(step, progress)
         )
     }
 }
