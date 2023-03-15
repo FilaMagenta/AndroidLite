@@ -75,4 +75,6 @@
     <string name="events_reservations_until">S\'accepten reserves fins a %s</string>
     <string name="add_to_calendar">Afegeix al calendari</string>
     <string name="events_only_free">Actualment només et pots apuntar en l\'app a esdeveniments inclosos</string>
+    <string name="first_load_title">Carregant</string>
+    <string name="first_load_message">S\'està duent a terme la càrrega inicial de l\'aplicació. Per favor, espera fins a que es carreguen totes les dades.</string>
 </resources>
