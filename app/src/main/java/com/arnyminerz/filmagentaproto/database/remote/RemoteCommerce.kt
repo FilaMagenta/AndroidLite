@@ -223,7 +223,7 @@ object RemoteCommerce {
             .appendQueryParameter("context", "view")
             .appendQueryParameter("role", "all")
             .build()
-        return multiPageGet(endpoint, Customer.Companion, perPage = 50)
+        return multiPageGet(endpoint, Customer.Companion, perPage = 75)
     }
 
 
