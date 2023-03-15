@@ -82,6 +82,7 @@ import com.arnyminerz.filmagentaproto.ui.components.ProfileImage
 import com.arnyminerz.filmagentaproto.ui.dialogs.AccountsDialog
 import com.arnyminerz.filmagentaproto.ui.dialogs.PaymentBottomSheet
 import com.arnyminerz.filmagentaproto.ui.screens.EventsScreen
+import com.arnyminerz.filmagentaproto.ui.screens.InitialLoadScreen
 import com.arnyminerz.filmagentaproto.ui.screens.MainPage
 import com.arnyminerz.filmagentaproto.ui.screens.ProfilePage
 import com.arnyminerz.filmagentaproto.ui.screens.SettingsScreen
@@ -139,6 +140,8 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             val selectedAccountIndex by viewModel.selectedAccount.collectAsState(null)
             val accounts by viewModel.accounts.observeAsState(emptyArray())
 
+            val databaseData by viewModel.databaseData.observeAsState()
+
             var showingAccountsDialog by remember { mutableStateOf(false) }
             if (showingAccountsDialog)
                 AccountsDialog(
@@ -178,6 +181,9 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                 )
 
             var currentPage by remember { mutableStateOf(0) }
+
+            if (databaseData?.isEmpty() == true)
+                return@setContentThemed InitialLoadScreen()
 
             selectedAccountIndex?.let { accountIndex ->
                 Scaffold(
@@ -249,7 +255,6 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                 ) { paddingValues ->
                     val personalData by viewModel.personalData.observeAsState()
                     val selectedAccount = accounts.getOrNull(accountIndex)
-                    val databaseData by viewModel.databaseData.observeAsState(emptyList())
                     val topPadding by animateDpAsState(
                         if (currentPage == 0)
                             TOP_BAR_HEIGHT
@@ -263,7 +268,7 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                         val account = accounts.getOrNull(index) ?: return@LaunchedEffectFlow
                         val password: String? = am.getPassword(account)
                         val dni = password?.trimmedAndCaps
-                        val socio = databaseData.find { it.Dni?.trimmedAndCaps == dni }
+                        val socio = databaseData?.find { it.Dni?.trimmedAndCaps == dni }
                             ?: return@LaunchedEffectFlow
                         viewModel.getAssociatedAccounts(socio.idSocio)
                     }
@@ -276,13 +281,17 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                         }
                         ?.let { (account, data) ->
                             val dni = am.getPassword(account).trimmedAndCaps
-                            data to databaseData.find { it.Dni?.trimmedAndCaps == dni }
+                            data to databaseData?.find { it.Dni?.trimmedAndCaps == dni }
                         }
                         ?.let { (data, socio) ->
                             val pagerState = rememberPagerState()
 
-                            LaunchedEffectFlow(pagerState, { it.currentPage }) { currentPage = it }
-                            LaunchedEffectFlow(currentPage, { it }) { pagerState.scrollToPage(it) }
+                            LaunchedEffectFlow(pagerState, { it.currentPage }) {
+                                currentPage = it
+                            }
+                            LaunchedEffectFlow(
+                                currentPage,
+                                { it }) { pagerState.scrollToPage(it) }
 
                             HorizontalPager(
                                 count = 4,
