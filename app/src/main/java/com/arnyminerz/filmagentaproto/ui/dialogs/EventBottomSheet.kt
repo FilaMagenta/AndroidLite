@@ -1,10 +1,12 @@
 package com.arnyminerz.filmagentaproto.ui.dialogs
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -39,8 +41,10 @@ fun EventBottomSheet(
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    var isConfirming by remember { mutableStateOf(false) }
+
     ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = { if (!isConfirming) onDismissRequest() },
         sheetState = state,
     ) {
         Text(
@@ -121,14 +125,13 @@ fun EventBottomSheet(
         //         .padding(bottom = 8.dp),
         // )
 
-        var confirming by remember { mutableStateOf(false) }
         Button(
-            enabled = !confirming,
+            enabled = !isConfirming,
             onClick = {
-                confirming = true
+                isConfirming = true
                 Log.d("EventBottomSheet", "Submitting event ${event.id}. Selected: $selectedAttributesOption")
                 onSubmit(selectedAttributesOption.values.toList()) {
-                    confirming = false
+                    isConfirming = false
                     onDismissRequest()
                 }
             },
@@ -136,6 +139,9 @@ fun EventBottomSheet(
                 .align(Alignment.End)
                 .padding(8.dp),
         ) {
+            AnimatedVisibility(visible = isConfirming) {
+                CircularProgressIndicator()
+            }
             Text(stringResource(R.string.events_modal_submit))
         }
     }
