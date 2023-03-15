@@ -1,6 +1,7 @@
 package com.arnyminerz.filmagentaproto.utils
 
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
+import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -30,6 +31,15 @@ fun JSONObject.getIntOrNull(key: String): Int? = try {
 fun JSONObject.getStringOrNull(key: String): String? = try {
     if (has(key))
         getString(key)
+    else
+        null
+} catch (e: JSONException) {
+    null
+}
+
+fun <T: Any> JSONObject.getObjectOrNull(key: String, serializer: JsonSerializer<T>): T? = try {
+    if (has(key))
+        getJSONObject(key).let { serializer.fromJSON(it) }
     else
         null
 } catch (e: JSONException) {
