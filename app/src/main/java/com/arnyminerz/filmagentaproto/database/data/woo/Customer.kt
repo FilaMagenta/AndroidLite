@@ -11,7 +11,7 @@ import org.json.JSONObject
 
 @Entity(tableName = "customers")
 data class Customer(
-    @PrimaryKey val id: Long,
+    @PrimaryKey override val id: Long,
     val dateCreated: Date,
     val dateModified: Date,
     val email: String,
@@ -23,7 +23,7 @@ data class Customer(
     val shipping: DeliveryInformation,
     val isPayingCustomer: Boolean,
     val avatarUrl: String,
-) {
+): WooClass(id) {
     companion object: JsonSerializer<Customer> {
         override fun fromJSON(json: JSONObject): Customer = Customer(
             json.getLong("id"),

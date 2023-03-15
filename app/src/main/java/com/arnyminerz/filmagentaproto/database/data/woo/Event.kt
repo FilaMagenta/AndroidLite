@@ -31,7 +31,7 @@ annotation class StockStatus {
 
 @Entity(tableName = "events")
 data class Event(
-    @PrimaryKey val id: Long,
+    @PrimaryKey override val id: Long,
     val name: String,
     val slug: String,
     val permalink: String,
@@ -43,7 +43,7 @@ data class Event(
     val attributes: List<Attribute>,
     @ColumnInfo(defaultValue = InStock) @StockStatus val stockStatus: String,
     @ColumnInfo(defaultValue = "0") val stockQuantity: Int,
-) {
+): WooClass(id) {
     companion object : JsonSerializer<Event> {
         private val untilKeyword = Regex(
             "Reservas? hasta el",

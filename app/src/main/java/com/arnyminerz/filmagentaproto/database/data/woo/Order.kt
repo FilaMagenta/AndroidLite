@@ -12,7 +12,7 @@ import org.json.JSONObject
 
 @Entity(tableName = "orders")
 data class Order(
-    @PrimaryKey val id: Long,
+    @PrimaryKey override val id: Long,
     val status: String,
     val currency: String,
     val dateCreated: Date,
@@ -20,7 +20,7 @@ data class Order(
     val total: Double,
     val customerId: Long,
     val items: List<Product>,
-): JsonSerializable {
+): JsonSerializable, WooClass(id) {
     companion object: JsonSerializer<Order> {
         override fun fromJSON(json: JSONObject): Order = Order(
             json.getLong("id"),

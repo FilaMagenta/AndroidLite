@@ -26,7 +26,10 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
+import com.arnyminerz.filmagentaproto.database.data.woo.WooClass
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
+import com.arnyminerz.filmagentaproto.database.local.PersonalDataDao
+import com.arnyminerz.filmagentaproto.database.local.RemoteDatabaseDao
 import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
@@ -129,21 +132,26 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             .getWorkInfosForUniqueWorkLiveData(UNIQUE_WORK_NAME)
     }
 
+    private val am = AccountManager.get(appContext)
+
+    private lateinit var personalDataDao: PersonalDataDao
+    private lateinit var remoteDatabaseDao: RemoteDatabaseDao
+    private lateinit var wooCommerceDao: WooCommerceDao
+
     override suspend fun doWork(): Result {
         Log.i(TAG, "Running Synchronization...")
         setProgress(ProgressStep.INITIALIZING)
 
         // Get access to the database
         val database = AppDatabase.getInstance(applicationContext)
-        val personalDataDao = database.personalDataDao()
-        val remoteDatabaseDao = database.remoteDatabaseDao()
-        val wooCommerceDao = database.wooCommerceDao()
+        personalDataDao = database.personalDataDao()
+        remoteDatabaseDao = database.remoteDatabaseDao()
+        wooCommerceDao = database.wooCommerceDao()
 
         val syncTransactions = inputData.getBoolean(SYNC_TRANSACTIONS, true)
         val syncSocios = inputData.getBoolean(SYNC_SOCIOS, true)
 
         // Synchronize data of all the accounts
-        val am = AccountManager.get(applicationContext)
         val accounts = am.getAccountsByType(Authenticator.AuthTokenType)
         accounts.forEach { account ->
             val authToken: String? = am.peekAuthToken(account, Authenticator.AuthTokenType)
@@ -170,7 +178,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             }
 
             // Fetch the data from woo
-            fetchAndUpdateWooData(am, account, wooCommerceDao)
+            fetchAndUpdateWooData(account)
         }
 
         // Fetch all the data from users in database
@@ -232,23 +240,81 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         return Result.success()
     }
 
+    /**
+     * Takes the extra data from [shouldSyncInputKey], and if it's `true` (`true` by default), it
+     * fetches the data from the server (using the provided function [remoteFetcher]), and updates
+     * the database using [insertMethod] and [updateMethod]. Then, obtains all the stored data from
+     * the database using [databaseFetcher], and deletes the entries deleted from the server with
+     * [updateMethod]. Also sends progress updates with [setProgress] and [progressStep].
+     * @param shouldSyncInputKey The key from [getInputData] which should be a boolean value stating
+     * whether this field should be fetched. `true` by default.
+     * @param progressStep One of [ProgressStep] for sending progress updates with [setProgress].
+     * @param remoteFetcher Should return all the entries from the server.
+     * @param databaseFetcher Should return all the entries from the local database.
+     * @param insertMethod Should insert the given `item` into the database.
+     * @param updateMethod Should update the given `item` in the database.
+     * @param deleteMethod Should delete the given `item` from the database.
+     * @param listExtraProcessing If some extra processing wants to be done with the entries fetched
+     * with [remoteFetcher].
+     */
+    private suspend inline fun <T: WooClass> fetchAndUpdateDatabase(
+        shouldSyncInputKey: String,
+        progressStep: ProgressStep,
+        remoteFetcher: () -> List<T>,
+        databaseFetcher: () -> List<T>,
+        insertMethod: (item: T) -> Unit,
+        updateMethod: (item: T) -> Unit,
+        deleteMethod: (item: T) -> Unit,
+        listExtraProcessing: (List<T>) -> Unit = {},
+    ) {
+        val shouldSync = inputData.getBoolean(shouldSyncInputKey, true)
+        if (shouldSync) {
+            setProgress(progressStep)
+            Log.d(TAG, "Getting list from remote...")
+            val list = remoteFetcher()
+
+            listExtraProcessing(list)
+
+            Log.d(TAG, "Updating database...")
+            for ((index, item) in list.withIndex()) {
+                setProgress(progressStep, index to list.size)
+                try {
+                    insertMethod(item)
+                } catch (e: SQLiteConstraintException) {
+                    updateMethod(item)
+                }
+            }
+
+            Log.d(TAG, "Synchronizing deletions...")
+            val storedList = databaseFetcher()
+            for (stored in storedList)
+                if (list.find { it.id == stored.id } == null)
+                    deleteMethod(stored)
+
+            setProgress(ProgressStep.INTERMEDIATE)
+        }
+    }
+
+    /**
+     * Fetches all the data from the REST endpoints, and updates the database accordingly.
+     */
     private suspend fun fetchAndUpdateWooData(
-        am: AccountManager,
         account: Account,
-        wooCommerceDao: WooCommerceDao,
     ) {
         val dni = am.getPassword(account)
 
         var customerId: Long? = am.getUserData(account, "customer_id")?.toLongOrNull()
 
         // Fetch all customers data
-        val shouldSyncCustomers = inputData.getBoolean(SYNC_CUSTOMERS, true)
-        if (shouldSyncCustomers) {
-            setProgress(ProgressStep.SYNC_CUSTOMERS)
-            Log.d(TAG, "Getting customers data...")
-            val customers = RemoteCommerce.customersList()
-            Log.d(TAG, "Got ${customers.size} customers.")
-
+        fetchAndUpdateDatabase(
+            SYNC_CUSTOMERS,
+            ProgressStep.SYNC_CUSTOMERS,
+            { RemoteCommerce.customersList() },
+            { wooCommerceDao.getAllCustomers() },
+            { wooCommerceDao.insert(it) },
+            { wooCommerceDao.update(it) },
+            { wooCommerceDao.delete(it) },
+        ) { customers ->
             if (customerId == null) {
                 val customer = customers.find { it.username.equals(dni, true) }
                     ?: throw IndexOutOfBoundsException("Could not find logged in user in the customers database.")
@@ -256,71 +322,41 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 customerId = customer.id
                 am.setUserData(account, "customer_id", customerId.toString())
             }
-
-            Log.d(TAG, "Updating customers in database...")
-            for ((index, item) in customers.withIndex()) {
-                setProgress(ProgressStep.SYNC_CUSTOMERS, index to customers.size)
-                try {
-                    wooCommerceDao.insert(item)
-                } catch (e: SQLiteConstraintException) {
-                    wooCommerceDao.update(item)
-                }
-            }
-            setProgress(ProgressStep.INTERMEDIATE)
         }
 
         // Fetch all payments available
-        val shouldSyncPayments = inputData.getBoolean(SYNC_PAYMENTS, true)
-        if (shouldSyncPayments) {
-            setProgress(ProgressStep.SYNC_PAYMENTS)
-            Log.d(TAG, "Getting available payments list...")
-            val payments = RemoteCommerce.paymentsList()
-            Log.d(TAG, "Updating available payments in database...")
-            for ((index, item) in payments.withIndex()) {
-                setProgress(ProgressStep.SYNC_PAYMENTS, index to payments.size)
-                try {
-                    wooCommerceDao.insert(item)
-                } catch (e: SQLiteConstraintException) {
-                    wooCommerceDao.update(item)
-                }
-            }
-            setProgress(ProgressStep.INTERMEDIATE)
-        }
+        fetchAndUpdateDatabase(
+            SYNC_PAYMENTS,
+            ProgressStep.SYNC_PAYMENTS,
+            { RemoteCommerce.paymentsList() },
+            { wooCommerceDao.getAllAvailablePayments() },
+            { wooCommerceDao.insert(it) },
+            { wooCommerceDao.update(it) },
+            { wooCommerceDao.delete(it) },
+        )
 
         // Fetch all orders available
-        val shouldSyncOrders = inputData.getBoolean(SYNC_ORDERS, true)
-        if (shouldSyncOrders && customerId != null) {
-            setProgress(ProgressStep.SYNC_ORDERS)
-            Log.d(TAG, "Getting orders list...")
-            val orders = RemoteCommerce.orderList(customerId)
-            Log.d(TAG, "Updating orders in database...")
-            for ((index, item) in orders.withIndex()) {
-                setProgress(ProgressStep.SYNC_ORDERS, index to orders.size)
-                try {
-                    wooCommerceDao.insert(item)
-                } catch (e: SQLiteConstraintException) {
-                    wooCommerceDao.update(item)
-                }
-            }
-        }
+        if (customerId != null)
+            fetchAndUpdateDatabase(
+                SYNC_ORDERS,
+                ProgressStep.SYNC_ORDERS,
+                { RemoteCommerce.orderList(customerId!!) },
+                { wooCommerceDao.getAllOrders() },
+                { wooCommerceDao.insert(it) },
+                { wooCommerceDao.update(it) },
+                { wooCommerceDao.delete(it) },
+            )
 
         // Fetch all events available
-        val shouldSyncEvents = inputData.getBoolean(SYNC_EVENTS, true)
-        if (shouldSyncEvents) {
-            setProgress(ProgressStep.SYNC_EVENTS)
-            Log.d(TAG, "Getting events list...")
-            val events = RemoteCommerce.eventList()
-            Log.d(TAG, "Updating events in database...")
-            for ((index, item) in events.withIndex()) {
-                setProgress(ProgressStep.SYNC_EVENTS, index to events.size)
-                try {
-                    wooCommerceDao.insert(item)
-                } catch (e: SQLiteConstraintException) {
-                    wooCommerceDao.update(item)
-                }
-            }
-            setProgress(ProgressStep.INTERMEDIATE)
-        }
+        fetchAndUpdateDatabase(
+            SYNC_EVENTS,
+            ProgressStep.SYNC_EVENTS,
+            { RemoteCommerce.eventList() },
+            { wooCommerceDao.getAllEvents() },
+            { wooCommerceDao.insert(it) },
+            { wooCommerceDao.update(it) },
+            { wooCommerceDao.delete(it) },
+        )
     }
 
     /**

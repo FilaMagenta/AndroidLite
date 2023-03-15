@@ -7,9 +7,9 @@ import org.json.JSONObject
 
 @Entity(tableName = "available_payments")
 data class AvailablePayment(
-    @PrimaryKey val id: Long,
+    @PrimaryKey override val id: Long,
     val price: Double,
-) {
+): WooClass(id) {
     companion object: JsonSerializer<AvailablePayment> {
         override fun fromJSON(json: JSONObject): AvailablePayment = AvailablePayment(
             json.getLong("id"),
