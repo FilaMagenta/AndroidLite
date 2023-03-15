@@ -24,11 +24,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
+import com.arnyminerz.filmagentaproto.database.data.woo.StockStatus
 import com.arnyminerz.filmagentaproto.ui.dialogs.EventBottomSheet
 import com.arnyminerz.filmagentaproto.utils.launchCalendarInsert
 import java.text.SimpleDateFormat
@@ -47,6 +49,7 @@ fun EventItem(
     val context = LocalContext.current
 
     val isFree = event.price <= 0.0
+    val inStock = event.stockStatus == StockStatus.InStock || event.stockQuantity > 0
     var showingCard by remember { mutableStateOf(false) }
 
     if (showingCard)
@@ -74,7 +77,8 @@ fun EventItem(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
-                    fontStyle = if (isFree) FontStyle.Normal else FontStyle.Italic,
+                    fontStyle = if (isFree && inStock) FontStyle.Normal else FontStyle.Italic,
+                    textDecoration = if (!inStock) TextDecoration.LineThrough else TextDecoration.None,
                 )
                 event.eventDate?.let {
                     IconButton(
@@ -82,12 +86,17 @@ fun EventItem(
                     ) {
                         Icon(Icons.Rounded.EditCalendar, stringResource(R.string.add_to_calendar))
                     }
-                }
+                } ?: IconButton(enabled = false, onClick = { }) { }
             }
 
             if (!isFree)
                 Text(
                     stringResource(R.string.events_only_free),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            if (!inStock)
+                Text(
+                    stringResource(R.string.events_error_stock),
                     color = MaterialTheme.colorScheme.error,
                 )
 

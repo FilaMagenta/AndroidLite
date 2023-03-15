@@ -1,11 +1,16 @@
 package com.arnyminerz.filmagentaproto.database.data.woo
 
 import android.util.Log
+import androidx.annotation.StringDef
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.arnyminerz.filmagentaproto.database.data.woo.StockStatus.Companion.InStock
+import com.arnyminerz.filmagentaproto.database.data.woo.StockStatus.Companion.OnBackOrder
+import com.arnyminerz.filmagentaproto.database.data.woo.StockStatus.Companion.OutOfStock
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
@@ -14,6 +19,15 @@ import com.arnyminerz.filmagentaproto.utils.toJSONArray
 import java.util.Calendar
 import java.util.Date
 import org.json.JSONObject
+
+@StringDef(InStock, OutOfStock, OnBackOrder)
+annotation class StockStatus {
+    companion object {
+        const val InStock = "instock"
+        const val OutOfStock = "outofstock"
+        const val OnBackOrder = "onbackorder"
+    }
+}
 
 @Entity(tableName = "events")
 data class Event(
@@ -27,6 +41,8 @@ data class Event(
     val shortDescription: String,
     val price: Double,
     val attributes: List<Attribute>,
+    @ColumnInfo(defaultValue = InStock) @StockStatus val stockStatus: String,
+    @ColumnInfo(defaultValue = "0") val stockQuantity: Int,
 ) {
     companion object : JsonSerializer<Event> {
         private val untilKeyword = Regex(
@@ -102,6 +118,8 @@ data class Event(
             json.getString("short_description"),
             json.getDouble("price"),
             emptyList(),
+            json.getString("stock_status"),
+            json.getInt("stock_quantity"),
         )
     }
 
