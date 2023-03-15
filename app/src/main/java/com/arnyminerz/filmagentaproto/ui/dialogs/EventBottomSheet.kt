@@ -80,7 +80,14 @@ fun EventBottomSheet(
                 ) {
                     for (option in attribute.options)
                         ListItem(
-                            headlineContent = { Text(option.displayValue) },
+                            headlineContent = {
+                                Text(
+                                    if (option.price > 0.0)
+                                        "${option.displayValue} (${option.price} €)"
+                                    else
+                                        option.displayValue
+                                )
+                            },
                             colors = ListItemDefaults.colors(
                                 containerColor = if (selectedAttributeOption.value == option.value)
                                     MaterialTheme.colorScheme.surfaceVariant
@@ -89,7 +96,8 @@ fun EventBottomSheet(
                             ),
                             modifier = Modifier
                                 .clickable {
-                                    selectedAttributesOption[attribute.id] = attribute.toMetadata(option)
+                                    selectedAttributesOption[attribute.id] =
+                                        attribute.toMetadata(option)
                                 }
                         )
                 }
@@ -129,7 +137,10 @@ fun EventBottomSheet(
             enabled = !isConfirming,
             onClick = {
                 isConfirming = true
-                Log.d("EventBottomSheet", "Submitting event ${event.id}. Selected: $selectedAttributesOption")
+                Log.d(
+                    "EventBottomSheet",
+                    "Submitting event ${event.id}. Selected: $selectedAttributesOption"
+                )
                 onSubmit(selectedAttributesOption.values.toList()) {
                     isConfirming = false
                     onDismissRequest()
