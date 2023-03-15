@@ -58,6 +58,11 @@
                 android:value="true" />
         </service>
 
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+
         <!-- For observing changes in the app language -->
         <receiver android:name=".service.LanguageChangeReceiver" android:exported="false">
             <intent-filter>
