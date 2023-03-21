@@ -15,6 +15,13 @@
     <string name="accounts_new">Add new Account</string>
     <string name="accounts_remove">Remove Account</string>
 
+    <string name="telegram_channel">Telegram Channel</string>
+    <string name="website">Website</string>
+    <string name="facebook" translatable="false">Facebook</string>
+    <string name="instagram" translatable="false">Instagram</string>
+    <string name="twitter" translatable="false">Twitter</string>
+    <string name="tiktok" translatable="false">TikTok</string>
+
     <string name="login_title">Login</string>
     <string name="login_name">Name</string>
     <string name="login_name_aux">Your first name, without any tildes or accents</string>

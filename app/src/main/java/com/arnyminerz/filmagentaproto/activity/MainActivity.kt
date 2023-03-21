@@ -26,25 +26,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Wallet
 import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Wallet
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -74,6 +81,8 @@ import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
 import com.arnyminerz.filmagentaproto.ui.components.ErrorCard
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
+import com.arnyminerz.filmagentaproto.ui.components.ModalDrawerSheetItem
+import com.arnyminerz.filmagentaproto.ui.components.ModalNavigationDrawer
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.ProfileImage
@@ -96,8 +105,15 @@ import com.arnyminerz.filmagentaproto.utils.ui
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import compose.icons.SimpleIcons
+import compose.icons.simpleicons.Facebook
+import compose.icons.simpleicons.Instagram
+import compose.icons.simpleicons.Telegram
+import compose.icons.simpleicons.Tiktok
+import compose.icons.simpleicons.Twitter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @OptIn(
     ExperimentalTextApi::class,
@@ -190,143 +206,11 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                 return@setContentThemed InitialLoadScreen()
 
             selectedAccountIndex?.let { accountIndex ->
-                Scaffold(
-                    topBar = {
-                        AnimatedVisibility(
-                            visible = currentPage == 0,
-                            enter = slideInVertically(tween(durationMillis = 300)) { -it },
-                            exit = slideOutVertically(tween(durationMillis = 300)) { -it },
-                        ) {
-                            CenterAlignedTopAppBar(
-                                title = { Text(stringResource(R.string.app_name)) },
-                                actions = {
-                                    accounts
-                                        .takeIf { it.isNotEmpty() }
-                                        ?.getOrNull(accountIndex)
-                                        ?.let {
-                                            ProfileImage(
-                                                name = it.name.uppercase(),
-                                                modifier = Modifier
-                                                    .clip(CircleShape)
-                                                    .clickable { showingAccountsDialog = true },
-                                            )
-                                        }
-                                        ?: doAsync {
-                                            if (selectedAccountIndex != 0)
-                                                dataStore.edit {
-                                                    it[SELECTED_ACCOUNT] = 0
-                                                }
-                                        }
-                                },
-                            )
-                        }
-                    },
-                    bottomBar = {
-                        NavigationBar {
-                            NavigationBarItems(
-                                selectedIndex = currentPage,
-                                onSelected = { currentPage = it },
-                                items = listOf(
-                                    NavigationBarItem(
-                                        Icons.Rounded.Wallet,
-                                        Icons.Outlined.Wallet,
-                                        R.string.navigation_balance,
-                                    ),
-                                    NavigationBarItem(
-                                        Icons.Rounded.CalendarMonth,
-                                        Icons.Outlined.CalendarMonth,
-                                        R.string.navigation_events,
-                                    ),
-                                    NavigationBarItem(
-                                        Icons.Rounded.Person,
-                                        Icons.Outlined.Person,
-                                        R.string.navigation_profile,
-                                    ),
-                                    NavigationBarItem(
-                                        Icons.Rounded.Settings,
-                                        Icons.Outlined.Settings,
-                                        R.string.navigation_settings,
-                                    ),
-                                ),
-                            )
-                        }
-                    },
-                    floatingActionButton = {
-                        FloatingActionButton(onClick = { showingPaymentBottomSheet = true }) {
-                            Icon(Icons.Rounded.Wallet, "")
-                        }
-                    },
-                ) { paddingValues ->
-                    val personalData by viewModel.personalData.observeAsState()
-                    val selectedAccount = accounts.getOrNull(accountIndex)
-                    val topPadding by animateDpAsState(
-                        if (currentPage == 0)
-                            TOP_BAR_HEIGHT
-                        else
-                            0.dp,
-                        animationSpec = tween(durationMillis = 300),
-                    )
-
-                    LaunchedEffectFlow(selectedAccountIndex ?: -1, { it }) { index ->
-                        if (index < 0) return@LaunchedEffectFlow
-                        val account = accounts.getOrNull(index) ?: return@LaunchedEffectFlow
-                        val password: String? = am.getPassword(account)
-                        val dni = password?.trimmedAndCaps
-                        val socio = databaseData?.find { it.Dni?.trimmedAndCaps == dni }
-                            ?: return@LaunchedEffectFlow
-                        viewModel.getAssociatedAccounts(socio.idSocio)
-                    }
-
-                    selectedAccount
-                        ?.let { account ->
-                            val data =
-                                personalData?.find { it.accountName == account.name && it.accountType == account.type }
-                            data?.let { account to it }
-                        }
-                        ?.let { (account, data) ->
-                            val dni = am.getPassword(account).trimmedAndCaps
-                            data to databaseData?.find { it.Dni?.trimmedAndCaps == dni }
-                        }
-                        ?.let { (data, socio) ->
-                            val pagerState = rememberPagerState()
-
-                            LaunchedEffectFlow(pagerState, { it.currentPage }) {
-                                currentPage = it
-                            }
-                            LaunchedEffectFlow(
-                                currentPage,
-                                { it }) { pagerState.scrollToPage(it) }
-
-                            HorizontalPager(
-                                count = 4,
-                                state = pagerState,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(
-                                        top = topPadding,
-                                        bottom = paddingValues.calculateBottomPadding()
-                                    ),
-                            ) { page ->
-                                when (page) {
-                                    0 -> MainPage(data, viewModel)
-                                    1 -> EventsScreen(viewModel) { event, customer ->
-                                        eventViewRequestLauncher.launch(
-                                            EventActivity.InputData(customer, event)
-                                        )
-                                    }
-                                    2 -> socio?.let { socio ->
-                                        ProfilePage(socio, accounts) { _, index ->
-                                            doAsync {
-                                                dataStore.edit { it[SELECTED_ACCOUNT] = index }
-                                            }
-                                        }
-                                    } ?: ErrorCard(stringResource(R.string.error_find_data))
-                                    3 -> SettingsScreen()
-                                }
-                            }
-                        }
-                        ?: LoadingBox()
-                }
+                Content(
+                    currentPage, { currentPage = it }, accounts, accountIndex,
+                    { showingAccountsDialog = true }, { showingPaymentBottomSheet = true },
+                    databaseData,
+                )
             }
         }
     }
@@ -357,6 +241,201 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
 
     override fun onAccountsUpdated(accounts: Array<out Account>?) {
         viewModel.accounts.postValue(accounts)
+    }
+
+    @Composable
+    fun Content(
+        currentPage: Int,
+        onPageChanged: (Int) -> Unit,
+        accounts: Array<out Account>,
+        accountIndex: Int,
+        onAccountsDialogRequested: () -> Unit,
+        onPaymentBottomSheetRequested: () -> Unit,
+        databaseData: List<Socio>?,
+    ) {
+        val scope = rememberCoroutineScope()
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+        ModalNavigationDrawer(
+            items = listOf(
+                ModalDrawerSheetItem(SimpleIcons.Telegram, R.string.telegram_channel) {
+
+                },
+                ModalDrawerSheetItem(Icons.Outlined.Language, R.string.website) {
+                    launchUrl("https://filamagenta.com/")
+                },
+                ModalDrawerSheetItem.Divider,
+                ModalDrawerSheetItem(SimpleIcons.Facebook, R.string.facebook) {
+                    launchUrl("https://www.facebook.com/FilaMagenta/")
+                },
+                ModalDrawerSheetItem(SimpleIcons.Instagram, R.string.instagram) {
+                    launchUrl("https://www.instagram.com/filamagenta/")
+                },
+                ModalDrawerSheetItem(SimpleIcons.Twitter, R.string.twitter) {
+                    launchUrl("https://twitter.com/filamagenta")
+                },
+                ModalDrawerSheetItem(SimpleIcons.Tiktok, R.string.tiktok) {
+                    launchUrl("https://www.tiktok.com/@filamagenta")
+                },
+            ),
+            drawerState = drawerState,
+        ) {
+            Scaffold(
+                topBar = {
+                    AnimatedVisibility(
+                        visible = currentPage == 0,
+                        enter = slideInVertically(tween(durationMillis = 300)) { -it },
+                        exit = slideOutVertically(tween(durationMillis = 300)) { -it },
+                    ) {
+                        CenterAlignedTopAppBar(
+                            title = { Text(stringResource(R.string.app_name)) },
+                            navigationIcon = {
+                                IconButton(
+                                    onClick = {
+                                        scope.launch {
+                                            drawerState.animateTo(
+                                                DrawerValue.Open,
+                                                tween(),
+                                            )
+                                        }
+                                    },
+                                ) {
+                                    Icon(
+                                        Icons.Rounded.Menu,
+                                        stringResource(androidx.compose.ui.R.string.navigation_menu),
+                                    )
+                                }
+                            },
+                            actions = {
+                                accounts
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.getOrNull(accountIndex)
+                                    ?.let {
+                                        ProfileImage(
+                                            name = it.name.uppercase(),
+                                            modifier = Modifier
+                                                .clip(CircleShape)
+                                                .clickable { onAccountsDialogRequested() },
+                                        )
+                                    }
+                                    ?: doAsync {
+                                        if (accountIndex != 0)
+                                            dataStore.edit {
+                                                it[SELECTED_ACCOUNT] = 0
+                                            }
+                                    }
+                            },
+                        )
+                    }
+                },
+                bottomBar = {
+                    NavigationBar {
+                        NavigationBarItems(
+                            selectedIndex = currentPage,
+                            onSelected = { onPageChanged(it) },
+                            items = listOf(
+                                NavigationBarItem(
+                                    Icons.Rounded.Wallet,
+                                    Icons.Outlined.Wallet,
+                                    R.string.navigation_balance,
+                                ),
+                                NavigationBarItem(
+                                    Icons.Rounded.CalendarMonth,
+                                    Icons.Outlined.CalendarMonth,
+                                    R.string.navigation_events,
+                                ),
+                                NavigationBarItem(
+                                    Icons.Rounded.Person,
+                                    Icons.Outlined.Person,
+                                    R.string.navigation_profile,
+                                ),
+                                NavigationBarItem(
+                                    Icons.Rounded.Settings,
+                                    Icons.Outlined.Settings,
+                                    R.string.navigation_settings,
+                                ),
+                            ),
+                        )
+                    }
+                },
+                floatingActionButton = {
+                    FloatingActionButton(onClick = onPaymentBottomSheetRequested) {
+                        Icon(Icons.Rounded.Wallet, "")
+                    }
+                },
+            ) { paddingValues ->
+                val personalData by viewModel.personalData.observeAsState()
+                val selectedAccount = accounts.getOrNull(accountIndex)
+                val topPadding by animateDpAsState(
+                    if (currentPage == 0)
+                        TOP_BAR_HEIGHT
+                    else
+                        0.dp,
+                    animationSpec = tween(durationMillis = 300),
+                )
+
+                LaunchedEffectFlow(accountIndex, { it }) { index ->
+                    if (index < 0) return@LaunchedEffectFlow
+                    val account = accounts.getOrNull(index) ?: return@LaunchedEffectFlow
+                    val password: String? = am.getPassword(account)
+                    val dni = password?.trimmedAndCaps
+                    val socio = databaseData?.find { it.Dni?.trimmedAndCaps == dni }
+                        ?: return@LaunchedEffectFlow
+                    viewModel.getAssociatedAccounts(socio.idSocio)
+                }
+
+                selectedAccount
+                    ?.let { account ->
+                        val data =
+                            personalData?.find { it.accountName == account.name && it.accountType == account.type }
+                        data?.let { account to it }
+                    }
+                    ?.let { (account, data) ->
+                        val dni = am.getPassword(account).trimmedAndCaps
+                        data to databaseData?.find { it.Dni?.trimmedAndCaps == dni }
+                    }
+                    ?.let { (data, socio) ->
+                        val pagerState = rememberPagerState()
+
+                        LaunchedEffectFlow(pagerState, { it.currentPage }) {
+                            onPageChanged(it)
+                        }
+                        LaunchedEffectFlow(
+                            currentPage,
+                            { it },
+                        ) { pagerState.scrollToPage(it) }
+
+                        HorizontalPager(
+                            count = 4,
+                            state = pagerState,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(
+                                    top = topPadding,
+                                    bottom = paddingValues.calculateBottomPadding()
+                                ),
+                        ) { page ->
+                            when (page) {
+                                0 -> MainPage(data, viewModel)
+                                1 -> EventsScreen(viewModel) { event, customer ->
+                                    eventViewRequestLauncher.launch(
+                                        EventActivity.InputData(customer, event)
+                                    )
+                                }
+                                2 -> socio?.let { socio ->
+                                    ProfilePage(socio, accounts) { _, index ->
+                                        doAsync {
+                                            dataStore.edit { it[SELECTED_ACCOUNT] = index }
+                                        }
+                                    }
+                                } ?: ErrorCard(stringResource(R.string.error_find_data))
+                                3 -> SettingsScreen()
+                            }
+                        }
+                    }
+                    ?: LoadingBox()
+            }
+        }
     }
 
     class MainViewModel(application: Application) : AndroidViewModel(application) {

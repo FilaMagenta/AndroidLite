@@ -120,6 +120,7 @@ dependencies {
 
     // Jetpack Compose - Icons
     implementation 'androidx.compose.material:material-icons-extended'
+    implementation 'br.com.devsrsouza.compose.icons.android:simple-icons:1.0.0'
 
     // Jetpack Compose - Integrations
     implementation 'androidx.activity:activity-compose:1.6.1'
