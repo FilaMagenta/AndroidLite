@@ -129,7 +129,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
         fun getLiveState(context: Context) = WorkManager
             .getInstance(context)
-            .getWorkInfosForUniqueWorkLiveData(UNIQUE_WORK_NAME)
+            .getWorkInfosByTagLiveData(TAG)
     }
 
     private val am = AccountManager.get(appContext)

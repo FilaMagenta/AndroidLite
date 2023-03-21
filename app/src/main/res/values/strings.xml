@@ -3,6 +3,7 @@
 
     <string name="back">Back</string>
     <string name="cancel">Cancel</string>
+    <string name="share">Share</string>
 
     <string name="keyboard_backspace">Backspace</string>
 
@@ -83,6 +84,8 @@
     <string name="sync_step_transactions">Fetching transactions…</string>
     <string name="sync_step_socios">Fetching socios data…</string>
     <string name="sync_step_intermediate">Processing…</string>
+    <string name="sync_error_title">Synchronization error!</string>
+    <string name="sync_error_message">The synchronization could not be performed. Please, share the error with an administrator.</string>
 
     <string name="notification_group_sync_name">Synchronization</string>
     <string name="notification_group_sync_desc">All the notifications regarding the synchronization process.</string>
