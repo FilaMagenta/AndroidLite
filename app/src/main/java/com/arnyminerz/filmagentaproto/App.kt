@@ -1,25 +1,61 @@
 package com.arnyminerz.filmagentaproto
 
+import android.accounts.Account
+import android.accounts.AccountManager
+import android.accounts.OnAccountsUpdateListener
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.PendingIntent
 import android.content.Intent
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.os.HandlerCompat
 import androidx.lifecycle.Observer
 import androidx.work.WorkInfo
+import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
+import com.arnyminerz.filmagentaproto.storage.dataStore
 import com.arnyminerz.filmagentaproto.utils.PermissionsUtils.hasNotificationPermission
+import com.arnyminerz.filmagentaproto.utils.doAsync
+import com.bugsnag.android.Bugsnag
 import kotlin.random.Random
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.map
 
-class App : Application(), Observer<List<WorkInfo>> {
+class App : Application(), Observer<List<WorkInfo>>, OnAccountsUpdateListener, FlowCollector<Int> {
+    companion object {
+        private const val TAG = "App"
+    }
+
+    private lateinit var am: AccountManager
+
+    private var accounts: Array<out Account>? = null
+
+    private var selectedAccountIndex = 0
+
     override fun onCreate() {
         super.onCreate()
+
+        Bugsnag.start(this)
 
         SyncWorker.schedule(this)
 
         SyncWorker.getLiveState(this).observeForever(this)
+
+        // Start observing the currently selected account index
+        doAsync {
+            dataStore.data
+                .map { it[SELECTED_ACCOUNT] ?: 0 }
+                .collect(this@App)
+        }
+
+        am = AccountManager.get(this)
+        am.addOnAccountsUpdatedListener(this, HandlerCompat.createAsync(mainLooper), true)
     }
 
+    /**
+     * Sends notifications about the errors that might have occurred in the [SyncWorker].
+     */
     @SuppressLint("MissingPermission")
     override fun onChanged(value: List<WorkInfo>) {
         if (!hasNotificationPermission(this))
@@ -53,6 +89,32 @@ class App : Application(), Observer<List<WorkInfo>> {
                 NotificationManagerCompat.from(this).notify(Random.nextInt(), notification)
             }
         }
+    }
+
+    override suspend fun emit(value: Int) {
+        selectedAccountIndex = value
+
+        updateBugsnagUserId()
+    }
+
+    override fun onAccountsUpdated(accounts: Array<out Account>?) {
+        this.accounts = accounts
+
+        updateBugsnagUserId()
+    }
+
+    /**
+     * Updates the currently tracking Bugsnag user data from [accounts] and [selectedAccountIndex].
+     */
+    private fun updateBugsnagUserId() {
+        // Fetch the account's data
+        val account = accounts?.getOrNull(selectedAccountIndex) ?: return
+        val customerId = am.getUserData(account, "customer_id")
+        val dni = am.getPassword(account)
+
+        // Update the Bugsnag user
+        Bugsnag.setUser(customerId, dni, account.name)
+        Log.i(TAG, "Updated Bugsnag user reference to: ${account.name} ($dni, $customerId)")
     }
 
     override fun onTerminate() {

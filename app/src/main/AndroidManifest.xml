@@ -69,5 +69,10 @@
                 <action android:name="ACTION_LOCALE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <!-- FIXME do not hardcode credentials -->
+        <meta-data
+            android:name="com.bugsnag.android.API_KEY"
+            android:value="2bd2cac7b935fa6b88dc5b17bf5c316c"/>
     </application>
 </manifest>

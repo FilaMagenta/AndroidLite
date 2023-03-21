@@ -34,7 +34,9 @@ import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
 import com.arnyminerz.filmagentaproto.database.remote.RemoteServer
+import com.arnyminerz.filmagentaproto.monitoring.PerformanceNotification
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
+import com.bugsnag.android.Bugsnag
 import java.util.concurrent.TimeUnit
 
 enum class ProgressStep(@StringRes val textRes: Int) {
@@ -244,6 +246,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         val synchronizationEnd = System.currentTimeMillis()
         val synchronizationTime = synchronizationEnd - synchronizationStart
         Log.i(TAG, "Finished synchronization in ${synchronizationTime / 1000} seconds.")
+
+        Bugsnag.notify(PerformanceNotification(TAG, synchronizationTime))
 
         return Result.success()
     }
