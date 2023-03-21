@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
@@ -44,7 +45,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
@@ -52,8 +52,10 @@ import com.arnyminerz.filmagentaproto.database.logic.getOrderOrNull
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.async
+import com.arnyminerz.filmagentaproto.utils.getParcelableExtraCompat
 import com.arnyminerz.filmagentaproto.utils.launchCalendarInsert
 import java.util.Locale
+import kotlinx.parcelize.Parcelize
 
 @OptIn(ExperimentalMaterial3Api::class)
 class EventActivity : AppCompatActivity() {
@@ -150,7 +152,7 @@ class EventActivity : AppCompatActivity() {
                                 setResult(
                                     Activity.RESULT_OK,
                                     Intent().apply {
-                                        putExtra(RESULT_ACTION, ActionPerformed.DELETE.toString())
+                                        putExtra(RESULT_ACTION, ActionPerformed.DELETE(event.id))
                                     },
                                 )
                             }
@@ -273,20 +275,14 @@ class EventActivity : AppCompatActivity() {
                 return@async
             }
             RemoteCommerce.eventCancel(order.id)
-            Log.i(TAG, "Event cancelled. Syncing...")
-            SyncWorker.run(
-                getApplication(),
-                syncCustomers = false,
-                syncEvents = false,
-                syncPayments = false,
-                syncTransactions = false,
-                syncSocios = false,
-            ).result.get()
+            Log.i(TAG, "Event cancelled. Deleting from db...")
+            dao.delete(event)
         }
     }
 
-    enum class ActionPerformed {
-        DELETE
+    @Parcelize
+    sealed class ActionPerformed(val name: String): Parcelable {
+        data class DELETE(val eventId: Long): ActionPerformed("DELETE")
     }
 
     data class InputData(
@@ -302,6 +298,6 @@ class EventActivity : AppCompatActivity() {
             }
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActionPerformed? =
-            intent?.getStringExtra(RESULT_ACTION)?.let { ActionPerformed.valueOf(it) }
+            intent?.getParcelableExtraCompat(RESULT_ACTION, ActionPerformed::class)
     }
 }

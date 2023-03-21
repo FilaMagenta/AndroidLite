@@ -128,15 +128,8 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
     private val eventViewRequestLauncher = registerForActivityResult(
         EventActivity.Contract
     ) { action ->
-        if (action == EventActivity.ActionPerformed.DELETE) {
-            SyncWorker.run(
-                this,
-                syncTransactions = false,
-                syncSocios = false,
-                syncCustomers = false,
-                syncEvents = false,
-                syncPayments = false,
-            )
+        if (action is EventActivity.ActionPerformed.DELETE) {
+            viewModel.deleteEvent(action.eventId)
         }
     }
 
@@ -480,17 +473,14 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                 event = event,
                 metadata = metadata,
             )
-            Log.i(TAG, "Syncing...")
-            SyncWorker.run(
-                getApplication(),
-                syncCustomers = false,
-                syncEvents = false,
-                syncPayments = false,
-                syncTransactions = false,
-                syncSocios = false,
-            ).result.get()
+            Log.i(TAG, "Adding event...")
+            wooCommerceDao.insert(event)
             Log.i(TAG, "Event sign up is complete.")
             ui { onComplete(paymentUrl) }
+        }
+
+        fun deleteEvent(id: Long) = async {
+            wooCommerceDao.deleteEvent(id)
         }
     }
 }

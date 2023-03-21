@@ -31,6 +31,9 @@ interface WooCommerceDao {
     @Delete
     suspend fun delete(vararg data: Event)
 
+    @Query("DELETE FROM events WHERE id=:id")
+    suspend fun deleteEvent(id: Long)
+
     @Update
     suspend fun update(vararg data: Event)
 
