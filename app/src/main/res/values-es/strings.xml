@@ -83,4 +83,6 @@
     <string name="event_view_info">Información General</string>
     <string name="sync_error_title">Error de Sincronización!</string>
     <string name="sync_error_message">La sincronización no se ha podido llevar a término. Por favor, comparte el error con un administrador.</string>
+    <string name="telegram_channel">Canal de Telegram</string>
+    <string name="website">Página Web</string>
 </resources>
