@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -161,6 +162,12 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             if (!loggedIn && accounts.isEmpty())
                 finish()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishAndRemoveTask()
+            }
+        })
 
         setContentThemed {
             val selectedAccountIndex by viewModel.selectedAccount.collectAsState(null)

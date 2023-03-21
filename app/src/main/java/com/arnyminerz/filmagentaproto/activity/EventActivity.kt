@@ -8,6 +8,7 @@ import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -84,6 +85,13 @@ class EventActivity : AppCompatActivity() {
         }
 
         viewModel.load(eventId, customerId)
+
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                setResult(Activity.RESULT_CANCELED)
+                finish()
+            }
+        })
 
         setContentThemed {
             val eventState by viewModel.event.observeAsState()
