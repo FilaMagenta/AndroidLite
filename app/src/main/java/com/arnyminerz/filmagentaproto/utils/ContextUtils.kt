@@ -1,6 +1,7 @@
 package com.arnyminerz.filmagentaproto.utils
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.IntDef
@@ -20,8 +21,10 @@ annotation class ToastDuration
  * @return The created toast.
  */
 @UiThread
-fun Context.toast(@StringRes textRes: Int, @ToastDuration duration: Int = Toast.LENGTH_SHORT): Toast =
-    Toast.makeText(this, textRes, duration).also { it.show() }
+fun Context.toast(
+    @StringRes textRes: Int,
+    @ToastDuration duration: Int = Toast.LENGTH_SHORT
+): Toast = Toast.makeText(this, textRes, duration).also { it.show() }
 
 /**
  * Shows a toast with the given text and duration.
@@ -39,12 +42,21 @@ fun Context.toast(text: String, @ToastDuration duration: Int = Toast.LENGTH_SHOR
  * Runs the [toast] method in the UI thread.
  * @see toast
  */
-suspend fun Context.toastAsync(@StringRes textRes: Int, @ToastDuration duration: Int = Toast.LENGTH_SHORT) =
-    ui { toast(textRes, duration) }
+suspend fun Context.toastAsync(
+    @StringRes textRes: Int,
+    @ToastDuration duration: Int = Toast.LENGTH_SHORT
+) = ui { toast(textRes, duration) }
 
 @UiThread
-fun Context.launchUrl(url: String): CustomTabsIntent =
+fun Context.launchTabsUrl(url: String): CustomTabsIntent =
     CustomTabsIntent.Builder()
         .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
         .build()
         .also { it.launchUrl(this, Uri.parse(url)) }
+
+@UiThread
+fun Context.launchUrl(url: String) = Intent(Intent.ACTION_VIEW)
+    .apply {
+        data = Uri.parse(url)
+    }
+    .also { startActivity(it) }
