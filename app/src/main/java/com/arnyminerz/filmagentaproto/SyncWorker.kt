@@ -138,8 +138,12 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     private lateinit var remoteDatabaseDao: RemoteDatabaseDao
     private lateinit var wooCommerceDao: WooCommerceDao
 
+    /** Stores the time that the synchronization progress began */
+    private var synchronizationStart: Long = System.currentTimeMillis()
+
     override suspend fun doWork(): Result {
         Log.i(TAG, "Running Synchronization...")
+        synchronizationStart = System.currentTimeMillis()
         setProgress(ProgressStep.INITIALIZING)
 
         // Get access to the database
@@ -236,6 +240,10 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             }
             setProgress(ProgressStep.INTERMEDIATE)
         }
+
+        val synchronizationEnd = System.currentTimeMillis()
+        val synchronizationTime = synchronizationEnd - synchronizationStart
+        Log.i(TAG, "Finished synchronization in ${synchronizationTime / 1000} seconds.")
 
         return Result.success()
     }

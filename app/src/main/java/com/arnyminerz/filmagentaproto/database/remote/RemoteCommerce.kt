@@ -11,7 +11,6 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.divideMoney
-import com.arnyminerz.filmagentaproto.utils.getJSONArray
 import com.arnyminerz.filmagentaproto.utils.getStringJSONArray
 import com.arnyminerz.filmagentaproto.utils.io
 import com.arnyminerz.filmagentaproto.utils.mapObjects
@@ -87,11 +86,11 @@ object RemoteCommerce {
     }
 
     @WorkerThread
-    private suspend fun <T: Any> get(endpoint: Uri, serializer: JsonSerializer<T>): T =
+    private suspend fun <T : Any> get(endpoint: Uri, serializer: JsonSerializer<T>): T =
         JSONObject(get(endpoint)).let { serializer.fromJSON(it) }
 
     @WorkerThread
-    private suspend fun <T: Any> getList(endpoint: Uri, serializer: JsonSerializer<T>): List<T> =
+    private suspend fun <T : Any> getList(endpoint: Uri, serializer: JsonSerializer<T>): List<T> =
         JSONArray(get(endpoint)).mapObjects { serializer.fromJSON(it) }
 
     @WorkerThread
@@ -190,7 +189,9 @@ object RemoteCommerce {
             .appendQueryParameter("category", CATEGORY_EVENTOS.toString())
             .build()
 
-        val cachedAttributes = mutableMapOf<Int, Event.Attribute>()
+        val cachedAttributes = getList(AttributesEndpoint, Event.Attribute)
+            .associateBy { it.id }
+            .toMutableMap()
 
         return multiPageGet(endpoint) { eventJson, progress ->
             progressCallback(progress)
@@ -207,37 +208,28 @@ object RemoteCommerce {
             val variations = getList(variationEndpoint, Event.Variation.Companion)
             Log.d(TAG, "Got ${variations.size} variations for event #$eventId: $variations")
 
-            val eventVariations = eventJson.getJSONArray("variations") { it as Int }
-
-            Log.d(TAG, "Event parsing. Processing attributes (variations hash=${eventVariations.hashCode()})...")
+            Log.d(
+                TAG,
+                "Event parsing. Processing attributes..."
+            )
             val attributes = eventJson.getJSONArray("attributes").mapObjects { attributeJson ->
                 val id = attributeJson.getLong("id")
                 val options = attributeJson.getStringJSONArray("options")
 
-                cachedAttributes.getOrPut(eventVariations.hashCode()) {
-                    val attributeEndpoint = AttributesEndpoint.buildUpon()
-                        .appendPath(id.toString())
-                        .build()
-                    Log.d(TAG, "Fetching event attributes...")
-                    val attributeDataRaw = get(attributeEndpoint)
-                    val attributeDataJson = JSONObject(attributeDataRaw)
-
-                    Log.d(TAG, "Processing event attributes...")
-                    Event.Attribute.fromJSON(attributeDataJson).let { attribute ->
-                        val variation = variations.find { variation ->
-                            variation.attributes.find { it.id == attribute.id } != null
-                        }
-                        attribute.copy(
-                            options = options.map { optionName ->
-                                val optionVar = variations.find { variation ->
-                                    variation.attributes.find { it.option == optionName } != null
-                                }
-                                Event.Attribute.Option(optionName, optionVar?.price ?: price)
-                            },
-                            variation = variation,
-                        )
-                    }
+                val attribute = cachedAttributes.getValue(id)
+                Log.d(TAG, "Processing event attributes...")
+                val variation = variations.find { variation ->
+                    variation.attributes.find { it.id == attribute.id } != null
                 }
+                attribute.copy(
+                    options = options.map { optionName ->
+                        val optionVar = variations.find { variation ->
+                            variation.attributes.find { it.option == optionName } != null
+                        }
+                        Event.Attribute.Option(optionName, optionVar?.price ?: price)
+                    },
+                    variation = variation,
+                )
             }
             Log.d(TAG, "Converting JSON to Event...")
             Event.fromJSON(eventJson).copy(attributes = attributes)
@@ -327,7 +319,12 @@ object RemoteCommerce {
      * @param customer The customer that is making the request.
      */
     @WorkerThread
-    suspend fun eventSignup(customer: Customer, notes: String, event: Event, metadata: List<Order.Metadata>) {
+    suspend fun eventSignup(
+        customer: Customer,
+        notes: String,
+        event: Event,
+        metadata: List<Order.Metadata>
+    ) {
         Log.d(TAG, "Creating item for event...")
         val item = JSONObject().apply {
             put("product_id", event.id)
