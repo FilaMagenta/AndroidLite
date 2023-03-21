@@ -1,0 +1,692 @@
+[
+  {
+    "id": 1604,
+    "date_created": "2023-03-04T13:16:12",
+    "date_created_gmt": "2023-03-04T13:16:12",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=alevin",
+    "sku": "",
+    "price": "12",
+    "regular_price": "12",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "ALEVIN"
+      }
+    ],
+    "menu_order": 0,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1604"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1603,
+    "date_created": "2023-03-04T13:16:09",
+    "date_created_gmt": "2023-03-04T13:16:09",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=infantil",
+    "sku": "",
+    "price": "12",
+    "regular_price": "12",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "INFANTIL"
+      }
+    ],
+    "menu_order": 0,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1603"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1602,
+    "date_created": "2023-03-04T13:16:07",
+    "date_created_gmt": "2023-03-04T13:16:07",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=juvenil",
+    "sku": "",
+    "price": "32",
+    "regular_price": "32",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "JUVENIL"
+      }
+    ],
+    "menu_order": 0,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1602"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1601,
+    "date_created": "2023-03-04T13:16:04",
+    "date_created_gmt": "2023-03-04T13:16:04",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=sit-especial",
+    "sku": "",
+    "price": "32",
+    "regular_price": "32",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "SIT ESPECIAL"
+      }
+    ],
+    "menu_order": 0,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1601"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1600,
+    "date_created": "2023-03-04T13:14:27",
+    "date_created_gmt": "2023-03-04T13:14:27",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=fester",
+    "sku": "",
+    "price": "32",
+    "regular_price": "32",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "FESTER"
+      }
+    ],
+    "menu_order": 0,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1600"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1599,
+    "date_created": "2023-03-04T13:14:23",
+    "date_created_gmt": "2023-03-04T13:14:23",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=jubilado",
+    "sku": "",
+    "price": "32",
+    "regular_price": "32",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "JUBILADO"
+      }
+    ],
+    "menu_order": 0,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1599"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1536,
+    "date_created": "2023-02-26T12:05:17",
+    "date_created_gmt": "2023-02-26T12:05:17",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=col-fester",
+    "sku": "",
+    "price": "32",
+    "regular_price": "32",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "COL. FESTER"
+      }
+    ],
+    "menu_order": 0,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1536"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1535,
+    "date_created": "2023-02-26T12:05:09",
+    "date_created_gmt": "2023-02-26T12:05:09",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=col-protector",
+    "sku": "",
+    "price": "32",
+    "regular_price": "32",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "COL. PROTECTOR"
+      }
+    ],
+    "menu_order": 0,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1535"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1534,
+    "date_created": "2023-02-26T12:05:01",
+    "date_created_gmt": "2023-02-26T12:05:01",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=col-familiar",
+    "sku": "",
+    "price": "32",
+    "regular_price": "32",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "COL. FAMILIAR"
+      }
+    ],
+    "menu_order": 0,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1534"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1533,
+    "date_created": "2023-02-26T12:01:16",
+    "date_created_gmt": "2023-02-26T12:01:16",
+    "date_modified": "2023-03-04T13:18:29",
+    "date_modified_gmt": "2023-03-04T13:18:29",
+    "description": "",
+    "permalink": "https://filamagenta.com/producto/san-jorge-comida/?attribute_pa_categoria=acompanante",
+    "sku": "",
+    "price": "32",
+    "regular_price": "32",
+    "sale_price": "",
+    "date_on_sale_from": null,
+    "date_on_sale_from_gmt": null,
+    "date_on_sale_to": null,
+    "date_on_sale_to_gmt": null,
+    "on_sale": false,
+    "status": "publish",
+    "purchasable": true,
+    "virtual": false,
+    "downloadable": false,
+    "downloads": [],
+    "download_limit": -1,
+    "download_expiry": -1,
+    "tax_status": "taxable",
+    "tax_class": "",
+    "manage_stock": "parent",
+    "stock_quantity": 267,
+    "stock_status": "instock",
+    "backorders": "no",
+    "backorders_allowed": false,
+    "backordered": false,
+    "low_stock_amount": null,
+    "weight": "",
+    "dimensions": {
+      "length": "",
+      "width": "",
+      "height": ""
+    },
+    "shipping_class": "",
+    "shipping_class_id": 0,
+    "image": null,
+    "attributes": [
+      {
+        "id": 4,
+        "name": "CATEGORIA",
+        "option": "ACOMPAÑANTE"
+      }
+    ],
+    "menu_order": 1,
+    "meta_data": [],
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations/1533"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532/variations"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/products/1532"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,124 @@
+{
+  "id": 1488,
+  "name": "12 SAN JORGE, desayuno.",
+  "slug": "san-jorge-desayuno",
+  "permalink": "https://filamagenta.com/producto/san-jorge-desayuno/",
+  "date_created": "2023-02-24T21:09:12",
+  "date_created_gmt": "2023-02-24T21:09:12",
+  "date_modified": "2023-03-15T12:52:06",
+  "date_modified_gmt": "2023-03-15T12:52:06",
+  "type": "variable",
+  "status": "publish",
+  "featured": false,
+  "catalog_visibility": "catalog",
+  "description": "",
+  "short_description": "<h3>RESERVAS hasta el domingo 2 de abril.</h3>\n<p>Durante el desayuno se deberá entregar el ticket al camarero.</p>\n<p>Imprescindible recoger ticket en secretaria.</p>\n",
+  "sku": "",
+  "price": "0",
+  "regular_price": "",
+  "sale_price": "",
+  "date_on_sale_from": null,
+  "date_on_sale_from_gmt": null,
+  "date_on_sale_to": null,
+  "date_on_sale_to_gmt": null,
+  "on_sale": false,
+  "purchasable": true,
+  "total_sales": 19,
+  "virtual": false,
+  "downloadable": false,
+  "downloads": [],
+  "download_limit": -1,
+  "download_expiry": -1,
+  "external_url": "",
+  "button_text": "",
+  "tax_status": "taxable",
+  "tax_class": "",
+  "manage_stock": true,
+  "stock_quantity": 131,
+  "backorders": "no",
+  "backorders_allowed": false,
+  "backordered": false,
+  "low_stock_amount": null,
+  "sold_individually": false,
+  "weight": "",
+  "dimensions": {
+    "length": "",
+    "width": "",
+    "height": ""
+  },
+  "shipping_required": true,
+  "shipping_taxable": true,
+  "shipping_class": "",
+  "shipping_class_id": 0,
+  "reviews_allowed": false,
+  "average_rating": "0.00",
+  "rating_count": 0,
+  "upsell_ids": [],
+  "cross_sell_ids": [],
+  "parent_id": 0,
+  "purchase_note": "",
+  "categories": [
+    {
+      "id": 21,
+      "name": "EVENTOS",
+      "slug": "eventos"
+    }
+  ],
+  "tags": [],
+  "images": [],
+  "attributes": [
+    {
+      "id": 4,
+      "name": "CATEGORIA",
+      "position": 1,
+      "visible": true,
+      "variation": true,
+      "options": [
+        "ALEVIN",
+        "INFANTIL",
+        "JUVENIL",
+        "SIT ESPECIAL",
+        "FESTER",
+        "JUBILADO",
+        "COL. FESTER",
+        "COL. PROTECTOR"
+      ]
+    }
+  ],
+  "default_attributes": [],
+  "variations": [
+    1489,
+    1490
+  ],
+  "grouped_products": [],
+  "menu_order": 0,
+  "price_html": "<span class=\"woocommerce-Price-amount amount\"><bdi>0,00&nbsp;<span class=\"woocommerce-Price-currencySymbol\">&euro;</span></bdi></span>",
+  "related_ids": [
+    1537,
+    1528,
+    1507,
+    1620,
+    1532
+  ],
+  "meta_data": [
+    {
+      "id": 16240,
+      "key": "_wp_page_template",
+      "value": "default"
+    }
+  ],
+  "stock_status": "instock",
+  "has_options": true,
+  "_links": {
+    "self": [
+      {
+        "href": "https://filamagenta.com/wp-json/wc/v3/products/1488"
+      }
+    ],
+    "collection": [
+      {
+        "href": "https://filamagenta.com/wp-json/wc/v3/products"
+      }
+    ]
+  }
+}

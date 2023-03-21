@@ -1,0 +1,128 @@
+[
+    {
+        "id": 1490,
+        "date_created": "2023-02-24T21:09:12",
+        "date_created_gmt": "2023-02-24T21:09:12",
+        "date_modified": "2023-02-24T21:09:12",
+        "date_modified_gmt": "2023-02-24T21:09:12",
+        "description": "",
+        "permalink": "https://filamagenta.com/producto/san-jorge-desayuno/",
+        "sku": "",
+        "price": "0",
+        "regular_price": "0",
+        "sale_price": "",
+        "date_on_sale_from": null,
+        "date_on_sale_from_gmt": null,
+        "date_on_sale_to": null,
+        "date_on_sale_to_gmt": null,
+        "on_sale": false,
+        "status": "publish",
+        "purchasable": true,
+        "virtual": false,
+        "downloadable": false,
+        "downloads": [],
+        "download_limit": -1,
+        "download_expiry": -1,
+        "tax_status": "taxable",
+        "tax_class": "",
+        "manage_stock": "parent",
+        "stock_quantity": 131,
+        "stock_status": "instock",
+        "backorders": "no",
+        "backorders_allowed": false,
+        "backordered": false,
+        "low_stock_amount": null,
+        "weight": "",
+        "dimensions": {
+            "length": "",
+            "width": "",
+            "height": ""
+        },
+        "shipping_class": "",
+        "shipping_class_id": 0,
+        "image": null,
+        "attributes": [],
+        "menu_order": 2,
+        "meta_data": [],
+        "_links": {
+            "self": [
+                {
+                    "href": "https://filamagenta.com/wp-json/wc/v3/products/1488/variations/1490"
+                }
+            ],
+            "collection": [
+                {
+                    "href": "https://filamagenta.com/wp-json/wc/v3/products/1488/variations"
+                }
+            ],
+            "up": [
+                {
+                    "href": "https://filamagenta.com/wp-json/wc/v3/products/1488"
+                }
+            ]
+        }
+    },
+    {
+        "id": 1489,
+        "date_created": "2023-02-24T21:09:12",
+        "date_created_gmt": "2023-02-24T21:09:12",
+        "date_modified": "2023-02-24T21:09:12",
+        "date_modified_gmt": "2023-02-24T21:09:12",
+        "description": "",
+        "permalink": "https://filamagenta.com/producto/san-jorge-desayuno/",
+        "sku": "",
+        "price": "0",
+        "regular_price": "0",
+        "sale_price": "",
+        "date_on_sale_from": null,
+        "date_on_sale_from_gmt": null,
+        "date_on_sale_to": null,
+        "date_on_sale_to_gmt": null,
+        "on_sale": false,
+        "status": "publish",
+        "purchasable": true,
+        "virtual": false,
+        "downloadable": false,
+        "downloads": [],
+        "download_limit": -1,
+        "download_expiry": -1,
+        "tax_status": "taxable",
+        "tax_class": "",
+        "manage_stock": "parent",
+        "stock_quantity": 131,
+        "stock_status": "instock",
+        "backorders": "no",
+        "backorders_allowed": false,
+        "backordered": false,
+        "low_stock_amount": null,
+        "weight": "",
+        "dimensions": {
+            "length": "",
+            "width": "",
+            "height": ""
+        },
+        "shipping_class": "",
+        "shipping_class_id": 0,
+        "image": null,
+        "attributes": [],
+        "menu_order": 1,
+        "meta_data": [],
+        "_links": {
+            "self": [
+                {
+                    "href": "https://filamagenta.com/wp-json/wc/v3/products/1488/variations/1489"
+                }
+            ],
+            "collection": [
+                {
+                    "href": "https://filamagenta.com/wp-json/wc/v3/products/1488/variations"
+                }
+            ],
+            "up": [
+                {
+                    "href": "https://filamagenta.com/wp-json/wc/v3/products/1488"
+                }
+            ]
+        }
+    }
+]
