@@ -4,6 +4,7 @@
     <string name="back">Back</string>
     <string name="cancel">Cancel</string>
     <string name="share">Share</string>
+    <string name="yes">Yes</string>
 
     <string name="keyboard_backspace">Backspace</string>
 
@@ -64,6 +65,8 @@
     <string name="events_event_date">Date: %s</string>
     <string name="events_modal_notes">Extra Notes</string>
     <string name="events_modal_submit">Confirm</string>
+    <string name="events_cancel_reservation_title">Cancel Reservation</string>
+    <string name="events_cancel_reservation_message" formatted="true">Are you sure that you want to cancel the reservation for %s? This action cannot be undone.</string>
 
     <string name="payments_make_title">Make a Payment</string>
     <string name="payments_make_message">Please, introduce the amount of money that you want to transfer. Once your request is processed, you will be redirected to the payments gateway. You can also introduce a concept to represent the payment. Note that payments may take a while to appear in the app.</string>

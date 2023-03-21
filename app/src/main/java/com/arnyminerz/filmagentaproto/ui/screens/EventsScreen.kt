@@ -1,5 +1,6 @@
 package com.arnyminerz.filmagentaproto.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.ui.components.EventItem
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.components.stickyHeaderWithIcon
+import com.arnyminerz.filmagentaproto.utils.launchUrl
 import com.arnyminerz.filmagentaproto.utils.toast
 import java.util.Calendar
 import kotlinx.coroutines.flow.filterNotNull
@@ -90,7 +92,15 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
             items(
                 processEventsList(confirmedEvents)
             ) { event ->
-                EventItem(event, true) { _, _ -> }
+                EventItem(
+                    event = event,
+                    isConfirmed = true,
+                    onDelete = { onComplete ->
+                        mainViewModel
+                            .cancelEventReservation(customerState!!, event)
+                            .invokeOnCompletion { onComplete() }
+                    },
+                ) { _, _ -> }
             }
             stickyHeaderWithIcon(
                 textRes = R.string.events_available_title,
@@ -99,9 +109,17 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
             items(
                 processEventsList(availableEvents)
             ) { event ->
-                EventItem(event, false) { metadata, onComplete ->
+                EventItem(event, false, {}) { metadata, onComplete ->
                     mainViewModel
-                        .signUpForEvent(customerState!!, event, metadata)
+                        .signUpForEvent(customerState!!, event, metadata) { paymentUrl ->
+                            if (event.price > 0.0) {
+                                Log.i(
+                                    "EventScreen",
+                                    "Event is not free, redirecting to the payment gateway..."
+                                )
+                                context.launchUrl(paymentUrl)
+                            }
+                        }
                         .invokeOnCompletion { error ->
                             if (error != null)
                                 context.toast(error.message ?: error.localizedMessage)

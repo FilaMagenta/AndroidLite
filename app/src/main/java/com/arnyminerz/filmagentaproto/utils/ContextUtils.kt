@@ -1,10 +1,12 @@
 package com.arnyminerz.filmagentaproto.utils
 
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
+import androidx.browser.customtabs.CustomTabsIntent
 
 @IntDef(Toast.LENGTH_SHORT, Toast.LENGTH_LONG)
 annotation class ToastDuration
@@ -39,3 +41,10 @@ fun Context.toast(text: String, @ToastDuration duration: Int = Toast.LENGTH_SHOR
  */
 suspend fun Context.toastAsync(@StringRes textRes: Int, @ToastDuration duration: Int = Toast.LENGTH_SHORT) =
     ui { toast(textRes, duration) }
+
+@UiThread
+fun Context.launchUrl(url: String): CustomTabsIntent =
+    CustomTabsIntent.Builder()
+        .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
+        .build()
+        .also { it.launchUrl(this, Uri.parse(url)) }

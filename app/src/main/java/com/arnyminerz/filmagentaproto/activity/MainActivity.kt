@@ -6,16 +6,14 @@ import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
 import android.app.Application
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
-import androidx.browser.customtabs.CustomTabsIntent
-import androidx.browser.customtabs.CustomTabsIntent.SHARE_STATE_OFF
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -69,6 +67,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
+import com.arnyminerz.filmagentaproto.database.logic.getOrderOrNull
 import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
@@ -91,6 +90,7 @@ import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.io
+import com.arnyminerz.filmagentaproto.utils.launchUrl
 import com.arnyminerz.filmagentaproto.utils.toast
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import com.arnyminerz.filmagentaproto.utils.ui
@@ -171,10 +171,7 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                     onPaymentRequested = { amount, concept ->
                         viewModel.makePayment(amount, concept) { paymentUrl ->
                             showingPaymentBottomSheet = false
-                            val intent = CustomTabsIntent.Builder()
-                                .setShareState(SHARE_STATE_OFF)
-                                .build()
-                            intent.launchUrl(this, Uri.parse(paymentUrl))
+                            launchUrl(paymentUrl)
                         }
                     },
                     onDismissRequest = { showingPaymentBottomSheet = false },
@@ -429,7 +426,7 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
         fun makePayment(
             amount: Double,
             concept: String,
-            onComplete: (paymentUrl: String) -> Unit
+            @UiThread onComplete: (paymentUrl: String) -> Unit
         ) = async {
             val paymentUrl = try {
                 processingPayment.postValue(true)
@@ -448,30 +445,59 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             } finally {
                 processingPayment.postValue(false)
             } ?: return@async
-            ui {
-                onComplete(paymentUrl)
-            }
+            ui { onComplete(paymentUrl) }
         }
 
         @Suppress("BlockingMethodInNonBlockingContext")
-        fun signUpForEvent(customer: Customer, event: Event, metadata: List<Order.Metadata>) =
-            async {
-                Log.i(TAG, "Signing up for event. Metadata: $metadata")
-                RemoteCommerce.eventSignup(
-                    customer,
-                    "", // FIXME: Set notes
-                    event = event,
-                    metadata = metadata,
+        fun signUpForEvent(
+            customer: Customer,
+            event: Event,
+            metadata: List<Order.Metadata>,
+            @UiThread onComplete: (paymentUrl: String) -> Unit
+        ) = async {
+            Log.i(TAG, "Signing up for event (price=${event.price}). Metadata: $metadata")
+            val paymentUrl = RemoteCommerce.eventSignup(
+                customer,
+                "", // FIXME: Set notes
+                event = event,
+                metadata = metadata,
+            )
+            Log.i(TAG, "Syncing...")
+            SyncWorker.run(
+                getApplication(),
+                syncCustomers = false,
+                syncEvents = false,
+                syncPayments = false,
+                syncTransactions = false,
+                syncSocios = false,
+            ).result.get()
+            Log.i(TAG, "Event sign up is complete.")
+            ui { onComplete(paymentUrl) }
+        }
+
+        @Suppress("BlockingMethodInNonBlockingContext")
+        fun cancelEventReservation(
+            customer: Customer,
+            event: Event,
+        ) = async {
+            val order = event.getOrderOrNull(getApplication(), customer)
+            if (order == null) {
+                Log.w(
+                    TAG,
+                    "Could not find a matching order for event #$event and customer #$customer"
                 )
-                Log.i(TAG, "Confirmed sign up. Syncing...")
-                SyncWorker.run(
-                    getApplication(),
-                    syncCustomers = false,
-                    syncEvents = false,
-                    syncPayments = false,
-                    syncTransactions = false,
-                    syncSocios = false,
-                ).result.get()
+                return@async
             }
+            RemoteCommerce.eventCancel(order.id)
+            Log.i(TAG, "Event cancelled. Syncing...")
+            SyncWorker.run(
+                getApplication(),
+                syncCustomers = false,
+                syncEvents = false,
+                syncPayments = false,
+                syncTransactions = false,
+                syncSocios = false,
+            ).result.get()
+        }
     }
 }

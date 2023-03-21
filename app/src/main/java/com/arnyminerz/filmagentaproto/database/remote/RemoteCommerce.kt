@@ -55,12 +55,15 @@ object RemoteCommerce {
 
     private const val CATEGORY_PAGO_FULLA = 38
 
-    @WorkerThread
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun get(endpoint: Uri): String = io {
-        val url = endpoint.toURL()
+    private fun <R> Uri.openConnection(
+        method: String,
+        beforeConnection: (HttpsURLConnection) -> Unit = {},
+        block: (HttpsURLConnection) -> R,
+    ): R {
+        Log.d(TAG, "$method > $this")
+        val url = toURL()
         val connection = url.openConnection() as HttpsURLConnection
-        connection.requestMethod = "GET"
+        connection.requestMethod = method
         connection.readTimeout = 60 * 1000
         connection.connectTimeout = 60 * 1000
         connection.instanceFollowRedirects = true
@@ -71,17 +74,25 @@ object RemoteCommerce {
         val encodedAuth = encodedAuthBytes.toString(Charsets.UTF_8)
         connection.setRequestProperty("Authorization", "Basic $encodedAuth")
 
-        try {
+        beforeConnection(connection)
+
+        return try {
             connection.connect()
 
-            when (connection.responseCode) {
-                in 200 until 300 -> {
-                    return@io connection.inputStream.bufferedReader().readText()
-                }
-                else -> throw IOException("Request failed (${connection.responseCode}): ${connection.responseMessage}")
-            }
+            block(connection)
         } finally {
             connection.disconnect()
+        }
+    }
+
+    @WorkerThread
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun get(endpoint: Uri): String = io {
+        endpoint.openConnection("GET") { connection ->
+            when (connection.responseCode) {
+                in 200 until 300 -> connection.inputStream.bufferedReader().readText()
+                else -> throw IOException("Request failed (${connection.responseCode}): ${connection.responseMessage}")
+            }
         }
     }
 
@@ -96,41 +107,32 @@ object RemoteCommerce {
     @WorkerThread
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun post(endpoint: Uri, body: JSONObject): String = io {
-        val url = endpoint.toURL()
-        val connection = url.openConnection() as HttpsURLConnection
-        connection.requestMethod = "POST"
-        connection.readTimeout = 60 * 1000
-        connection.connectTimeout = 60 * 1000
-        connection.instanceFollowRedirects = true
-
-        val auth = BuildConfig.WOO_CONSUMER_KEY + ":" + BuildConfig.WOO_CONSUMER_SECRET
-        val authBytes = auth.toByteArray(Charsets.UTF_8)
-        val encodedAuthBytes = Base64.encode(authBytes, Base64.NO_WRAP)
-        val encodedAuth = encodedAuthBytes.toString(Charsets.UTF_8)
-        connection.setRequestProperty("Authorization", "Basic $encodedAuth")
-
         val bodyString = body.toString()
         val bodyBytes = bodyString.toByteArray()
-        connection.setRequestProperty("Content-Type", "application/json")
-        connection.setRequestProperty("Content-Length", bodyBytes.size.toString())
 
-        try {
-            connection.connect()
-
-            connection.outputStream.use {
-                it.write(bodyBytes)
-            }
+        endpoint.openConnection("POST", { connection ->
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.setRequestProperty("Content-Length", bodyBytes.size.toString())
+        }) { connection ->
+            connection.outputStream.use { it.write(bodyBytes) }
 
             when (connection.responseCode) {
-                in 200 until 300 -> {
-                    return@io connection.inputStream.bufferedReader().readText()
-                }
-                else -> {
-                    throw IOException("Request failed (${connection.responseCode}): ${connection.responseMessage}.")
-                }
+                in 200 until 300 -> connection.inputStream.bufferedReader().readText()
+                else -> throw IOException("Request failed (${connection.responseCode}): ${connection.responseMessage}")
             }
-        } finally {
-            connection.disconnect()
+        }
+    }
+
+    @WorkerThread
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun delete(endpoint: Uri): String = io {
+        endpoint.openConnection("POST", { connection ->
+            connection.setRequestProperty("X-HTTP-Method-Override", "DELETE")
+        }) { connection ->
+            when (connection.responseCode) {
+                in 200 until 300 -> connection.inputStream.bufferedReader().readText()
+                else -> throw IOException("Request failed (${connection.responseCode}): ${connection.responseMessage}")
+            }
         }
     }
 
@@ -317,6 +319,7 @@ object RemoteCommerce {
      * @param notes Some extra notes, if any, to leave.
      * @param event The event to sign up for.
      * @param customer The customer that is making the request.
+     * @return The URL for making the payment for the event.
      */
     @WorkerThread
     suspend fun eventSignup(
@@ -324,7 +327,7 @@ object RemoteCommerce {
         notes: String,
         event: Event,
         metadata: List<Order.Metadata>
-    ) {
+    ): String {
         Log.d(TAG, "Creating item for event...")
         val item = JSONObject().apply {
             put("product_id", event.id)
@@ -338,10 +341,23 @@ object RemoteCommerce {
             put("customer_note", notes.takeIf { it.isNotBlank() })
             put("billing", customer.billing.toJSON())
             put("shipping", customer.shipping.toJSON())
-            put("set_paid", true)
+            put("set_paid", event.price <= 0.0)
             put("line_items", JSONArray().apply { put(item) })
         }
         Log.d(TAG, "Making POST request to $OrdersEndpoint with: $body")
-        post(OrdersEndpoint, body)
+        val response = post(OrdersEndpoint, body)
+        val json = JSONObject(response)
+        return json.getString("payment_url")
+    }
+
+    /**
+     * Deletes the order with the given ID.
+     */
+    @WorkerThread
+    suspend fun eventCancel(orderId: Long) {
+        val endpoint = OrdersEndpoint.buildUpon()
+            .appendPath(orderId.toString())
+            .build()
+        delete(endpoint)
     }
 }

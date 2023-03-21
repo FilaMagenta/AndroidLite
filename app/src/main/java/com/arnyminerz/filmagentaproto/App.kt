@@ -58,8 +58,8 @@ class App : Application(), Observer<List<WorkInfo>>, OnAccountsUpdateListener, F
      */
     @SuppressLint("MissingPermission")
     override fun onChanged(value: List<WorkInfo>) {
-        if (!hasNotificationPermission(this))
-            return
+        Log.d(TAG, "Updated worker info. Count: ${value.size}")
+        if (!hasNotificationPermission(this)) return
 
         for (info in value) {
             if (info.state.isFinished && info.state == WorkInfo.State.FAILED) {
@@ -92,12 +92,14 @@ class App : Application(), Observer<List<WorkInfo>>, OnAccountsUpdateListener, F
     }
 
     override suspend fun emit(value: Int) {
+        Log.d(TAG, "Changed selected account to index $value")
         selectedAccountIndex = value
 
         updateBugsnagUserId()
     }
 
     override fun onAccountsUpdated(accounts: Array<out Account>?) {
+        Log.d(TAG, "Accounts list updated. There are ${accounts?.size} accounts.")
         this.accounts = accounts
 
         updateBugsnagUserId()

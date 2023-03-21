@@ -136,7 +136,8 @@ fun EventBottomSheet(
         Row(
             modifier = Modifier
                 .align(Alignment.End)
-                .padding(8.dp),
+                .padding(horizontal = 8.dp)
+                .padding(top = 8.dp, bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AnimatedVisibility(

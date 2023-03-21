@@ -1,18 +1,22 @@
 package com.arnyminerz.filmagentaproto.ui.components
 
+import androidx.annotation.UiThread
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.EditCalendar
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,14 +48,15 @@ private val dateFormat: SimpleDateFormat
 fun EventItem(
     event: Event,
     isConfirmed: Boolean,
+    @UiThread onDelete: (onComplete: () -> Unit) -> Unit,
     onSignUp: (metadata: List<Order.Metadata>, onComplete: () -> Unit) -> Unit,
 ) {
     val context = LocalContext.current
 
     val isFree = event.price <= 0.0
     val inStock = event.stockStatus == StockStatus.InStock || event.stockQuantity > 0
-    var showingCard by remember { mutableStateOf(false) }
 
+    var showingCard by remember { mutableStateOf(false) }
     if (showingCard)
         EventBottomSheet(
             event = event,
@@ -59,11 +64,56 @@ fun EventItem(
             onSubmit = onSignUp,
         )
 
+    var isDeleting by remember { mutableStateOf(false) }
+    var showingCancelDialog by remember { mutableStateOf(false) }
+    if (showingCancelDialog)
+        AlertDialog(
+            onDismissRequest = { if (!isDeleting) showingCancelDialog = false },
+            title = { Text(stringResource(R.string.events_cancel_reservation_title)) },
+            icon = {
+                Icon(
+                    Icons.Rounded.DeleteForever,
+                    stringResource(R.string.events_cancel_reservation_title),
+                )
+            },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.events_cancel_reservation_message,
+                        event.title,
+                    )
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !isDeleting,
+                    onClick = {
+                        isDeleting = true
+                        onDelete {
+                            isDeleting = false
+                            showingCancelDialog = false
+                        }
+                    },
+                ) { Text(stringResource(R.string.yes)) }
+            },
+            dismissButton = {
+                TextButton(
+                    enabled = !isDeleting,
+                    onClick = { showingCancelDialog = false },
+                ) { Text(stringResource(R.string.cancel)) }
+            },
+        )
+
     OutlinedCard(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable(!isConfirmed) { showingCard = true },
+            .clickable {
+                if (isConfirmed)
+                    showingCancelDialog = true
+                else
+                    showingCard = true
+            },
     ) {
         Column(
             Modifier
