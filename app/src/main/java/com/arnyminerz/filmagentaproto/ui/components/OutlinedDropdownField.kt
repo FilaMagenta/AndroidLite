@@ -32,7 +32,7 @@ fun <T: Any> OutlinedDropdownField(value: String, label: String, options: Iterab
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             label = { Text(label) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 4.dp)
