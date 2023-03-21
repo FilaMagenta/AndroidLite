@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.activity.MainActivity
+import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.ui.components.EventItem
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
@@ -33,7 +34,10 @@ import kotlinx.coroutines.flow.filterNotNull
 @Composable
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
-fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
+fun EventsScreen(
+    mainViewModel: MainActivity.MainViewModel,
+    onEventSelected: (Event, Customer) -> Unit,
+) {
     val context = LocalContext.current
 
     val customerState by mainViewModel.customer.collectAsState(initial = null)
@@ -95,11 +99,7 @@ fun EventsScreen(mainViewModel: MainActivity.MainViewModel) {
                 EventItem(
                     event = event,
                     isConfirmed = true,
-                    onDelete = { onComplete ->
-                        mainViewModel
-                            .cancelEventReservation(customerState!!, event)
-                            .invokeOnCompletion { onComplete() }
-                    },
+                    onEventSelected = { onEventSelected(event, customerState!!) },
                 ) { _, _ -> }
             }
             stickyHeaderWithIcon(

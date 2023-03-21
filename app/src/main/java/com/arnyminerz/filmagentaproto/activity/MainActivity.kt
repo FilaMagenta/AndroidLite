@@ -67,7 +67,6 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
-import com.arnyminerz.filmagentaproto.database.logic.getOrderOrNull
 import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
@@ -124,6 +123,21 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
         if (!granted) toast(R.string.error_toast_notifications)
+    }
+
+    private val eventViewRequestLauncher = registerForActivityResult(
+        EventActivity.Contract
+    ) { action ->
+        if (action == EventActivity.ActionPerformed.DELETE) {
+            SyncWorker.run(
+                this,
+                syncTransactions = false,
+                syncSocios = false,
+                syncCustomers = false,
+                syncEvents = false,
+                syncPayments = false,
+            )
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -302,7 +316,11 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                             ) { page ->
                                 when (page) {
                                     0 -> MainPage(data, viewModel)
-                                    1 -> EventsScreen(viewModel)
+                                    1 -> EventsScreen(viewModel) { event, customer ->
+                                        eventViewRequestLauncher.launch(
+                                            EventActivity.InputData(customer, event)
+                                        )
+                                    }
                                     2 -> socio?.let { socio ->
                                         ProfilePage(socio, accounts) { _, index ->
                                             doAsync {
@@ -473,31 +491,6 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             ).result.get()
             Log.i(TAG, "Event sign up is complete.")
             ui { onComplete(paymentUrl) }
-        }
-
-        @Suppress("BlockingMethodInNonBlockingContext")
-        fun cancelEventReservation(
-            customer: Customer,
-            event: Event,
-        ) = async {
-            val order = event.getOrderOrNull(getApplication(), customer)
-            if (order == null) {
-                Log.w(
-                    TAG,
-                    "Could not find a matching order for event #$event and customer #$customer"
-                )
-                return@async
-            }
-            RemoteCommerce.eventCancel(order.id)
-            Log.i(TAG, "Event cancelled. Syncing...")
-            SyncWorker.run(
-                getApplication(),
-                syncCustomers = false,
-                syncEvents = false,
-                syncPayments = false,
-                syncTransactions = false,
-                syncSocios = false,
-            ).result.get()
         }
     }
 }

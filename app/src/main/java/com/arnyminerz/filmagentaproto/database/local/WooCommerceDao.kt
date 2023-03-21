@@ -15,6 +15,10 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Order
 @Dao
 interface WooCommerceDao {
     @WorkerThread
+    @Query("SELECT * FROM events WHERE id=:id")
+    suspend fun getEvent(id: Long): Event?
+
+    @WorkerThread
     @Query("SELECT * FROM events")
     suspend fun getAllEvents(): List<Event>
 
@@ -48,6 +52,10 @@ interface WooCommerceDao {
     suspend fun update(vararg data: Order)
 
 
+
+    @WorkerThread
+    @Query("SELECT * FROM customers WHERE id=:id")
+    suspend fun getCustomer(id: Long): Customer?
 
     @WorkerThread
     @Query("SELECT * FROM customers")

@@ -38,6 +38,8 @@
 
         <activity android:name=".activity.LoginActivity" />
 
+        <activity android:name=".activity.EventActivity" />
+
         <service
             android:name=".account.AuthenticatorService"
             android:permission="android.permission.GET_ACCOUNTS"
