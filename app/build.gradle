@@ -17,7 +17,16 @@ android {
         applicationId "com.arnyminerz.filmagentaproto"
         minSdk 24
         targetSdk 33
-        versionCode findProperty("android.versionCode") as Integer
+
+        def versionPropsFile = new File(rootDir, 'version.properties')
+        Properties versionProps = new Properties()
+        versionProps.load(new FileInputStream(versionPropsFile))
+        def runTasks = gradle.startParameter.taskNames
+        def code = versionProps['VERSION_CODE'].toInteger() + ('assembleRelease' in runTasks || 'bundleRelease' in runTasks ? 1 : 0)
+        versionProps['VERSION_CODE']=code.toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+
+        versionCode code
         versionName VERSION_NAME
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -81,21 +90,6 @@ android {
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
-        }
-    }
-}
-
-android.applicationVariants.all { variant ->
-    if (variant.buildType.name == "release") {
-        variant.assemble.doLast {
-            // This increases version code on release
-            def versionPropsFile = file("../gradle.properties")
-            Properties versionProps = new Properties()
-            versionProps.load(new FileInputStream(versionPropsFile))
-            def code = versionProps['android.versionCode'].toInteger() + 1
-            versionProps['android.versionCode'] = code.toString()
-            versionProps.store(versionPropsFile.newWriter(), null)
-            logger.lifecycle("Increased version code to $code")
         }
     }
 }
