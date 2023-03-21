@@ -59,7 +59,6 @@
 
     <string name="events_confirmed_title">Confirmed Events</string>
     <string name="events_available_title">Available Events</string>
-    <string name="events_only_free">Only included events are currently supported.</string>
     <string name="events_error_stock">No more places are available.</string>
     <string name="events_reservations_until">Accepts reservations until %s</string>
     <string name="events_event_date">Date: %s</string>

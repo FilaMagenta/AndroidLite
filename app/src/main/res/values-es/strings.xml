@@ -74,7 +74,6 @@
     <string name="events_error_stock">No hay sitios libres.</string>
     <string name="events_reservations_until">Se aceptan reservas hasta %s</string>
     <string name="add_to_calendar">Añadir al Calendario</string>
-    <string name="events_only_free">Actualmente sólo puedes apuntarte a eventos incluídos desde la app.</string>
     <string name="first_load_title">Cargando</string>
     <string name="first_load_message">Se está realizando la carga inicial de la aplicació. Por favor, espera hasta que se carguen todos los datos.</string>
 </resources>

@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -53,7 +52,6 @@ fun EventItem(
 ) {
     val context = LocalContext.current
 
-    val isFree = event.price <= 0.0
     val inStock = event.stockStatus == StockStatus.InStock || event.stockQuantity > 0
 
     var showingCard by remember { mutableStateOf(false) }
@@ -127,7 +125,6 @@ fun EventItem(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
-                    fontStyle = if (isFree && inStock) FontStyle.Normal else FontStyle.Italic,
                     textDecoration = if (!inStock) TextDecoration.LineThrough else TextDecoration.None,
                 )
                 event.eventDate?.let {
@@ -145,11 +142,6 @@ fun EventItem(
                 } ?: IconButton(enabled = false, onClick = { }) { }
             }
 
-            if (!isFree)
-                Text(
-                    stringResource(R.string.events_only_free),
-                    color = MaterialTheme.colorScheme.error,
-                )
             if (!inStock)
                 Text(
                     stringResource(R.string.events_error_stock),
