@@ -37,6 +37,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -227,7 +228,12 @@ class EventActivity : AppCompatActivity() {
                     .padding(top = 8.dp),
             ) {
                 Icon(Icons.Outlined.DeleteForever, stringResource(R.string.cancel))
-                Text(stringResource(R.string.cancel))
+                Text(
+                    text = stringResource(R.string.cancel),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(start = 8.dp),
+                )
             }
             if (event.eventDate != null)
                 OutlinedButton(
@@ -244,7 +250,12 @@ class EventActivity : AppCompatActivity() {
                         .padding(bottom = 8.dp),
                 ) {
                     Icon(Icons.Outlined.EditCalendar, stringResource(R.string.add_to_calendar))
-                    Text(stringResource(R.string.add_to_calendar))
+                    Text(
+                        text = stringResource(R.string.add_to_calendar),
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(start = 8.dp),
+                    )
                 }
         }
     }
