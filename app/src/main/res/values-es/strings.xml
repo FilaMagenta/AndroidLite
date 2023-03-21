@@ -76,4 +76,11 @@
     <string name="add_to_calendar">Añadir al Calendario</string>
     <string name="first_load_title">Cargando</string>
     <string name="first_load_message">Se está realizando la carga inicial de la aplicació. Por favor, espera hasta que se carguen todos los datos.</string>
+    <string name="share">Compartir</string>
+    <string name="yes">Sí</string>
+    <string name="events_cancel_reservation_title">Cancelar Reserva</string>
+    <string name="events_cancel_reservation_message">Seguro que quieres cancelar la reserva para %s? Esta acción no se puede deshacer.</string>
+    <string name="event_view_info">Información General</string>
+    <string name="sync_error_title">Error de Sincronización!</string>
+    <string name="sync_error_message">La sincronización no se ha podido llevar a término. Por favor, comparte el error con un administrador.</string>
 </resources>
