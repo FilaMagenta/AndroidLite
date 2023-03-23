@@ -63,7 +63,7 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: ":robot: Commit Changes"
-          file_pattern: "gradle.properties app/version.gradle"
+          file_pattern: "version.properties app/version.gradle"
 
       - name: Build AAB
         id: build_aab
