@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
     id 'com.arnyminerz.locator' version '1.0.2'
-    id 'com.bugsnag.android.gradle'
+    id 'io.sentry.android.gradle'
     id 'kotlin-parcelize'
 }
 
@@ -42,7 +42,6 @@ android {
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
         buildConfigField "String", "HOST", "\"${properties.getProperty("host")}\""
-        buildConfigField "String", "WS_RELAY", "\"${properties.getProperty("ws_relay")}\""
 
         buildConfigField "String", "DB_HOSTNAME", "\"${properties.getProperty("db.hostname")}\""
         buildConfigField "Integer", "DB_PORT", "${properties.getProperty("db.port")}"
@@ -52,6 +51,8 @@ android {
 
         buildConfigField "String", "WOO_CONSUMER_KEY", "\"${properties.getProperty("woo.consumer_key")}\""
         buildConfigField "String", "WOO_CONSUMER_SECRET", "\"${properties.getProperty("woo.consumer_secret")}\""
+
+        buildConfigField "String", "SENTRY_DSN", "\"${properties.getProperty("SENTRY_DSN")}\""
     }
 
     // Configures the APK and AAB signing config
@@ -123,7 +124,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-text-google-fonts:1.3.3"
 
     // Jetpack Compose - Accompanist
-    def accompanistVersion = '0.28.0'
+    def accompanistVersion = '0.30.0'
     implementation "com.google.accompanist:accompanist-pager:$accompanistVersion"
     implementation "com.google.accompanist:accompanist-swiperefresh:$accompanistVersion"
 
@@ -150,9 +151,6 @@ dependencies {
     ksp "androidx.room:room-compiler:$room_version"
 
     implementation "androidx.work:work-runtime-ktx:2.8.0"
-
-    // For monitoring performance and bug reports
-    implementation "com.bugsnag:bugsnag-android:5.28.4"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

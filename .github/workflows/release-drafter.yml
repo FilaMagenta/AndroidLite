@@ -33,7 +33,6 @@ jobs:
           echo 'SIGNING_KEY_ALIAS=${{ secrets.KEYSTORE_USERNAME }}' >> local.properties
           echo 'SIGNING_KEY_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
           echo 'host=${{ secrets.HOST }}' >> local.properties
-          echo 'ws_relay=${{ secrets.WS_RELAY }}' >> local.properties
           echo 'woo.consumer_key=${{ secrets.WOO_CONSUMER_KEY }}' >> local.properties
           echo 'woo.consumer_secret=${{ secrets.WOO_CONSUMER_SECRET }}' >> local.properties
           echo 'db.hostname=${{ secrets.DB_HOSTNAME }}' >> local.properties
@@ -41,6 +40,7 @@ jobs:
           echo 'db.database=${{ secrets.DB_DATABASE }}' >> local.properties
           echo 'db.username=${{ secrets.DB_USERNAME }}' >> local.properties
           echo 'db.password=${{ secrets.DB_PASSWORD }}' >> local.properties
+          echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN }}' >> local.properties
       - name: Prepare Gradle version file
         run: |
           truncate -s 0 app/version.gradle
@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: APK Artifact
-          path: ./app/release/app-release.apk
+          path: ./app/build/outputs/apk/release/app-release.apk
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
@@ -76,17 +76,17 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: AAB Artifact
-          path: ./app/release/app-release.aab
+          path: ./app/build/outputs/bundle/release/app-release.aab
 
-#      - name: Upload to Play Store
-#        id: upload_play_store
-#        uses: r0adkll/upload-google-play@v1.1.1
-#        with:
-#          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_GOOGLE_CLOUD_JSON }}
-#          packageName: com.arnyminerz.escalaralcoiaicomtat
-#          releaseFiles: ./base/build/outputs/bundle/release/EscalarAlcoiaIComtat-release.aab
-#          track: internal
-#          inAppUpdatePriority: 2
-#          # mappingFile: ./base/build/outputs/mapping/release/mapping.txt
-#          # whatsNewDirectory: ./changelog
-#          status: completed
+      - name: Upload to Play Store
+        id: upload_play_store
+        uses: r0adkll/upload-google-play@v1.1.1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_GOOGLE_CLOUD_JSON }}
+          packageName: com.arnyminerz.filmagentaproto
+          releaseFiles: ./app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          inAppUpdatePriority: 2
+          # mappingFile: ./base/build/outputs/mapping/release/mapping.txt
+          # whatsNewDirectory: ./changelog
+          status: completed

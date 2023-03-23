@@ -73,9 +73,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- FIXME do not hardcode credentials -->
-        <meta-data
-            android:name="com.bugsnag.android.API_KEY"
-            android:value="2bd2cac7b935fa6b88dc5b17bf5c316c"/>
+        <meta-data android:name="io.sentry.auto-init" android:value="false" />
     </application>
 </manifest>
