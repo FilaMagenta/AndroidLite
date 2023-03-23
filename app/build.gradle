@@ -53,6 +53,10 @@ android {
         buildConfigField "String", "WOO_CONSUMER_SECRET", "\"${properties.getProperty("woo.consumer_secret")}\""
 
         buildConfigField "String", "SENTRY_DSN", "\"${properties.getProperty("SENTRY_DSN")}\""
+
+        buildConfigField "String", "AES_KEY", "\"${properties.getProperty("AES_KEY")}\""
+        buildConfigField "String", "AES_SALT", "\"${properties.getProperty("AES_SALT")}\""
+        buildConfigField "String", "AES_IV", "\"${properties.getProperty("AES_IV")}\""
     }
 
     // Configures the APK and AAB signing config
@@ -150,6 +154,9 @@ dependencies {
     ksp "androidx.room:room-compiler:$room_version"
 
     implementation "androidx.work:work-runtime-ktx:2.8.0"
+
+    // For creating QR codes
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

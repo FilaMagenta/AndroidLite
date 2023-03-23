@@ -12,10 +12,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.EditCalendar
@@ -40,6 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,9 +54,10 @@ import androidx.lifecycle.MutableLiveData
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
+import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
-import com.arnyminerz.filmagentaproto.database.logic.getOrderOrNull
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
+import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.getParcelableExtraCompat
@@ -68,6 +74,12 @@ class EventActivity : AppCompatActivity() {
         private const val EXTRA_CUSTOMER_ID = "customer"
 
         private const val RESULT_ACTION = "action"
+
+        private fun errorIntent(error: Throwable) = resultIntent(ActionPerformed.ERROR(error))
+
+        private fun resultIntent(action: ActionPerformed) = Intent().apply {
+            putExtra(RESULT_ACTION, action)
+        }
     }
 
     private val viewModel by viewModels<EventViewModel>()
@@ -79,14 +91,20 @@ class EventActivity : AppCompatActivity() {
         val customerId = intent.getLongExtra(EXTRA_CUSTOMER_ID, -1)
         if (eventId < 0 || customerId < 0) {
             Log.e(TAG, "Tried to launch activity without any Event or Customer.")
-            setResult(Activity.RESULT_CANCELED)
+            setResult(Activity.RESULT_CANCELED, errorIntent(IllegalArgumentException("Missing extras.")))
             finish()
             return
         }
 
-        viewModel.load(eventId, customerId)
+        viewModel.load(eventId, customerId).invokeOnCompletion { error ->
+            if (error != null) {
+                Log.e(TAG, "Could not load event.", error)
+                setResult(Activity.RESULT_CANCELED, errorIntent(error))
+                finish()
+            }
+        }
 
-        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 setResult(Activity.RESULT_CANCELED)
                 finish()
@@ -96,36 +114,44 @@ class EventActivity : AppCompatActivity() {
         setContentThemed {
             val eventState by viewModel.event.observeAsState()
             val customerState by viewModel.customer.observeAsState()
+            val orderState by viewModel.order.observeAsState()
+            val loaded by viewModel.loaded.observeAsState(false)
 
-            (eventState to customerState)
-                .takeIf { (a, b) -> a != null && b != null }
-                ?.let { (a, b) -> a as Event to b as Customer }
-                ?.let { (event: Event, customer: Customer) ->
-                    Scaffold(
-                        topBar = {
-                            CenterAlignedTopAppBar(
-                                title = { Text(event.title) },
-                                navigationIcon = {
-                                    IconButton(
-                                        onClick = {
-                                            setResult(Activity.RESULT_CANCELED)
-                                            finish()
-                                        },
-                                    ) {
-                                        Icon(
-                                            Icons.Rounded.ChevronLeft,
-                                            stringResource(R.string.back)
-                                        )
-                                    }
-                                },
-                            )
-                        },
-                    ) { paddingValues ->
-                        Column(Modifier.padding(paddingValues)) {
-                            Contents(event, customer)
-                        }
+            if (loaded) {
+                val event = eventState!!
+                val customer = customerState!!
+                val order = orderState!!
+
+                Scaffold(
+                    topBar = {
+                        CenterAlignedTopAppBar(
+                            title = { Text(event.title) },
+                            navigationIcon = {
+                                IconButton(
+                                    onClick = {
+                                        setResult(Activity.RESULT_CANCELED)
+                                        finish()
+                                    },
+                                ) {
+                                    Icon(
+                                        Icons.Rounded.ChevronLeft,
+                                        stringResource(R.string.back)
+                                    )
+                                }
+                            },
+                        )
+                    },
+                ) { paddingValues ->
+                    Column(
+                        Modifier
+                            .padding(paddingValues)
+                            .verticalScroll(rememberScrollState()),
+                    ) {
+                        Contents(event, customer, order)
                     }
                 }
+            } else
+                LoadingBox()
         }
     }
 
@@ -178,7 +204,7 @@ class EventActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun ColumnScope.Contents(event: Event, customer: Customer) {
+    fun Contents(event: Event, customer: Customer, order: Order) {
         var showingCancelDialog by remember { mutableStateOf(false) }
         if (showingCancelDialog)
             DeleteDialog(event, customer) { showingCancelDialog = false }
@@ -266,18 +292,91 @@ class EventActivity : AppCompatActivity() {
                     )
                 }
         }
+
+        OutlinedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .padding(top = 8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.event_view_qr),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 22.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+            )
+
+            val qr = remember { order.getQRCode(customer) }
+            // TODO: Rounded corners
+            Image(
+                bitmap = qr.asImageBitmap(),
+                contentDescription = "",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .padding(8.dp)
+                    .padding(bottom = 12.dp),
+                contentScale = ContentScale.Fit,
+            )
+        }
     }
 
     class EventViewModel(application: Application) : AndroidViewModel(application) {
         val event: MutableLiveData<Event> = MutableLiveData()
         val customer: MutableLiveData<Customer> = MutableLiveData()
+        val order: MutableLiveData<Order> = MutableLiveData()
+
+        val loaded = MutableLiveData<Boolean>()
 
         private val database = AppDatabase.getInstance(application)
         private val dao = database.wooCommerceDao()
 
         fun load(eventId: Long, customerId: Long) = async {
-            event.postValue(dao.getEvent(eventId))
-            customer.postValue(dao.getCustomer(customerId))
+            Log.d(TAG, "Loading event #$eventId for customer #$customerId")
+
+            val event = dao.getEvent(eventId)
+                .also {
+                    if (it == null)
+                        Log.e(TAG, "Could not find a customer with id $customerId")
+                    else
+                        Log.d(TAG, "Event loaded!")
+                }
+            this@EventViewModel.event.postValue(event)
+
+            val customer = dao.getCustomer(customerId)
+                .also {
+                    if (it == null)
+                        Log.e(TAG, "Could not find a customer with id $customerId")
+                    else
+                        Log.d(TAG, "Customer loaded!")
+                }
+            this@EventViewModel.customer.postValue(customer)
+
+            var order: Order? = null
+            if (event != null && customer != null) {
+                Log.d(TAG, "Getting all orders...")
+                val orders = dao.getAllOrders()
+                Log.d(TAG, "Searching for order...")
+                order = orders
+                    .filter { it.customerId == customer.id }
+                    .firstOrNull { order -> order.items.find { it.productId == event.id } != null }
+                    .also {
+                        if (it == null)
+                            Log.e(TAG, "Could not find an order from event and customer!")
+                        else
+                            Log.d(TAG, "Order loaded!")
+                    }
+            } else
+                Log.w(TAG, "Won't load order.")
+            this@EventViewModel.order.postValue(order)
+
+            if (event == null || customer == null || order == null)
+                throw IllegalStateException("Some data could not be loaded.")
+
+            loaded.postValue(true)
         }
 
         @Suppress("BlockingMethodInNonBlockingContext")
@@ -285,7 +384,7 @@ class EventActivity : AppCompatActivity() {
             customer: Customer,
             event: Event,
         ) = async {
-            val order = event.getOrderOrNull(getApplication(), customer)
+            val order = order.value
             if (order == null) {
                 Log.w(
                     TAG,
@@ -300,8 +399,10 @@ class EventActivity : AppCompatActivity() {
     }
 
     @Parcelize
-    sealed class ActionPerformed(val name: String): Parcelable {
-        data class DELETE(val eventId: Long): ActionPerformed("DELETE")
+    sealed class ActionPerformed(val name: String) : Parcelable {
+        data class DELETE(val eventId: Long) : ActionPerformed("DELETE")
+
+        data class ERROR(val exception: Throwable): ActionPerformed("ERROR")
     }
 
     data class InputData(
