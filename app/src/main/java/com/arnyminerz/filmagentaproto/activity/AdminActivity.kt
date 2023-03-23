@@ -10,6 +10,9 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -18,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.rounded.ChevronLeft
+import androidx.compose.material.icons.rounded.QrCodeScanner
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,10 +33,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -47,6 +55,7 @@ import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.getOrders
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
+import com.arnyminerz.filmagentaproto.ui.components.Tooltip
 import com.arnyminerz.filmagentaproto.ui.screens.admin.EventsAdminScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import kotlinx.coroutines.Dispatchers
@@ -112,6 +121,32 @@ class AdminActivity : AppCompatActivity() {
                                     Icon(Icons.Rounded.ChevronLeft, stringResource(R.string.back))
                                 }
                         },
+                        actions = {
+                            Box {
+                                val showTooltip = remember { mutableStateOf(false) }
+
+                                // Buttons and Surfaces don't support onLongClick out of the box,
+                                // so use a simple Box with combinedClickable
+                                Box(
+                                    modifier = Modifier
+                                        .combinedClickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = rememberRipple(),
+                                            onClickLabel = "Button action description",
+                                            role = Role.Button,
+                                            onClick = { /* TODO: onClick */ },
+                                            onLongClick = { showTooltip.value = true },
+                                        ),
+                                ) {
+                                    Icon(Icons.Rounded.QrCodeScanner, "")
+                                }
+
+                                Tooltip(showTooltip) {
+                                    // Tooltip content goes here.
+                                    Text("Scan Code")
+                                }
+                            }
+                        }
                     )
                 },
                 bottomBar = {
@@ -131,6 +166,7 @@ class AdminActivity : AppCompatActivity() {
                 },
             ) { paddingValues ->
                 val events by viewModel.events.observeAsState()
+                val customers by viewModel.customers.observeAsState(emptyList())
 
                 HorizontalPager(pageCount = 1) { page ->
                     Column(
@@ -139,7 +175,7 @@ class AdminActivity : AppCompatActivity() {
                             .padding(8.dp)
                     ) {
                         when (page) {
-                            0 -> EventsAdminScreen(events)
+                            0 -> EventsAdminScreen(events, customers)
                         }
                     }
                 }
@@ -157,12 +193,17 @@ class AdminActivity : AppCompatActivity() {
             eventsOrdersLive(events)
         }
 
+        val customers = wooCommerceDao.getAllCustomersLive()
+
         private fun eventsOrdersLive(events: List<Event>): LiveData<List<Pair<Event, List<Order>>>> =
             MutableLiveData<List<Pair<Event, List<Order>>>>().apply {
                 viewModelScope.launch(Dispatchers.IO) {
                     val result = mutableListOf<Pair<Event, List<Order>>>()
                     for (event in events) {
                         val orders = event.getOrders(getApplication())
+                            .map { order ->
+                                order.copy(items = order.items.filter { it.productId == event.id })
+                            }
                         result.add(event to orders)
                     }
                     postValue(result)

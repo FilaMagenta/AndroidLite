@@ -1,8 +1,10 @@
 package com.arnyminerz.filmagentaproto.ui.screens.admin
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -21,19 +23,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.filmagentaproto.R
+import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.components.admin.AdminEventItem
+import com.arnyminerz.filmagentaproto.ui.dialogs.admin.PeopleListBottomSheet
 import com.arnyminerz.filmagentaproto.utils.by
 import com.arnyminerz.filmagentaproto.utils.choose
 import com.arnyminerz.filmagentaproto.utils.now
 
 @Composable
 @ExperimentalMaterial3Api
-fun ColumnScope.EventsAdminScreen(events: List<Pair<Event, List<Order>>>?) {
+@ExperimentalFoundationApi
+fun ColumnScope.EventsAdminScreen(events: List<Pair<Event, List<Order>>>?, customers: List<Customer>) {
     Text(
         text = stringResource(R.string.admin_events_title),
         style = MaterialTheme.typography.titleMedium,
@@ -54,6 +60,7 @@ fun ColumnScope.EventsAdminScreen(events: List<Pair<Event, List<Order>>>?) {
         Modifier
             .fillMaxWidth()
             .weight(1f)
+            .padding(top = 8.dp),
     ) {
         item {
             if (events == null)
@@ -90,7 +97,13 @@ fun ColumnScope.EventsAdminScreen(events: List<Pair<Event, List<Order>>>?) {
                 ?.sortedByDescending { (event, _) -> event.eventDate }
                 ?: emptyList()
         ) { (event, orders) ->
-            AdminEventItem(event, orders)
+            var showSheet by remember { mutableStateOf(false) }
+            if (showSheet)
+                PeopleListBottomSheet(peopleList = orders, customers = customers) {
+                    showSheet = false
+                }
+
+            AdminEventItem(event, orders) { showSheet = true }
         }
     }
 }

@@ -5,6 +5,8 @@
     <string name="cancel">Cancel</string>
     <string name="share">Share</string>
     <string name="yes">Yes</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
 
     <string name="keyboard_backspace">Backspace</string>
 
@@ -115,4 +117,15 @@
     <string name="notification_transaction_title">New movement in your account</string>
     <string name="notification_transaction_charge_message" formatted="true">You have been charged with %.2f € with concept \"%s\".</string>
     <string name="notification_transaction_input_message" formatted="true">%.2f € have been transferred to your account with concept \"%s\".</string>
+
+    <string name="admin_title">Admin View</string>
+    <string name="admin_events_title">Events</string>
+    <string name="admin_events_message">Here you can manage all the created events, view the signed up people, and validate accesses.</string>
+    <string name="admin_events_filter_past">Past Events</string>
+    <string name="admin_events_view_people">People List</string>
+    <string name="admin_events_order_number">Order #%d</string>
+    <string name="admin_events_sort_name">Sort by Name</string>
+    <string name="admin_events_sort_order">Sort by Order</string>
+
+    <string name="shortcut_admin_label">Admin Panel</string>
 </resources>
