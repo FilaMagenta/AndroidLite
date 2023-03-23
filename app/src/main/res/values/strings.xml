@@ -21,6 +21,7 @@
     <string name="instagram" translatable="false">Instagram</string>
     <string name="twitter" translatable="false">Twitter</string>
     <string name="tiktok" translatable="false">TikTok</string>
+    <string name="google_play" translatable="false">Google Play</string>
 
     <string name="login_title">Login</string>
     <string name="login_name">Name</string>

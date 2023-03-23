@@ -26,7 +26,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.ui.components.EventItem
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.components.stickyHeaderWithIcon
-import com.arnyminerz.filmagentaproto.utils.launchUrl
+import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.toast
 import java.util.Calendar
 import kotlinx.coroutines.flow.filterNotNull
@@ -117,7 +117,7 @@ fun EventsScreen(
                                     "EventScreen",
                                     "Event is not free, redirecting to the payment gateway..."
                                 )
-                                context.launchUrl(paymentUrl)
+                                context.launchTabsUrl(paymentUrl)
                             }
                         }
                         .invokeOnCompletion { error ->

@@ -40,4 +40,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             activity.finish()
         }
     }
+
+    /**
+     * Returns all the accounts the application has registered.
+     */
+    fun getAccounts(): Array<out Account> = am.getAccountsByType(Authenticator.AuthTokenType)
 }

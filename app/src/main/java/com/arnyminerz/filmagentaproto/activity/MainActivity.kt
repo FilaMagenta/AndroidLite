@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -66,6 +67,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.work.WorkInfo
+import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.account.Authenticator
@@ -98,6 +100,7 @@ import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.io
+import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.launchUrl
 import com.arnyminerz.filmagentaproto.utils.toast
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
@@ -107,6 +110,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import compose.icons.SimpleIcons
 import compose.icons.simpleicons.Facebook
+import compose.icons.simpleicons.Googleplay
 import compose.icons.simpleicons.Instagram
 import compose.icons.simpleicons.Telegram
 import compose.icons.simpleicons.Tiktok
@@ -159,6 +163,12 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                 finish()
         }
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishAndRemoveTask()
+            }
+        })
+
         setContentThemed {
             val selectedAccountIndex by viewModel.selectedAccount.collectAsState(null)
             val accounts by viewModel.accounts.observeAsState(emptyArray())
@@ -194,7 +204,7 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                     onPaymentRequested = { amount, concept ->
                         viewModel.makePayment(amount, concept) { paymentUrl ->
                             showingPaymentBottomSheet = false
-                            launchUrl(paymentUrl)
+                            launchTabsUrl(paymentUrl)
                         }
                     },
                     onDismissRequest = { showingPaymentBottomSheet = false },
@@ -276,6 +286,10 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                 },
                 ModalDrawerSheetItem(SimpleIcons.Tiktok, R.string.tiktok) {
                     launchUrl("https://www.tiktok.com/@filamagenta")
+                },
+                ModalDrawerSheetItem.Divider,
+                ModalDrawerSheetItem(SimpleIcons.Googleplay, R.string.google_play) {
+                    launchUrl("market://details?id=${BuildConfig.APPLICATION_ID}")
                 },
             ),
             drawerState = drawerState,

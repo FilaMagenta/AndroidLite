@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -92,6 +93,18 @@ class LoginActivity : AppCompatActivity() {
 
         accountType = intent.getStringExtra(EXTRA_ACCOUNT_TYPE)!!
         authTokenType = intent.getStringExtra(EXTRA_AUTH_TOKEN_TYPE)!!
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val accounts = viewModel.getAccounts()
+                if (accounts.isEmpty())
+                    finishAndRemoveTask()
+                else {
+                    setResult(Activity.RESULT_CANCELED)
+                    finish()
+                }
+            }
+        })
 
         setContentThemed {
             Scaffold(
