@@ -24,7 +24,7 @@ import kotlin.random.Random
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.map
 
-class App : Application(), Observer<List<WorkInfo>>, OnAccountsUpdateListener, FlowCollector<Int> {
+class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
     companion object {
         private const val TAG = "App"
     }
@@ -43,9 +43,8 @@ class App : Application(), Observer<List<WorkInfo>>, OnAccountsUpdateListener, F
             options.dsn = BuildConfig.SENTRY_DSN
         }
 
+        // Schedule the SyncWorker to run automatically
         SyncWorker.schedule(this)
-
-        SyncWorker.getLiveState(this).observeForever(this)
 
         // Start observing the currently selected account index
         doAsync {
@@ -56,44 +55,6 @@ class App : Application(), Observer<List<WorkInfo>>, OnAccountsUpdateListener, F
 
         am = AccountManager.get(this)
         am.addOnAccountsUpdatedListener(this, HandlerCompat.createAsync(mainLooper), true)
-    }
-
-    /**
-     * Sends notifications about the errors that might have occurred in the [SyncWorker].
-     */
-    @SuppressLint("MissingPermission")
-    override fun onChanged(value: List<WorkInfo>) {
-        Log.d(TAG, "Updated worker info. Count: ${value.size}")
-        if (!hasNotificationPermission(this)) return
-
-        for (info in value) {
-            if (info.state.isFinished && info.state == WorkInfo.State.FAILED) {
-                // If the job has failed, show a notification
-                val notification = NotificationCompat.Builder(this, NotificationChannels.SYNC_ERROR)
-                    .setSmallIcon(R.drawable.logo_magenta_mono)
-                    .setContentTitle(getString(R.string.sync_error_title))
-                    .setContentText(getString(R.string.sync_error_message))
-                    .addAction(
-                        R.drawable.round_share_24,
-                        getString(R.string.share),
-                        PendingIntent.getBroadcast(
-                            this,
-                            0,
-                            Intent.createChooser(
-                                Intent().apply {
-                                    action = Intent.ACTION_SEND
-                                    putExtra(Intent.EXTRA_TEXT, "State: ${info.state}.\nOutput: ${info.outputData.keyValueMap}")
-                                    type = "text/plain"
-                                },
-                                null,
-                            ),
-                            PendingIntent.FLAG_IMMUTABLE,
-                        )
-                    )
-                    .build()
-                NotificationManagerCompat.from(this).notify(Random.nextInt(), notification)
-            }
-        }
     }
 
     override suspend fun emit(value: Int) {
@@ -127,11 +88,5 @@ class App : Application(), Observer<List<WorkInfo>>, OnAccountsUpdateListener, F
         Sentry.setUser(user)
 
         Log.i(TAG, "Updated user reference to: ${account.name} ($dni, $customerId)")
-    }
-
-    override fun onTerminate() {
-        super.onTerminate()
-
-        SyncWorker.getLiveState(this).removeObserver(this)
     }
 }

@@ -2,7 +2,10 @@ package com.arnyminerz.filmagentaproto
 
 import android.accounts.Account
 import android.accounts.AccountManager
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Build
@@ -10,6 +13,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -34,11 +38,13 @@ import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
 import com.arnyminerz.filmagentaproto.database.remote.RemoteServer
-import com.arnyminerz.filmagentaproto.monitoring.PerformanceNotification
+import com.arnyminerz.filmagentaproto.utils.PermissionsUtils
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import io.sentry.ITransaction
 import io.sentry.Sentry
+import io.sentry.SpanStatus
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 enum class ProgressStep(@StringRes val textRes: Int) {
     INITIALIZING(R.string.sync_step_initializing),
@@ -74,6 +80,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         const val PROGRESS_STEP = "step"
 
         const val PROGRESS = "progress"
+
+        const val EXCEPTION_CLASS = "exception_class"
+        const val EXCEPTION_MESSAGE = "exception_message"
 
         private const val NOTIFICATION_ID = 20230315
 
@@ -145,7 +154,37 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
     override suspend fun doWork(): Result {
         Log.i(TAG, "Running Synchronization...")
+
         transaction = Sentry.startTransaction("SyncWorker", "synchronization")
+
+        return try {
+            synchronize()
+        } catch (e: Exception) {
+            // Append the error to the transaction
+            transaction.throwable = e
+            transaction.status = SpanStatus.INTERNAL_ERROR
+
+            // Notify Sentry about the error
+            Sentry.captureException(e)
+
+            // Show the error notification
+            showErrorNotification(e)
+
+            Result.failure(
+                workDataOf(
+                    EXCEPTION_CLASS to e::class.java.name,
+                    EXCEPTION_MESSAGE to e.message,
+                )
+            )
+        } finally {
+            transaction.finish()
+        }
+    }
+
+    /**
+     * Runs the synchronization process for the app.
+     */
+    private suspend fun synchronize(): Result {
         setProgress(ProgressStep.INITIALIZING)
 
         // Get access to the database
@@ -245,8 +284,6 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
         Log.i(TAG, "Finished synchronization")
 
-        transaction.finish()
-
         return Result.success()
     }
 
@@ -267,7 +304,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
      * @param listExtraProcessing If some extra processing wants to be done with the entries fetched
      * with [remoteFetcher].
      */
-    private suspend inline fun <T: WooClass> fetchAndUpdateDatabase(
+    private suspend inline fun <T : WooClass> fetchAndUpdateDatabase(
         shouldSyncInputKey: String,
         progressStep: ProgressStep,
         remoteFetcher: () -> List<T>,
@@ -364,7 +401,14 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         fetchAndUpdateDatabase(
             SYNC_EVENTS,
             ProgressStep.SYNC_EVENTS,
-            { RemoteCommerce.eventList { progress -> setProgress(ProgressStep.SYNC_EVENTS, progress) } },
+            {
+                RemoteCommerce.eventList { progress ->
+                    setProgress(
+                        ProgressStep.SYNC_EVENTS,
+                        progress
+                    )
+                }
+            },
             { wooCommerceDao.getAllEvents() },
             { wooCommerceDao.insert(it) },
             { wooCommerceDao.update(it) },
@@ -440,5 +484,48 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         setForeground(
             createForegroundInfo(step, progress)
         )
+    }
+
+    /**
+     * Shows a notification when an error occurs during synchronization.
+     */
+    @SuppressLint("MissingPermission")
+    private fun showErrorNotification(exception: java.lang.Exception) {
+        if (!PermissionsUtils.hasNotificationPermission(applicationContext)) return
+
+        val message = listOf(
+            "Exception: ${exception::class.java.name}",
+            "Message: ${exception.message}"
+        )
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            0,
+            Intent.createChooser(
+                Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(
+                        Intent.EXTRA_TEXT,
+                        message.joinToString("\n")
+                    )
+                    type = "text/plain"
+                },
+                null,
+            ),
+            PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        val notification =
+            NotificationCompat.Builder(applicationContext, NotificationChannels.SYNC_ERROR)
+                .setSmallIcon(R.drawable.logo_magenta_mono)
+                .setContentTitle(applicationContext.getString(R.string.sync_error_title))
+                .setContentText(applicationContext.getString(R.string.sync_error_message))
+                .addAction(
+                    R.drawable.round_share_24,
+                    applicationContext.getString(R.string.share),
+                    pendingIntent,
+                )
+                .build()
+        NotificationManagerCompat.from(applicationContext).notify(Random.nextInt(), notification)
     }
 }
