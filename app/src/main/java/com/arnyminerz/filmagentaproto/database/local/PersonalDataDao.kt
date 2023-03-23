@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
+import com.arnyminerz.filmagentaproto.database.data.Transaction
 
 @Dao
 interface PersonalDataDao {
@@ -27,5 +28,8 @@ interface PersonalDataDao {
 
     @Update
     suspend fun update(vararg data: PersonalData)
+
+    @Query("UPDATE user_data SET transactions=:transactions WHERE accountName=:accountName")
+    suspend fun updateTransactions(accountName: String, transactions: List<Transaction>)
 
 }
