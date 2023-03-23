@@ -101,4 +101,8 @@
     <string name="admin_events_sort_name">Ordena per Nom</string>
     <string name="shortcut_admin_label">Panell d\'Administrador</string>
     <string name="admin_events_sort_order">Ordena per Comanda</string>
+    <string name="event_view_qr">Codi d\'Accés</string>
+    <string name="admin_scan_loading">Verificant…</string>
+    <string name="admin_scan_correct">Correcte!</string>
+    <string name="admin_scan_invalid">Invàlid!</string>
 </resources>
