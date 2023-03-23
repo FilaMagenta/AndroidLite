@@ -164,6 +164,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         return try {
             synchronize()
         } catch (e: Exception) {
+            // Log the exception
+            e.printStackTrace()
+
             // Append the error to the transaction
             transaction.throwable = e
             transaction.status = SpanStatus.INTERNAL_ERROR

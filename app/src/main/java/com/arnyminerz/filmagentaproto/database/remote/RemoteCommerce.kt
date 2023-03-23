@@ -246,9 +246,14 @@ object RemoteCommerce {
     @WorkerThread
     suspend fun orderList(customerId: Long?): List<Order> {
         val endpoint = OrdersEndpoint.buildUpon()
-            .appendQueryParameter("customer", customerId?.toString())
+            .let { builder ->
+                if (customerId != null)
+                    builder.appendQueryParameter("customer", customerId.toString())
+                else
+                    builder
+            }
             .build()
-        return multiPageGet(endpoint, Order.Companion)
+        return multiPageGet(endpoint, Order.Companion, perPage = 100)
     }
 
     @WorkerThread
