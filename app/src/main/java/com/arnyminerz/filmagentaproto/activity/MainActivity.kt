@@ -3,7 +3,6 @@ package com.arnyminerz.filmagentaproto.activity
 import android.Manifest
 import android.accounts.Account
 import android.accounts.AccountManager
-import android.accounts.OnAccountsUpdateListener
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
@@ -22,12 +21,14 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AdminPanelSettings
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Person
@@ -46,6 +47,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -56,6 +58,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,7 +66,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.os.HandlerCompat
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -78,6 +80,7 @@ import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
+import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
@@ -151,6 +154,8 @@ class MainActivity : AppCompatActivity() {
             viewModel.deleteEvent(action.eventId)
         }
     }
+
+    private val adminScreenRequestLauncher = registerForActivityResult(AdminActivity.Contract) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -361,8 +366,21 @@ class MainActivity : AppCompatActivity() {
                     }
                 },
                 floatingActionButton = {
-                    FloatingActionButton(onClick = onPaymentBottomSheetRequested) {
-                        Icon(Icons.Rounded.Wallet, "")
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        val customer by viewModel.customer.collectAsState(initial = null)
+                        if (customer?.role == ROLE_ADMINISTRATOR)
+                            SmallFloatingActionButton(
+                                onClick = { adminScreenRequestLauncher.launch(null) },
+                                // containerColor = MaterialTheme.colorScheme.tertiary,
+                                // contentColor = MaterialTheme.colorScheme.onTertiary,
+                                modifier = Modifier.padding(end = 4.dp),
+                            ) {
+                                Icon(Icons.Outlined.AdminPanelSettings, "")
+                            }
+                        
+                        FloatingActionButton(onClick = onPaymentBottomSheetRequested) {
+                            Icon(Icons.Rounded.Wallet, "")
+                        }
                     }
                 },
             ) { paddingValues ->
