@@ -41,6 +41,9 @@ jobs:
           echo 'db.username=${{ secrets.DB_USERNAME }}' >> local.properties
           echo 'db.password=${{ secrets.DB_PASSWORD }}' >> local.properties
           echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN }}' >> local.properties
+          echo 'AES_KEY=${{ secrets.AES_KEY }}' >> local.properties
+          echo 'AES_SALT=${{ secrets.AES_SALT }}' >> local.properties
+          echo 'AES_IV=${{ secrets.AES_IV }}' >> local.properties
       - name: Prepare Gradle version file
         run: |
           truncate -s 0 app/version.gradle
