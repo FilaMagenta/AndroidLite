@@ -106,6 +106,8 @@
     <string name="notification_channel_sync_desc">Notifies about the progress and state of the synchronization process.</string>
     <string name="notification_channel_sync_error_name">Synchronization Error</string>
     <string name="notification_channel_sync_error_desc">Warns about a failure during the synchronization process.</string>
+    <string name="notification_channel_transaction_name">Transaction</string>
+    <string name="notification_channel_transaction_desc">Notifies about new transactions from or to your account.</string>
 
     <string name="calendar_trebuchet_title">Guns Authorization Expiration</string>
     <string name="calendar_trebuchet_description">Remember to renew your guns permission.</string>
