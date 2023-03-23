@@ -69,6 +69,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.work.WorkInfo
+import com.arnyminerz.filmagentaproto.App
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.SyncWorker
@@ -124,7 +125,7 @@ import kotlinx.coroutines.launch
     ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class
 )
-class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
+class MainActivity : AppCompatActivity() {
     companion object {
         val TOP_BAR_HEIGHT = (56 + 16).dp
 
@@ -169,7 +170,7 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
 
         setContentThemed {
             val selectedAccountIndex by viewModel.selectedAccount.collectAsState(null)
-            val accounts by viewModel.accounts.observeAsState(emptyArray())
+            val accounts by viewModel.accounts.observeAsState(emptyList())
 
             val databaseData by viewModel.databaseData.observeAsState()
 
@@ -226,8 +227,6 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
     override fun onResume() {
         super.onResume()
 
-        am.addOnAccountsUpdatedListener(this, HandlerCompat.createAsync(mainLooper), true)
-
         val accounts = am.getAccountsByType(Authenticator.AuthTokenType)
         if (accounts.isEmpty())
             loginRequestLauncher.launch(
@@ -242,20 +241,11 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
         ) notificationPermissionRequestLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
-    override fun onPause() {
-        super.onPause()
-        am.removeOnAccountsUpdatedListener(this)
-    }
-
-    override fun onAccountsUpdated(accounts: Array<out Account>?) {
-        viewModel.accounts.postValue(accounts)
-    }
-
     @Composable
     fun Content(
         currentPage: Int,
         onPageChanged: (Int) -> Unit,
-        accounts: Array<out Account>,
+        accounts: List<Account>,
         accountIndex: Int,
         onAccountsDialogRequested: () -> Unit,
         onPaymentBottomSheetRequested: () -> Unit,
@@ -463,7 +453,7 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
             .data
             .map { preferences -> preferences[SELECTED_ACCOUNT] ?: 0 }
 
-        val accounts: MutableLiveData<Array<out Account>> = MutableLiveData()
+        val accounts = (application as App).accounts
 
         val personalData = personalDataDao.getAllLive()
 

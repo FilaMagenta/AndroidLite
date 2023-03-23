@@ -46,7 +46,7 @@ val DateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
 @ExperimentalMaterial3Api
 fun ProfilePage(
     data: Socio,
-    accounts: Array<out Account>,
+    accounts: List<Account>,
     onAccountSelected: (account: Account, index: Int) -> Unit,
 ) {
     Column(
@@ -117,7 +117,7 @@ fun ProfilePagePreview() {
     AppTheme {
         ProfilePage(
             Socio.EXAMPLE,
-            arrayOf(Account("Testing", Authenticator.AuthTokenType)),
+            listOf(Account("Testing", Authenticator.AuthTokenType)),
         ) { _, _ -> }
     }
 }

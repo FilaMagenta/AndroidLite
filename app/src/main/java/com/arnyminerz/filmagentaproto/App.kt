@@ -11,8 +11,11 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.HandlerCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.work.WorkInfo
+import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
 import com.arnyminerz.filmagentaproto.utils.PermissionsUtils.hasNotificationPermission
@@ -31,7 +34,10 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
 
     private lateinit var am: AccountManager
 
-    private var accounts: Array<out Account>? = null
+    private val accountsLiveData = MutableLiveData<List<Account>>()
+
+    val accounts: LiveData<List<Account>>
+        get() = accountsLiveData
 
     private var selectedAccountIndex = 0
 
@@ -57,6 +63,12 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
         am.addOnAccountsUpdatedListener(this, HandlerCompat.createAsync(mainLooper), true)
     }
 
+    override fun onTerminate() {
+        super.onTerminate()
+
+        am.removeOnAccountsUpdatedListener(this)
+    }
+
     override suspend fun emit(value: Int) {
         Log.d(TAG, "Changed selected account to index $value")
         selectedAccountIndex = value
@@ -66,17 +78,18 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
 
     override fun onAccountsUpdated(accounts: Array<out Account>?) {
         Log.d(TAG, "Accounts list updated. There are ${accounts?.size} accounts.")
-        this.accounts = accounts
+        val filteredAccounts = accounts?.filter { it.type == Authenticator.AuthTokenType }
+        accountsLiveData.postValue(filteredAccounts)
 
         updateUserId()
     }
 
     /**
-     * Updates the currently tracking user data from [accounts] and [selectedAccountIndex].
+     * Updates the currently tracking user data from [accountsLiveData] and [selectedAccountIndex].
      */
     private fun updateUserId() {
         // Fetch the account's data
-        val account = accounts?.getOrNull(selectedAccountIndex) ?: return
+        val account = accountsLiveData.value?.getOrNull(selectedAccountIndex) ?: return
         val customerId = am.getUserData(account, "customer_id")
         val dni = am.getPassword(account)
 

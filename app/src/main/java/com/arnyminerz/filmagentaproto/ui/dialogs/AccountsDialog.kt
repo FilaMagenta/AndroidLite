@@ -25,7 +25,7 @@ import com.arnyminerz.filmagentaproto.R
 @ExperimentalMaterial3Api
 @Composable
 fun AccountsDialog(
-    accountsList: Array<out Account>,
+    accountsList: List<Account>,
     selectedAccountIndex: Int,
     onAccountSelected: (index: Int, account: Account) -> Unit,
     onNewAccountRequested: () -> Unit,
