@@ -18,7 +18,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 @ExperimentalMaterial3Api
-fun <T: Any> OutlinedDropdownField(value: String, label: String, options: Iterable<T>, onItemSelected: (T) -> Unit) {
+fun <T: Any> OutlinedDropdownField(
+    value: String,
+    label: String,
+    options: Iterable<T>,
+    itemToString: (item: T) -> String = { it.toString() },
+    onItemSelected: (T) -> Unit,
+) {
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -42,9 +48,9 @@ fun <T: Any> OutlinedDropdownField(value: String, label: String, options: Iterab
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            options .forEach { option ->
+            options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(option.toString()) },
+                    text = { Text(itemToString(option)) },
                     onClick = {
                         onItemSelected(option)
                         expanded = false

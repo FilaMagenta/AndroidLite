@@ -12,6 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
@@ -40,6 +42,7 @@ fun SettingsScreen() {
                     ?: stringResource(R.string.settings_language_default),
                 options = Locator.Locales.toList(),
                 label = stringResource(R.string.settings_language),
+                itemToString = { it.getDisplayName(it).capitalize(Locale.current) },
             ) { locale ->
                 LanguageChangeReceiver.currentLanguage.postValue(
                     listOf(locale)
