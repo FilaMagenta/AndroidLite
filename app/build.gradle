@@ -33,7 +33,6 @@ android {
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
         buildConfigField "String", "HOST", "\"${properties.getProperty("host")}\""
-        buildConfigField "String", "WS_RELAY", "\"${properties.getProperty("ws_relay")}\""
 
         buildConfigField "String", "DB_HOSTNAME", "\"${properties.getProperty("db.hostname")}\""
         buildConfigField "Integer", "DB_PORT", "${properties.getProperty("db.port")}"

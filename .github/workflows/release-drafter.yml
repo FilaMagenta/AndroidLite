@@ -33,7 +33,6 @@ jobs:
           echo 'SIGNING_KEY_ALIAS=${{ secrets.KEYSTORE_USERNAME }}' >> local.properties
           echo 'SIGNING_KEY_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
           echo 'host=${{ secrets.HOST }}' >> local.properties
-          echo 'ws_relay=${{ secrets.WS_RELAY }}' >> local.properties
           echo 'woo.consumer_key=${{ secrets.WOO_CONSUMER_KEY }}' >> local.properties
           echo 'woo.consumer_secret=${{ secrets.WOO_CONSUMER_SECRET }}' >> local.properties
           echo 'db.hostname=${{ secrets.DB_HOSTNAME }}' >> local.properties
