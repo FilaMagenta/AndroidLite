@@ -64,6 +64,9 @@ interface WooCommerceDao {
     @Query("SELECT * FROM customers")
     suspend fun getAllCustomers(): List<Customer>
 
+    @Query("SELECT * FROM customers")
+    fun getAllCustomersLive(): LiveData<List<Customer>>
+
     @Insert
     suspend fun insert(vararg data: Customer)
 

@@ -35,3 +35,15 @@ suspend fun Event.getOrderOrNull(context: Context, customer: Customer): Order? {
         .filter { order -> order.items.find { it.productId == id } != null }
     return entries.firstOrNull()
 }
+
+/**
+ * Gets all the orders made for the given event.
+ */
+@WorkerThread
+suspend fun Event.getOrders(context: Context): List<Order> {
+    val database = AppDatabase.getInstance(context)
+    val wooCommerceDao = database.wooCommerceDao()
+    val orders = wooCommerceDao.getAllOrders()
+    return orders
+        .filter { order -> order.items.find { it.productId == id } != null }
+}

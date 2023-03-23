@@ -11,4 +11,7 @@ val String.trimmedAndCaps: String
 fun String.capitalized(locale: java.util.Locale = java.util.Locale.getDefault()) =
     replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 
+fun String.capitalizedWords(locale: java.util.Locale = java.util.Locale.getDefault()) =
+    split(" ").joinToString(" ") { it.capitalized(locale) }
+
 fun Uri.toURL(): URL = URL(toString())

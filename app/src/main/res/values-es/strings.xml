@@ -90,4 +90,15 @@
     <string name="notification_transaction_title">Nuevo movimiento en tu cuenta</string>
     <string name="notification_transaction_charge_message">Se te han cobrado %.2f en concepto de \"%s\".</string>
     <string name="notification_transaction_input_message">Se te han ingresado %2.f € a tu cuenta en concepto de \"%s\".</string>
+    <string name="enabled">Habilitado</string>
+    <string name="disabled">Deshabilitado</string>
+    <string name="admin_title">Administrador</string>
+    <string name="admin_events_title">Eventos</string>
+    <string name="admin_events_message">Aquí puedes administrar todos los eventos creados, ver a la gente apuntada y validar el acceso.</string>
+    <string name="admin_events_filter_past">Eventos Pasados</string>
+    <string name="admin_events_view_people">Apuntados</string>
+    <string name="admin_events_order_number">Pedido #%d</string>
+    <string name="admin_events_sort_name">Ordena por Nombre</string>
+    <string name="shortcut_admin_label">Panel de Administrador</string>
+    <string name="admin_events_sort_order">Ordena por Pedido</string>
 </resources>

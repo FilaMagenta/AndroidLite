@@ -90,4 +90,15 @@
     <string name="notification_transaction_title">Nou movement al compte</string>
     <string name="notification_transaction_charge_message">Se t\'han cobrat %.2f € en concepte de \"%s\".</string>
     <string name="notification_transaction_input_message">Se t\'han ingressat %.2f € al teu compte en concepte de \"%s\".</string>
+    <string name="enabled">Habilitat</string>
+    <string name="disabled">Deshabilitat</string>
+    <string name="admin_title">Administrador</string>
+    <string name="admin_events_title">Actes</string>
+    <string name="admin_events_message">Ací pots administrar tots els esdeveniments creats, veure la gent apuntada, i validar l\'accés.</string>
+    <string name="admin_events_filter_past">Actes Passats</string>
+    <string name="admin_events_view_people">Apuntats</string>
+    <string name="admin_events_order_number">Comanda #%d</string>
+    <string name="admin_events_sort_name">Ordena per Nom</string>
+    <string name="shortcut_admin_label">Panell d\'Administrador</string>
+    <string name="admin_events_sort_order">Ordena per Comanda</string>
 </resources>

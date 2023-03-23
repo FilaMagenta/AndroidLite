@@ -123,6 +123,13 @@ data class Event(
             json.getString("stock_status"),
             json.getInt("stock_quantity"),
         )
+
+        val EXAMPLE = Event(
+            1, "Example Event", "example-event", "https://example.com",
+            Date(1), Date(2), "This is the description of the event",
+            "Reservas hasta el lunes 23 de marzo de 2023. 12 de abril de 2023",
+            0.0, emptyList(), InStock, 120
+        )
     }
 
     data class Attribute(
