@@ -17,7 +17,9 @@ import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
 import com.arnyminerz.filmagentaproto.utils.PermissionsUtils.hasNotificationPermission
 import com.arnyminerz.filmagentaproto.utils.doAsync
-import com.bugsnag.android.Bugsnag
+import io.sentry.Sentry
+import io.sentry.android.core.SentryAndroid
+import io.sentry.protocol.User
 import kotlin.random.Random
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.map
@@ -36,7 +38,10 @@ class App : Application(), Observer<List<WorkInfo>>, OnAccountsUpdateListener, F
     override fun onCreate() {
         super.onCreate()
 
-        Bugsnag.start(this)
+        // Initialize Sentry
+        SentryAndroid.init(this) { options ->
+            options.dsn = BuildConfig.SENTRY_DSN
+        }
 
         SyncWorker.schedule(this)
 
@@ -95,28 +100,33 @@ class App : Application(), Observer<List<WorkInfo>>, OnAccountsUpdateListener, F
         Log.d(TAG, "Changed selected account to index $value")
         selectedAccountIndex = value
 
-        updateBugsnagUserId()
+        updateUserId()
     }
 
     override fun onAccountsUpdated(accounts: Array<out Account>?) {
         Log.d(TAG, "Accounts list updated. There are ${accounts?.size} accounts.")
         this.accounts = accounts
 
-        updateBugsnagUserId()
+        updateUserId()
     }
 
     /**
-     * Updates the currently tracking Bugsnag user data from [accounts] and [selectedAccountIndex].
+     * Updates the currently tracking user data from [accounts] and [selectedAccountIndex].
      */
-    private fun updateBugsnagUserId() {
+    private fun updateUserId() {
         // Fetch the account's data
         val account = accounts?.getOrNull(selectedAccountIndex) ?: return
         val customerId = am.getUserData(account, "customer_id")
         val dni = am.getPassword(account)
 
-        // Update the Bugsnag user
-        Bugsnag.setUser(customerId, dni, account.name)
-        Log.i(TAG, "Updated Bugsnag user reference to: ${account.name} ($dni, $customerId)")
+        // Update the tracking user
+        val user = User().apply {
+            id = customerId
+            username = account.name
+        }
+        Sentry.setUser(user)
+
+        Log.i(TAG, "Updated user reference to: ${account.name} ($dni, $customerId)")
     }
 
     override fun onTerminate() {

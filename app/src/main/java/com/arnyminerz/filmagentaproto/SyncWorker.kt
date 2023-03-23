@@ -36,7 +36,8 @@ import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
 import com.arnyminerz.filmagentaproto.database.remote.RemoteServer
 import com.arnyminerz.filmagentaproto.monitoring.PerformanceNotification
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
-import com.bugsnag.android.Bugsnag
+import io.sentry.ITransaction
+import io.sentry.Sentry
 import java.util.concurrent.TimeUnit
 
 enum class ProgressStep(@StringRes val textRes: Int) {
@@ -140,12 +141,11 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     private lateinit var remoteDatabaseDao: RemoteDatabaseDao
     private lateinit var wooCommerceDao: WooCommerceDao
 
-    /** Stores the time that the synchronization progress began */
-    private var synchronizationStart: Long = System.currentTimeMillis()
+    private lateinit var transaction: ITransaction
 
     override suspend fun doWork(): Result {
         Log.i(TAG, "Running Synchronization...")
-        synchronizationStart = System.currentTimeMillis()
+        transaction = Sentry.startTransaction("SyncWorker", "synchronization")
         setProgress(ProgressStep.INITIALIZING)
 
         // Get access to the database
@@ -243,11 +243,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             setProgress(ProgressStep.INTERMEDIATE)
         }
 
-        val synchronizationEnd = System.currentTimeMillis()
-        val synchronizationTime = synchronizationEnd - synchronizationStart
-        Log.i(TAG, "Finished synchronization in ${synchronizationTime / 1000} seconds.")
+        Log.i(TAG, "Finished synchronization")
 
-        Bugsnag.notify(PerformanceNotification(TAG, synchronizationTime))
+        transaction.finish()
 
         return Result.success()
     }
@@ -279,6 +277,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         deleteMethod: (item: T) -> Unit,
         listExtraProcessing: (List<T>) -> Unit = {},
     ) {
+        val span = transaction.startChild("fetchAndUpdateDatabase", progressStep.name)
         val shouldSync = inputData.getBoolean(shouldSyncInputKey, true)
         if (shouldSync) {
             setProgress(progressStep)
@@ -305,6 +304,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
             setProgress(ProgressStep.INTERMEDIATE)
         }
+        span.finish()
     }
 
     /**
@@ -313,6 +313,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     private suspend fun fetchAndUpdateWooData(
         account: Account,
     ) {
+        val span = transaction.startChild("fetchAndUpdateWooData")
         val dni = am.getPassword(account)
 
         var customerId: Long? = am.getUserData(account, "customer_id")?.toLongOrNull()
@@ -369,6 +370,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             { wooCommerceDao.update(it) },
             { wooCommerceDao.delete(it) },
         )
+
+        span.finish()
     }
 
     /**
