@@ -31,6 +31,7 @@ import androidx.work.workDataOf
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.data.Transaction
+import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.database.data.woo.WooClass
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.local.PersonalDataDao
@@ -376,6 +377,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         val dni = am.getPassword(account)
 
         var customerId: Long? = am.getUserData(account, "customer_id")?.toLongOrNull()
+        var isAdmin: Boolean? = am.getUserData(account, "customer_admin")?.toBoolean()
 
         // Fetch all customers data
         fetchAndUpdateDatabase(
@@ -387,12 +389,17 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             { wooCommerceDao.update(it) },
             { wooCommerceDao.delete(it) },
         ) { customers ->
+            val customer = customers.find { it.username.equals(dni, true) }
+                ?: throw IndexOutOfBoundsException("Could not find logged in user in the customers database.")
             if (customerId == null) {
-                val customer = customers.find { it.username.equals(dni, true) }
-                    ?: throw IndexOutOfBoundsException("Could not find logged in user in the customers database.")
                 Log.i(TAG, "Customer ID: ${customer.id}")
                 customerId = customer.id
                 am.setUserData(account, "customer_id", customerId.toString())
+            }
+            if (isAdmin == null) {
+                Log.i(TAG, "Customer role: ${customer.role}")
+                isAdmin = customer.role == ROLE_ADMINISTRATOR
+                am.setUserData(account, "customer_admin", isAdmin.toString())
             }
         }
 
@@ -412,7 +419,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             fetchAndUpdateDatabase(
                 SYNC_ORDERS,
                 ProgressStep.SYNC_ORDERS,
-                { RemoteCommerce.orderList(customerId!!) },
+                { RemoteCommerce.orderList(customerId?.takeIf { isAdmin != true }) },
                 { wooCommerceDao.getAllOrders() },
                 { wooCommerceDao.insert(it) },
                 { wooCommerceDao.update(it) },

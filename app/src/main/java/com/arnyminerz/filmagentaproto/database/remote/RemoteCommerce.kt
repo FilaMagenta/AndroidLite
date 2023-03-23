@@ -240,11 +240,13 @@ object RemoteCommerce {
 
     /**
      * Fetches all the orders made by the given customer.
+     * @param customerId If not null, only the orders made by the customer with this ID will be
+     * fetched, otherwise all the orders will be retrieved.
      */
     @WorkerThread
-    suspend fun orderList(customerId: Long): List<Order> {
+    suspend fun orderList(customerId: Long?): List<Order> {
         val endpoint = OrdersEndpoint.buildUpon()
-            .appendQueryParameter("customer", customerId.toString())
+            .appendQueryParameter("customer", customerId?.toString())
             .build()
         return multiPageGet(endpoint, Order.Companion)
     }
