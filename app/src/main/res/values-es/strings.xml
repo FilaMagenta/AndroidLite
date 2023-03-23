@@ -66,6 +66,8 @@
     <string name="notification_channel_sync_desc">Notifica sobre el progreso y estado del proceso de sincronización.</string>
     <string name="notification_channel_sync_error_name">Error de Sincronización</string>
     <string name="notification_channel_sync_error_desc">Avisa sobre los posibles errores durante el proceso de sincronización.</string>
+    <string name="notification_channel_transaction_name">Transacción</string>
+    <string name="notification_channel_transaction_desc">Notifica sobre nuevas transacciones desde o a tu cuenta.</string>
     <string name="calendar_trebuchet_title">Caducidad Permiso de Armas</string>
     <string name="calendar_trebuchet_description">Recuerda Renovar tu permiso de armas.</string>
     <string name="events_event_date">Fecha: %s</string>
@@ -85,4 +87,7 @@
     <string name="sync_error_message">La sincronización no se ha podido llevar a término. Por favor, comparte el error con un administrador.</string>
     <string name="telegram_channel">Canal de Telegram</string>
     <string name="website">Página Web</string>
+    <string name="notification_transaction_title">Nuevo movimiento en tu cuenta</string>
+    <string name="notification_transaction_charge_message">Se te han cobrado %.2f en concepto de \"%s\".</string>
+    <string name="notification_transaction_input_message">Se te han ingresado %2.f € a tu cuenta en concepto de \"%s\".</string>
 </resources>

@@ -30,6 +30,7 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
+import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.data.woo.WooClass
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.local.PersonalDataDao
@@ -152,6 +153,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
     private lateinit var transaction: ITransaction
 
+    private var isFirstSynchronization = false
+
     override suspend fun doWork(): Result {
         Log.i(TAG, "Running Synchronization...")
 
@@ -193,6 +196,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         remoteDatabaseDao = database.remoteDatabaseDao()
         wooCommerceDao = database.wooCommerceDao()
 
+        // Store if this is the first synchronization
+        isFirstSynchronization = personalDataDao.getAll().isEmpty()
+
         val syncTransactions = inputData.getBoolean(SYNC_TRANSACTIONS, true)
         val syncSocios = inputData.getBoolean(SYNC_SOCIOS, true)
 
@@ -218,6 +224,22 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     personalDataDao.insert(data)
                 else
                     personalDataDao.update(dbData)
+
+                // Show notifications for new transactions
+                personalDataDao.getByAccount(account.name, account.type)?.let { updatedData ->
+                    val newTransactions = updatedData.transactions.map { transaction ->
+                        if (transaction.notified)
+                            transaction
+                        else {
+                            // No notifications should be shown during the first synchronization
+                            if (!isFirstSynchronization)
+                                notifyTransaction(data.accountName, transaction)
+                            transaction.copy(notified = true)
+                        }
+                    }
+                    // Update the stored transactions
+                    personalDataDao.updateTransactions(account.name, newTransactions)
+                }
 
                 setProgress(ProgressStep.INTERMEDIATE)
             }
@@ -426,6 +448,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         NotificationChannels.createSyncGroup(applicationContext)
         NotificationChannels.createSyncProgressChannel(applicationContext)
         NotificationChannels.createSyncErrorChannel(applicationContext)
+        NotificationChannels.createTransactionChannel(applicationContext)
     }
 
     private fun createForegroundInfo(
@@ -525,6 +548,39 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     applicationContext.getString(R.string.share),
                     pendingIntent,
                 )
+                .build()
+        NotificationManagerCompat.from(applicationContext).notify(Random.nextInt(), notification)
+    }
+
+    /**
+     * Sends a notification to the user regarding a transaction received or charged to the user's
+     * account.
+     */
+    @SuppressLint("MissingPermission")
+    private fun notifyTransaction(accountName: String, transaction: Transaction) {
+        if (!PermissionsUtils.hasNotificationPermission(applicationContext)) return
+
+        val message = if (transaction.enters != null)
+            applicationContext.getString(
+                R.string.notification_transaction_input_message,
+                transaction.enters,
+                transaction.description,
+            )
+        else
+            applicationContext.getString(
+                R.string.notification_transaction_charge_message,
+                transaction.exits,
+                transaction.description,
+            )
+
+        val notification =
+            NotificationCompat.Builder(applicationContext, NotificationChannels.TRANSACTION)
+                .setSmallIcon(R.drawable.logo_magenta_mono)
+                .setContentTitle(applicationContext.getString(R.string.notification_transaction_title))
+                .setContentText(message)
+                .setContentInfo(accountName)
+                .setWhen(transaction.timestamp?.time ?: 0)
+                .setShowWhen(transaction.timestamp != null)
                 .build()
         NotificationManagerCompat.from(applicationContext).notify(Random.nextInt(), notification)
     }

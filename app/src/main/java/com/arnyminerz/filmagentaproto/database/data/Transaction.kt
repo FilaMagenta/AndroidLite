@@ -3,6 +3,7 @@ package com.arnyminerz.filmagentaproto.database.data
 import androidx.room.Ignore
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
+import com.arnyminerz.filmagentaproto.utils.getBooleanOrNull
 import com.arnyminerz.filmagentaproto.utils.getDoubleOrNull
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -15,6 +16,7 @@ data class Transaction(
     val units: Long,
     val enters: Double?,
     val exits: Double?,
+    val notified: Boolean,
 ): JsonSerializable {
     companion object: JsonSerializer<Transaction> {
         override fun fromJSON(json: JSONObject): Transaction = Transaction(
@@ -23,6 +25,7 @@ data class Transaction(
             json.getLong("units"),
             json.getDoubleOrNull("enters"),
             json.getDoubleOrNull("exits"),
+            json.getBooleanOrNull("notified") ?: true,
         )
     }
 
@@ -32,6 +35,7 @@ data class Transaction(
         put("units", units)
         put("enters", enters)
         put("exits", exits)
+        put("notified", notified)
     }
 
     @Ignore

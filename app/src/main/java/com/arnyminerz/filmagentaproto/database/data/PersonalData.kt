@@ -32,6 +32,7 @@ data class PersonalData(
                         tds[2].text().toLong(),
                         tds[3].text().replace(',', '.').toDoubleOrNull(),
                         tds[4].text().replace(',', '.').toDoubleOrNull(),
+                        false,
                     )
                 }
 

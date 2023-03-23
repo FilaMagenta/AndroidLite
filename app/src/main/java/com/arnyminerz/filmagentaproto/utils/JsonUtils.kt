@@ -2,13 +2,11 @@ package com.arnyminerz.filmagentaproto.utils
 
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
 
 fun JSONObject.getDoubleOrNull(key: String): Double? = try {
     if (has(key))
@@ -31,6 +29,15 @@ fun JSONObject.getIntOrNull(key: String): Int? = try {
 fun JSONObject.getStringOrNull(key: String): String? = try {
     if (has(key))
         getString(key)
+    else
+        null
+} catch (e: JSONException) {
+    null
+}
+
+fun JSONObject.getBooleanOrNull(key: String): Boolean? = try {
+    if (has(key))
+        getBoolean(key)
     else
         null
 } catch (e: JSONException) {

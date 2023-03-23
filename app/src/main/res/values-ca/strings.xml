@@ -65,6 +65,8 @@
     <string name="notification_channel_sync_desc">Notifica sobre el progrés i estat del procés de sincronització.</string>
     <string name="notification_channel_sync_error_name">Error de Sincronització</string>
     <string name="notification_channel_sync_error_desc">Avisa dels possibles errors del procés de sincronització.</string>
+    <string name="notification_channel_transaction_name">Transacció</string>
+    <string name="notification_channel_transaction_desc">Notifica sobre noves transaccions des de o al teu compte.</string>
     <string name="calendar_trebuchet_title">Caducitat Permís d\'armes</string>
     <string name="calendar_trebuchet_description">Recorda renovar el teu permís d\'armes</string>
     <string name="error_policy">%s no ha acceptat la política de privacitat a la pàgina web. Per favor, inicia sessió a la versió web amb el seu usuari, i signa el contracte.</string>
@@ -85,4 +87,7 @@
     <string name="sync_error_message">La sincronització no s\'ha pogut dur a terme. Per favor, comparteix l\'error amb un adminstrador.</string>
     <string name="telegram_channel">Canal de Telegram</string>
     <string name="website">Pàgina Web</string>
+    <string name="notification_transaction_title">Nou movement al compte</string>
+    <string name="notification_transaction_charge_message">Se t\'han cobrat %.2f € en concepte de \"%s\".</string>
+    <string name="notification_transaction_input_message">Se t\'han ingressat %.2f € al teu compte en concepte de \"%s\".</string>
 </resources>

@@ -8,11 +8,13 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 
 object NotificationChannels {
-    const val SYNC_GROUP_ID = "sync_group"
+    private const val SYNC_GROUP_ID = "sync_group"
 
     const val SYNC_PROGRESS = "sync_progress"
 
     const val SYNC_ERROR = "sync_error"
+
+    const val TRANSACTION = "transaction"
 
     /**
      * Works as a shortcut for fetching the [NotificationManager] from a context.
@@ -51,6 +53,17 @@ object NotificationChannels {
         val channel = NotificationChannel(SYNC_ERROR, name, importance).apply {
             this.description = description
             this.group = SYNC_GROUP_ID
+        }
+        notificationManager().createNotificationChannel(channel)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createTransactionChannel(context: Context) = with(context) {
+        val name = getString(R.string.notification_channel_transaction_name)
+        val description = getString(R.string.notification_channel_transaction_desc)
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel(TRANSACTION, name, importance).apply {
+            this.description = description
         }
         notificationManager().createNotificationChannel(channel)
     }
