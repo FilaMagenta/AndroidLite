@@ -113,6 +113,6 @@
     <string name="calendar_trebuchet_description">Remember to renew your guns permission.</string>
 
     <string name="notification_transaction_title">New movement in your account</string>
-    <string name="notification_transaction_charge_message" formatted="true">You have been charged with %.2f € with concept "%s".</string>
-    <string name="notification_transaction_input_message" formatted="true">%.2f € have been transferred to your account with concept "%s".</string>
+    <string name="notification_transaction_charge_message" formatted="true">You have been charged with %.2f € with concept \"%s\".</string>
+    <string name="notification_transaction_input_message" formatted="true">%.2f € have been transferred to your account with concept \"%s\".</string>
 </resources>
