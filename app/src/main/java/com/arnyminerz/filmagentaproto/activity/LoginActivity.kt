@@ -4,7 +4,6 @@ import android.accounts.AccountAuthenticatorResponse
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
@@ -26,43 +25,20 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.AuthTokenType
 import com.arnyminerz.filmagentaproto.account.credentials.Credentials
 import com.arnyminerz.filmagentaproto.ui.screens.LoginScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.ui.viewmodel.LoginViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 class LoginActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_ACCOUNT_TYPE = "account_type"
         const val EXTRA_AUTH_TOKEN_TYPE = "auth_token_type"
         const val EXTRA_ADDING_NEW_ACCOUNT = "adding_new_account"
         const val EXTRA_RESPONSE = "response"
-
-        private val AUTHORIZE_QUERY = mapOf(
-            "app_name" to "Filà Magenta",
-            "scope" to "read_write",
-            "return_url" to "https://filamagenta.com",
-            "callback_url" to "https://wsrelay.arnyminerz.com",
-            "user_id" to "123",
-        )
-
-        private const val AUTHORIZE_URL = "https://${BuildConfig.HOST}/wc-auth/v1/authorize"
-
-        /**
-         * The address to be used for authorizing new users.
-         */
-        private val AUTHORIZE_ADDRESS = Uri.parse(AUTHORIZE_URL)
-            .buildUpon()
-            .apply {
-                for ((key, value) in AUTHORIZE_QUERY)
-                    appendQueryParameter(key, value)
-            }
-            .build()
     }
 
     private val viewModel by viewModels<LoginViewModel>()

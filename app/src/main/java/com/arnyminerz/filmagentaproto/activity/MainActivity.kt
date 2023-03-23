@@ -24,6 +24,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
@@ -105,9 +107,6 @@ import com.arnyminerz.filmagentaproto.utils.launchUrl
 import com.arnyminerz.filmagentaproto.utils.toast
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import com.arnyminerz.filmagentaproto.utils.ui
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import compose.icons.SimpleIcons
 import compose.icons.simpleicons.Facebook
 import compose.icons.simpleicons.Googleplay
@@ -121,7 +120,6 @@ import kotlinx.coroutines.launch
 
 @OptIn(
     ExperimentalTextApi::class,
-    ExperimentalPagerApi::class,
     ExperimentalComposeUiApi::class,
     ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class
@@ -420,7 +418,7 @@ class MainActivity : AppCompatActivity(), OnAccountsUpdateListener {
                         ) { pagerState.scrollToPage(it) }
 
                         HorizontalPager(
-                            count = 4,
+                            pageCount = 4,
                             state = pagerState,
                             modifier = Modifier
                                 .fillMaxSize()
