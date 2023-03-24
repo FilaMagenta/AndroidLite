@@ -7,7 +7,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.data.woo.AvailablePayment
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
@@ -15,6 +14,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.data.woo.WooConverters
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
+import com.arnyminerz.filmagentaproto.worker.SyncWorker
 
 @Database(
     entities = [

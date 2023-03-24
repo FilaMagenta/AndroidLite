@@ -8,12 +8,12 @@ import android.os.Bundle
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.credentials.Credentials
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.capitalized
 import com.arnyminerz.filmagentaproto.utils.ui
+import com.arnyminerz.filmagentaproto.worker.SyncWorker
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val am = AccountManager.get(application)

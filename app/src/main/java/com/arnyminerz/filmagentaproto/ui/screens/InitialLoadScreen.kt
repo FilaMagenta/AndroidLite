@@ -20,9 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.arnyminerz.filmagentaproto.ProgressStep
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.SyncWorker
+import com.arnyminerz.filmagentaproto.worker.ProgressStep
+import com.arnyminerz.filmagentaproto.worker.SyncWorker
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

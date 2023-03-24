@@ -74,7 +74,6 @@ import androidx.work.WorkInfo
 import com.arnyminerz.filmagentaproto.App
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
@@ -111,6 +110,7 @@ import com.arnyminerz.filmagentaproto.utils.launchUrl
 import com.arnyminerz.filmagentaproto.utils.toast
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import com.arnyminerz.filmagentaproto.utils.ui
+import com.arnyminerz.filmagentaproto.worker.SyncWorker
 import compose.icons.SimpleIcons
 import compose.icons.simpleicons.Facebook
 import compose.icons.simpleicons.Googleplay

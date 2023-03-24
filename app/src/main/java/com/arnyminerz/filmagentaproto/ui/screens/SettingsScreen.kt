@@ -22,12 +22,12 @@ import androidx.work.WorkInfo
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.Locator
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.service.LanguageChangeReceiver
 import com.arnyminerz.filmagentaproto.ui.components.OutlinedDropdownField
 import com.arnyminerz.filmagentaproto.ui.components.settings.SettingsCategory
 import com.arnyminerz.filmagentaproto.ui.components.settings.SettingsItem
 import com.arnyminerz.filmagentaproto.utils.capitalized
+import com.arnyminerz.filmagentaproto.worker.SyncWorker
 
 @Composable
 @ExperimentalMaterial3Api
