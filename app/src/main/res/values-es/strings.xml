@@ -13,8 +13,16 @@
     <string name="login_nif">NIF</string>
     <string name="login_nif_aux">Tu DNI, NIE, o sea cual sea tu NIF</string>
     <string name="login_action">Iniciar Sesión</string>
+    <string name="settings_category_general">General</string>
+    <string name="settings_category_advanced">Avanzado</string>
     <string name="settings_language">Idioma</string>
     <string name="settings_language_default">Por defecto del Sistema</string>
+    <string name="settings_worker_title">Estado del Servicio de Sincronización</string>
+    <string name="settings_worker_enqueued">En Cola</string>
+    <string name="settings_worker_running">En Ejecución</string>
+    <string name="settings_worker_success">Completado</string>
+    <string name="settings_worker_failing">Con errores!</string>
+    <string name="settings_worker_not_scheduled">No Programado</string>
     <string name="balance_balance">Balance</string>
     <string name="balance_in">Ingresos</string>
     <string name="balance_out">Gastos</string>
@@ -97,6 +105,7 @@
     <string name="admin_events_message">Aquí puedes administrar todos los eventos creados, ver a la gente apuntada y validar el acceso.</string>
     <string name="admin_events_filter_past">Eventos Pasados</string>
     <string name="admin_events_view_people">Apuntados</string>
+    <string name="admin_events_export_tickets">Exportar Tiquets</string>
     <string name="admin_events_order_number">Pedido #%d</string>
     <string name="admin_events_sort_name">Ordena por Nombre</string>
     <string name="shortcut_admin_label">Panel de Administrador</string>
