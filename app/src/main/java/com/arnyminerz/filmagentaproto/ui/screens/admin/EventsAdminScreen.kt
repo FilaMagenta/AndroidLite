@@ -39,7 +39,11 @@ import com.arnyminerz.filmagentaproto.utils.now
 @Composable
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
-fun ColumnScope.EventsAdminScreen(events: List<Pair<Event, List<Order>>>?, customers: List<Customer>) {
+fun ColumnScope.EventsAdminScreen(
+    events: List<Pair<Event, List<Order>>>?,
+    customers: List<Customer>,
+    onPdfExport: (Event) -> Unit,
+) {
     Text(
         text = stringResource(R.string.admin_events_title),
         style = MaterialTheme.typography.titleMedium,
@@ -103,7 +107,12 @@ fun ColumnScope.EventsAdminScreen(events: List<Pair<Event, List<Order>>>?, custo
                     showSheet = false
                 }
 
-            AdminEventItem(event, orders) { showSheet = true }
+            AdminEventItem(
+                event,
+                orders,
+                onPeopleListRequested = { showSheet = true },
+                onTicketsListRequested = { onPdfExport(event) },
+            )
         }
     }
 }

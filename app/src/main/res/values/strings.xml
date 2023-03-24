@@ -124,6 +124,7 @@
     <string name="admin_events_message">Here you can manage all the created events, view the signed up people, and validate accesses.</string>
     <string name="admin_events_filter_past">Past Events</string>
     <string name="admin_events_view_people">People List</string>
+    <string name="admin_events_export_tickets">Export Tickets</string>
     <string name="admin_events_order_number">Order #%d</string>
     <string name="admin_events_sort_name">Sort by Name</string>
     <string name="admin_events_sort_order">Sort by Order</string>

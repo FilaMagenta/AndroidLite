@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -65,13 +66,16 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.getOrders
+import com.arnyminerz.filmagentaproto.documents.Ticket
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.Tooltip
 import com.arnyminerz.filmagentaproto.ui.screens.admin.EventsAdminScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
+import com.arnyminerz.filmagentaproto.utils.async
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+import java.io.FileOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -105,6 +109,19 @@ class AdminActivity : AppCompatActivity() {
     private val barcodeLauncher = registerForActivityResult(ScanContract()) { result ->
         val contents: String? = result.contents
         viewModel.decodeQR(contents)
+    }
+
+    private val savePdfLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/pdf")
+    ) { uri ->
+        if (uri != null) {
+            val parcel = contentResolver.openFileDescriptor(uri, "w") ?: return@registerForActivityResult
+            val outputStream = FileOutputStream(parcel.fileDescriptor)
+            viewModel.generatePdf(outputStream).invokeOnCompletion {
+                outputStream.close()
+                parcel.close()
+            }
+        }
     }
 
     private val viewModel by viewModels<ViewModel>()
@@ -279,7 +296,11 @@ class AdminActivity : AppCompatActivity() {
                             .padding(8.dp)
                     ) {
                         when (page) {
-                            0 -> EventsAdminScreen(events, customers)
+                            0 -> EventsAdminScreen(
+                                events,
+                                customers,
+                                onPdfExport = { savePdfLauncher.launch(it.title + ".pdf") },
+                            )
                         }
                     }
                 }
@@ -338,6 +359,10 @@ class AdminActivity : AppCompatActivity() {
                     scanCustomer.postValue(customerName)
                 }
             }
+        }
+
+        fun generatePdf(outputStream: FileOutputStream) = async {
+            Ticket.generatePDF(outputStream)
         }
     }
 }

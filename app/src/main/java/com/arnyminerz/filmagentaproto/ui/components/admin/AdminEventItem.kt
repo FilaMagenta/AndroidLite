@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.TableRestaurant
+import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.rounded.ReceiptLong
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -77,7 +78,12 @@ fun DoubleRow(icon1: ImageVector, text1: String, icon2: ImageVector, text2: Stri
 
 @Composable
 @ExperimentalMaterial3Api
-fun AdminEventItem(event: Event, orders: List<Order>, onPeopleListRequested: () -> Unit) {
+fun AdminEventItem(
+    event: Event,
+    orders: List<Order>,
+    onPeopleListRequested: () -> Unit,
+    onTicketsListRequested: () -> Unit,
+) {
     OutlinedCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -102,24 +108,31 @@ fun AdminEventItem(event: Event, orders: List<Order>, onPeopleListRequested: () 
             icon2 = Icons.Outlined.TableRestaurant,
             text2 = "¿?",
         )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        OutlinedButton(
+            onClick = onPeopleListRequested,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .padding(top = 4.dp),
+                .padding(vertical = 4.dp),
         ) {
-            OutlinedButton(
-                onClick = onPeopleListRequested,
+            Icon(Icons.Rounded.ReceiptLong, null)
+            Text(
+                text = stringResource(R.string.admin_events_view_people),
                 modifier = Modifier.weight(1f),
-            ) {
-                Icon(Icons.Rounded.ReceiptLong, null)
-                Text(
-                    text = stringResource(R.string.admin_events_view_people),
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                )
-            }
+                textAlign = TextAlign.Center,
+            )
+        }
+        OutlinedButton(
+            onClick = onTicketsListRequested,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+        ) {
+            Icon(Icons.Rounded.PictureAsPdf, null)
+            Text(
+                text = stringResource(R.string.admin_events_export_tickets),
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center,
+            )
         }
         // Final margin
         Spacer(Modifier.height(8.dp))
@@ -132,5 +145,10 @@ fun AdminEventItem(event: Event, orders: List<Order>, onPeopleListRequested: () 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun AdminEventItemPreview() {
-    AdminEventItem(event = Event.EXAMPLE, orders = emptyList(), onPeopleListRequested = {})
+    AdminEventItem(
+        event = Event.EXAMPLE,
+        orders = emptyList(),
+        onPeopleListRequested = {},
+        onTicketsListRequested = {},
+    )
 }
