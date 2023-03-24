@@ -15,26 +15,19 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Cancel
-import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -45,15 +38,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -70,6 +58,8 @@ import com.arnyminerz.filmagentaproto.documents.Ticket
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.Tooltip
+import com.arnyminerz.filmagentaproto.ui.dialogs.admin.GeneratingTicketsDialog
+import com.arnyminerz.filmagentaproto.ui.dialogs.admin.ScanResultBottomSheet
 import com.arnyminerz.filmagentaproto.ui.screens.admin.EventsAdminScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.async
@@ -93,10 +83,10 @@ class AdminActivity : AppCompatActivity() {
          */
         private const val EXTRA_PARENT_ACTIVITY = "parent"
 
-        private const val SCAN_RESULT_OK = 0
-        private const val SCAN_RESULT_LOADING = 1
-        private const val SCAN_RESULT_FAIL = 2
-        private const val SCAN_RESULT_INVALID = 3
+        const val SCAN_RESULT_OK = 0
+        const val SCAN_RESULT_LOADING = 1
+        const val SCAN_RESULT_FAIL = 2
+        const val SCAN_RESULT_INVALID = 3
     }
 
     object Contract : ActivityResultContract<Void?, Void?>() {
@@ -117,7 +107,8 @@ class AdminActivity : AppCompatActivity() {
         ActivityResultContracts.CreateDocument("application/pdf")
     ) { uri ->
         if (uri != null) {
-            val parcel = contentResolver.openFileDescriptor(uri, "w") ?: return@registerForActivityResult
+            val parcel =
+                contentResolver.openFileDescriptor(uri, "w") ?: return@registerForActivityResult
             val outputStream = FileOutputStream(parcel.fileDescriptor)
             viewModel.generatePdf(outputStream).invokeOnCompletion {
                 outputStream.close()
@@ -156,81 +147,19 @@ class AdminActivity : AppCompatActivity() {
 
             val scanResult by viewModel.scanResult.observeAsState()
             val scanCustomer by viewModel.scanCustomer.observeAsState()
-            if (scanResult != null)
-                ModalBottomSheet(
-                    onDismissRequest = {
-                        if (scanResult != SCAN_RESULT_LOADING) {
-                            viewModel.scanResult.postValue(null)
-                            viewModel.scanCustomer.postValue(null)
-                        }
-                    },
-                ) {
-                    when (scanResult) {
-                        SCAN_RESULT_LOADING -> {
-                            Text(
-                                text = stringResource(R.string.admin_scan_loading),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp)
-                                    .padding(top = 16.dp),
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 22.sp,
-                            )
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(top = 32.dp, bottom = 64.dp)
-                            )
-                        }
-                        SCAN_RESULT_OK -> {
-                            Icon(
-                                Icons.Outlined.Verified,
-                                null,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .size(96.dp)
-                                    .padding(top = 32.dp),
-                                tint = Color(0xff66ff66),
-                            )
-                            Text(
-                                text = stringResource(R.string.admin_scan_correct),
-                                style = MaterialTheme.typography.labelLarge,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(top = 32.dp),
-                                fontSize = 26.sp,
-                            )
-                            Text(
-                                text = scanCustomer ?: "",
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(bottom = 64.dp),
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                        SCAN_RESULT_INVALID -> {
-                            Icon(
-                                Icons.Outlined.Cancel,
-                                null,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .size(96.dp)
-                                    .padding(top = 32.dp),
-                                tint = Color(0xffff3333),
-                            )
-                            Text(
-                                text = stringResource(R.string.admin_scan_invalid),
-                                style = MaterialTheme.typography.labelLarge,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(bottom = 64.dp),
-                                fontSize = 26.sp,
-                            )
-                        }
+            scanResult?.let {
+                ScanResultBottomSheet(scanResult = it, scanCustomer) {
+                    if (scanResult != SCAN_RESULT_LOADING) {
+                        viewModel.scanResult.postValue(null)
+                        viewModel.scanCustomer.postValue(null)
                     }
                 }
+            }
+
+            val ticketsProgress by viewModel.ticketsProgress.observeAsState()
+            ticketsProgress?.let {
+                GeneratingTicketsDialog(it)
+            }
 
             Scaffold(
                 topBar = {
@@ -332,12 +261,14 @@ class AdminActivity : AppCompatActivity() {
             eventsOrdersLive(events)
         }
 
-        val orders = MutableLiveData<List<Order>>(null)
+        val orders = MutableLiveData<Pair<Event, List<Order>>>(null)
 
         val customers = wooCommerceDao.getAllCustomersLive()
 
         val scanResult = MutableLiveData<Int?>(null)
         val scanCustomer = MutableLiveData<String?>(null)
+
+        val ticketsProgress = MutableLiveData<Pair<Int, Int>?>(null)
 
         private fun eventsOrdersLive(events: List<Event>): LiveData<List<Pair<Event, List<Order>>>> =
             MutableLiveData<List<Pair<Event, List<Order>>>>().apply {
@@ -369,15 +300,29 @@ class AdminActivity : AppCompatActivity() {
         }
 
         fun loadOrders(event: Event) = async {
-            orders.postValue(event.getOrders(getApplication()))
+            orders.postValue(event to event.getOrders(getApplication()))
         }
 
         fun generatePdf(outputStream: FileOutputStream) = async {
-            val orders = orders.await()
-            val tickets = Ticket.TicketData.fromOrders(wooCommerceDao, orders)
-            Ticket.generatePDF(tickets, outputStream)
+            try {
+                ticketsProgress.postValue(0 to 0)
+                val (event, orders) = orders.await()
+                val tickets = Ticket.TicketData.fromOrders(
+                    wooCommerceDao,
+                    event,
+                    orders,
+                ) { current, value -> ticketsProgress.postValue(current to value) }
 
-            getApplication<Application>().toastAsync(R.string.admin_tickets_ready)
+                with(getApplication<Application>()) {
+                    Ticket.generatePDF(tickets, outputStream) { current, max ->
+                        ticketsProgress.postValue(current to max)
+                    }
+                }
+
+                getApplication<Application>().toastAsync(R.string.admin_tickets_ready)
+            } finally {
+                ticketsProgress.postValue(null)
+            }
         }
     }
 }
