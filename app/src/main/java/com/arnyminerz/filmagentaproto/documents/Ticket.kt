@@ -106,7 +106,7 @@ object Ticket {
         val pageWidth = PAGE_WIDTH.mm.psPoints.toInt()
         val pageHeight = PAGE_HEIGHT.mm.psPoints.toInt()
 
-        val ticketsVertical = ((pageHeight - 2 * RULE_Y) / TICKET_HEIGHT).toInt()
+        val ticketsVertical = ((pageHeight - 2 * RULE_Y) / TICKET_HEIGHT - 1).toInt()
         val ticketsPerPage = TICKETS_HORIZONTAL * ticketsVertical
 
         var pageCounter = 1
