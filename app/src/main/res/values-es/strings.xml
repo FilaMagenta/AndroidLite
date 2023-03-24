@@ -114,4 +114,7 @@
     <string name="admin_scan_loading">Verificando…</string>
     <string name="admin_scan_correct">Correcto!</string>
     <string name="admin_scan_invalid">Inválido!</string>
+    <string name="admin_tickets_ready">Tiquets listos!</string>
+    <string name="admin_tickets_generating">Generando tiquets…</string>
+    <string name="admin_tickets_generating">G</string>
 </resources>
