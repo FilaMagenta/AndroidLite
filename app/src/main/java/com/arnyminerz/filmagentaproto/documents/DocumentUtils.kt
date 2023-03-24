@@ -1,5 +1,8 @@
 package com.arnyminerz.filmagentaproto.documents
 
+import android.graphics.Canvas
+import android.graphics.Paint
+
 object DocumentUtils {
     /**
      * The equivalence between 1 mm and Postscript points.
@@ -17,14 +20,40 @@ object DocumentUtils {
      * Converts the given distance into Postscript points.
      * @param size The amount of millimeters.
      */
-    fun mmToPostscript(size: Int) = size * MM_IN_POSTSCRIPT
+    fun mmToPostscript(size: Double) = size * MM_IN_POSTSCRIPT
 }
 
 data class Millimeter(
-    val value: Int
+    val value: Double
 ) {
-    fun toPostscriptPoints(): Int = DocumentUtils.mmToPostscript(value).toInt()
+    fun toPostscriptPoints() = DocumentUtils.mmToPostscript(value)
+
+    /**
+     * Alias for [toPostscriptPoints]
+     */
+    val psPoints: Double
+        get() = toPostscriptPoints()
+
+    override fun toString(): String = "${value}mm"
 }
 
-val Int.mm: Millimeter
+val Double.mm: Millimeter
     get() = Millimeter(this)
+
+val Int.mm: Millimeter
+    get() = Millimeter(toDouble())
+
+fun Canvas.drawRect(
+    x: Millimeter,
+    y: Millimeter,
+    width: Millimeter,
+    height: Millimeter,
+    paint: Paint
+) {
+    val left = x.psPoints.toFloat()
+    val top = y.psPoints.toFloat()
+    val right = (x.psPoints + width.psPoints).toFloat()
+    val bottom = (y.psPoints + height.psPoints).toFloat()
+
+    return drawRect(left, top, right, bottom, paint)
+}

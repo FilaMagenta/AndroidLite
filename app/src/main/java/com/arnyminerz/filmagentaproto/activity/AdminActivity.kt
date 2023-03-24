@@ -73,6 +73,8 @@ import com.arnyminerz.filmagentaproto.ui.components.Tooltip
 import com.arnyminerz.filmagentaproto.ui.screens.admin.EventsAdminScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.async
+import com.arnyminerz.filmagentaproto.utils.await
+import com.arnyminerz.filmagentaproto.utils.toastAsync
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import java.io.FileOutputStream
@@ -299,7 +301,10 @@ class AdminActivity : AppCompatActivity() {
                             0 -> EventsAdminScreen(
                                 events,
                                 customers,
-                                onPdfExport = { savePdfLauncher.launch(it.title + ".pdf") },
+                                onPdfExport = { event ->
+                                    viewModel.loadOrders(event)
+                                    savePdfLauncher.launch(event.title + ".pdf")
+                                },
                             )
                         }
                     }
@@ -326,6 +331,8 @@ class AdminActivity : AppCompatActivity() {
         val events = wooCommerceDao.getAllEventsLive().switchMap { events ->
             eventsOrdersLive(events)
         }
+
+        val orders = MutableLiveData<List<Order>>(null)
 
         val customers = wooCommerceDao.getAllCustomersLive()
 
@@ -361,8 +368,16 @@ class AdminActivity : AppCompatActivity() {
             }
         }
 
+        fun loadOrders(event: Event) = async {
+            orders.postValue(event.getOrders(getApplication()))
+        }
+
         fun generatePdf(outputStream: FileOutputStream) = async {
-            Ticket.generatePDF(outputStream)
+            val orders = orders.await()
+            val tickets = Ticket.TicketData.fromOrders(wooCommerceDao, orders)
+            Ticket.generatePDF(tickets, outputStream)
+
+            getApplication<Application>().toastAsync(R.string.admin_tickets_ready)
         }
     }
 }

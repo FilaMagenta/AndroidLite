@@ -5,12 +5,16 @@ import androidx.annotation.WorkerThread
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.coroutines.resume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
 fun doAsync(@WorkerThread block: suspend CoroutineScope.() -> Unit): Job = CoroutineScope(Dispatchers.Main).launch {
@@ -45,3 +49,22 @@ suspend fun <R> io(@WorkerThread block: suspend CoroutineScope.() -> R): R =
  */
 suspend fun <R> ui(@UiThread block: suspend CoroutineScope.() -> R): R =
     withContext(Dispatchers.Main, block)
+
+suspend fun <T> LiveData<T>.await(): T {
+    return withContext(Dispatchers.Main.immediate) {
+        suspendCancellableCoroutine { continuation ->
+            val observer = object : Observer<T> {
+                override fun onChanged(value: T) {
+                    removeObserver(this)
+                    continuation.resume(value)
+                }
+            }
+
+            observeForever(observer)
+
+            continuation.invokeOnCancellation {
+                removeObserver(observer)
+            }
+        }
+    }
+}

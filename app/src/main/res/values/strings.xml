@@ -139,6 +139,7 @@
     <string name="admin_scan_loading">Verifying…</string>
     <string name="admin_scan_correct">Correct!</string>
     <string name="admin_scan_invalid">Invalid!</string>
+    <string name="admin_tickets_ready">Tickets Ready!</string>
 
     <string name="shortcut_admin_label">Admin Panel</string>
 </resources>
