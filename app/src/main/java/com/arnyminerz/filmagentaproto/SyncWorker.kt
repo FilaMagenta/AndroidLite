@@ -87,6 +87,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         const val EXCEPTION_MESSAGE = "exception_message"
 
         private const val NOTIFICATION_ID = 20230315
+        private const val ERROR_NOTIFICATION_ID = 20230324
 
         fun schedule(context: Context) {
             val request = PeriodicWorkRequest
@@ -559,7 +560,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     pendingIntent,
                 )
                 .build()
-        NotificationManagerCompat.from(applicationContext).notify(Random.nextInt(), notification)
+        NotificationManagerCompat.from(applicationContext).notify(ERROR_NOTIFICATION_ID, notification)
     }
 
     /**
