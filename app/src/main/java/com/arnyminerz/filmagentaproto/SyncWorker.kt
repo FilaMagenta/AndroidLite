@@ -152,6 +152,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
     private val am = AccountManager.get(appContext)
 
+    private lateinit var notificationManager: NotificationManagerCompat
+
     private lateinit var personalDataDao: PersonalDataDao
     private lateinit var remoteDatabaseDao: RemoteDatabaseDao
     private lateinit var wooCommerceDao: WooCommerceDao
@@ -164,6 +166,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         Log.i(TAG, "Running Synchronization...")
 
         transaction = Sentry.startTransaction("SyncWorker", "synchronization")
+
+        notificationManager = NotificationManagerCompat.from(applicationContext)
 
         return try {
             synchronize()
@@ -188,6 +192,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 )
             )
         } finally {
+            notificationManager.cancel(NOTIFICATION_ID)
+            
             transaction.finish()
         }
     }
@@ -556,7 +562,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     pendingIntent,
                 )
                 .build()
-        NotificationManagerCompat.from(applicationContext).notify(ERROR_NOTIFICATION_ID, notification)
+        notificationManager.notify(ERROR_NOTIFICATION_ID, notification)
     }
 
     /**
@@ -589,6 +595,6 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 .setWhen(transaction.timestamp?.time ?: 0)
                 .setShowWhen(transaction.timestamp != null)
                 .build()
-        NotificationManagerCompat.from(applicationContext).notify(Random.nextInt(), notification)
+        notificationManager.notify(Random.nextInt(), notification)
     }
 }
