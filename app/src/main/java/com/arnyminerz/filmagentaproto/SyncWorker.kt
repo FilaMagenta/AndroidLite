@@ -29,6 +29,7 @@ import androidx.work.WorkRequest.Companion.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.arnyminerz.filmagentaproto.account.Authenticator
+import com.arnyminerz.filmagentaproto.activity.ShareMessageActivity
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
@@ -532,21 +533,14 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             "Message: ${exception.message}"
         )
 
-        val pendingIntent = PendingIntent.getBroadcast(
+        val pendingIntent = PendingIntent.getActivity(
             applicationContext,
             0,
-            Intent.createChooser(
-                Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        message.joinToString("\n")
-                    )
-                    type = "text/plain"
-                },
-                null,
-            ),
-            PendingIntent.FLAG_IMMUTABLE,
+            Intent(applicationContext, ShareMessageActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                putExtra(ShareMessageActivity.EXTRA_MESSAGE, message.joinToString("\n"))
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification =

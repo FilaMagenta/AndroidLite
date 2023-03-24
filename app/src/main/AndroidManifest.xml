@@ -48,6 +48,12 @@
             android:name=".activity.AdminActivity"
             android:parentActivityName=".activity.MainActivity" />
 
+        <activity
+            android:name=".activity.ShareMessageActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity="" />
+
         <!-- Set Scanner to vertical -->
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
