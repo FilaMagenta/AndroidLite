@@ -116,5 +116,4 @@
     <string name="admin_scan_invalid">Invàlid!</string>
     <string name="admin_tickets_ready">Tiquets llestos!</string>
     <string name="admin_tickets_generating">Generant tiquets…</string>
-    <string name="admin_tickets_generating">G</string>
 </resources>
