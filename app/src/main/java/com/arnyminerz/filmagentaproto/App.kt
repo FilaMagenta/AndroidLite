@@ -127,7 +127,7 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
                 .data
                 .map { preferences -> preferences[SELECTED_ACCOUNT] ?: 0 }
                 .map { index ->
-                    accounts.value?.get(index)?.let { account ->
+                    accounts.value?.getOrNull(index)?.let { account ->
                         val customerId: Long = am.getUserData(account, "customer_id")
                             ?.toLongOrNull() ?: return@let null
                         wooCommerceDao.getAllCustomers().find { it.id == customerId }
