@@ -65,6 +65,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
     companion object {
         private const val TAG = "sync_worker"
+        const val TAG_PERIODIC = "periodic"
 
         private const val UNIQUE_WORK_NAME = "sync"
 
@@ -100,6 +101,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     TimeUnit.MINUTES,
                 )
                 .addTag(TAG)
+                .addTag(TAG_PERIODIC)
                 .setConstraints(Constraints(NetworkType.CONNECTED))
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 15, TimeUnit.MINUTES)
                 .build()
