@@ -1,4 +1,4 @@
-package com.arnyminerz.filmagentaproto
+package com.arnyminerz.filmagentaproto.worker
 
 import android.accounts.Account
 import android.accounts.AccountManager
@@ -28,6 +28,8 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest.Companion.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.arnyminerz.filmagentaproto.NotificationChannels
+import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.activity.ShareMessageActivity
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
