@@ -123,7 +123,6 @@
     <string name="none">Ninguna</string>
     <string name="retry">Reintentar</string>
     <string name="first_load_failed_title">Carga Fallida</string>
-    <string name="first_load_failed_title">C</string>
     <string name="first_load_failed_message">Algo ha fallado durante la carga inicial. Pulsa el botón de abajo para volverlo a intentar, comprueba la notificación de error si hay alguna, o contacta con un administrador.</string>
     <string name="admin_scan_repeated">Repetido!</string>
     <string name="admin_scan_repeated_msg">Este código ya ha sido escaneado</string>
