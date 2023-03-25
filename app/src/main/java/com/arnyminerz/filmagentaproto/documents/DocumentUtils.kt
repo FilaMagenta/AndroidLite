@@ -62,7 +62,11 @@ data class Millimeter(
         )
 
     override fun toString(): String = "${value}mm"
+
     operator fun plus(other: Millimeter): Millimeter = Millimeter(value + other.value)
+    operator fun minus(other: Millimeter): Millimeter = Millimeter(value - other.value)
+    operator fun div(other: Int): Millimeter = Millimeter(value / other)
+    operator fun times(other: Int): Millimeter = Millimeter(value * other)
 }
 
 open class RectD(left: Double, top: Double, right: Double, bottom: Double) :
