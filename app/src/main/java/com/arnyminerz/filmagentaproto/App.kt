@@ -5,7 +5,6 @@ import android.accounts.AccountManager
 import android.accounts.OnAccountsUpdateListener
 import android.app.Application
 import android.content.Intent
-import android.util.Log
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_DYNAMIC
@@ -25,17 +24,16 @@ import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
 import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
+import com.redsys.tpvvinapplibrary.TPVVConfiguration
+import com.redsys.tpvvinapplibrary.TPVVConstants
 import io.sentry.Sentry
 import io.sentry.android.core.SentryAndroid
 import io.sentry.protocol.User
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
 class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
-    companion object {
-        private const val TAG = "App"
-    }
-
     private lateinit var am: AccountManager
 
     private val accountsLiveData = MutableLiveData<List<Account>>()
@@ -60,6 +58,12 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
             options.dsn = BuildConfig.SENTRY_DSN
         }
 
+        // Initialize Timber
+        plantTimber()
+
+        // Initialize RedSys
+        initializeTPVV()
+
         // Schedule the SyncWorker to run automatically
         SyncWorker.schedule(this)
 
@@ -83,8 +87,40 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
         am.removeOnAccountsUpdatedListener(this)
     }
 
+    private fun initializeTPVV() {
+        // Set required properties
+        TPVVConfiguration.setLicense(BuildConfig.TPVV_LICENSE)
+        TPVVConfiguration.setEnvironment(
+            if (BuildConfig.DEBUG)
+                TPVVConstants.ENVIRONMENT_TEST
+            else
+                TPVVConstants.ENVIRONMENT_REAL
+        )
+        TPVVConfiguration.setFuc(BuildConfig.TPVV_COMM_ID)
+        TPVVConfiguration.setTerminal(BuildConfig.TPVV_TERMINAL)
+        TPVVConfiguration.setCurrency("978") // Euro
+
+        // Optional properties
+        // TPVVConfiguration.setTitular(BuildConfig.TPVV_COMM_NM)
+        // TPVVConfiguration.setMerchantName(BuildConfig.TPVV_COMM_NM)
+        // TPVVConfiguration.setMerchantUrl("https://${BuildConfig.HOST}")
+        // TODO: TPVVConfiguration.setLanguage()
+
+        // Configure UI
+        /*BitmapFactory.decodeResource(resources, R.drawable.logo_magenta)?.let { bitmap ->
+            UIDirectPaymentConfig.setLogo(bitmap)
+        }
+        UIDirectPaymentConfig.setProgressBarColor("#" + md_theme_light_primary.toArgb().toHexString())*/
+        Timber.d("TPVV initialized")
+    }
+
+    private fun plantTimber() {
+        if (BuildConfig.DEBUG)
+            Timber.plant(Timber.DebugTree())
+    }
+
     override suspend fun emit(value: Int) {
-        Log.d(TAG, "Changed selected account to index $value")
+        Timber.d("Changed selected account to index $value")
         selectedAccountIndex = value
 
         updateUserId()
@@ -92,7 +128,7 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
     }
 
     override fun onAccountsUpdated(accounts: Array<out Account>?) {
-        Log.d(TAG, "Accounts list updated. There are ${accounts?.size} accounts.")
+        Timber.d("Accounts list updated. There are ${accounts?.size} accounts.")
         val filteredAccounts = accounts?.filter { it.type == Authenticator.AuthTokenType }
         accountsLiveData.postValue(filteredAccounts)
 
@@ -116,7 +152,7 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
         }
         Sentry.setUser(user)
 
-        Log.i(TAG, "Updated user reference to: ${account.name} ($dni, $customerId)")
+        Timber.i("Updated user reference to: ${account.name} ($dni, $customerId)")
     }
 
     /**

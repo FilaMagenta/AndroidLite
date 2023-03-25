@@ -23,7 +23,7 @@ android {
         versionProps.load(new FileInputStream(versionPropsFile))
         def runTasks = gradle.startParameter.taskNames
         def code = versionProps['VERSION_CODE'].toInteger() + ('assembleRelease' in runTasks || 'bundleRelease' in runTasks ? 1 : 0)
-        versionProps['VERSION_CODE']=code.toString()
+        versionProps['VERSION_CODE'] = code.toString()
         versionProps.store(versionPropsFile.newWriter(), null)
 
         versionCode code
@@ -73,10 +73,24 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "String", "TPVV_TERMINAL", "\"001\""
+            buildConfigField "String", "TPVV_LICENSE", "\"sq7HjrUOBfKmC576ILgskD5srU870gJ7\""
+            buildConfigField "String", "TPVV_COMM_ID", "\"999008881\""
+            buildConfigField "String", "TPVV_COMM_NM", "\"999008881\""
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+
+            def properties = new Properties()
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+            buildConfigField "String", "TPVV_TERMINAL", "\"${properties.getProperty("TPVV_TERMINAL")}\""
+            buildConfigField "String", "TPVV_LICENSE", "\"${properties.getProperty("TPVV_LICENSE")}\""
+            buildConfigField "String", "TPVV_COMM_ID", "\"${properties.getProperty("TPVV_COMM_ID")}\""
+            buildConfigField "String", "TPVV_COMM_NM", "\"${properties.getProperty("TPVV_COMM_NM")}\""
         }
     }
     compileOptions {
@@ -158,6 +172,19 @@ dependencies {
 
     // For creating QR codes
     implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+
+    // Logging library
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+
+    // Redsys payments
+    implementation(name: 'sdkinapp-library', ext: 'aar')
+
+    // Dependencies required by Redsys)
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.android.volley:volley:1.2.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

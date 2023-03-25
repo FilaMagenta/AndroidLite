@@ -95,6 +95,10 @@
     <string name="payments_make_euros">Euros</string>
     <string name="payments_make_action">Pay</string>
     <string name="payments_make_placeholder" translatable="false">_.__</string>
+    <string name="payment_made_correct_title">Payment completed!</string>
+    <string name="payment_made_correct_message">It will take some days to appear on this screen.</string>
+    <string name="payment_made_fail_title">Payment failed!</string>
+    <string name="payment_made_fail_message">Please, contact with an administrator. Error code: %s</string>
 
     <string name="add_to_calendar">Add to Calendar</string>
 

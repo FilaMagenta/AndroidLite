@@ -5,9 +5,9 @@ import android.accounts.Account
 import android.accounts.AccountManager
 import android.app.Application
 import android.content.pm.PackageManager
+import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -84,6 +84,7 @@ import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
+import com.arnyminerz.filmagentaproto.exceptions.PaymentException
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
 import com.arnyminerz.filmagentaproto.ui.components.ErrorCard
@@ -95,6 +96,7 @@ import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.ProfileImage
 import com.arnyminerz.filmagentaproto.ui.dialogs.AccountsDialog
 import com.arnyminerz.filmagentaproto.ui.dialogs.PaymentBottomSheet
+import com.arnyminerz.filmagentaproto.ui.dialogs.PaymentMadeBottomSheet
 import com.arnyminerz.filmagentaproto.ui.screens.EventsScreen
 import com.arnyminerz.filmagentaproto.ui.screens.InitialLoadScreen
 import com.arnyminerz.filmagentaproto.ui.screens.MainPage
@@ -107,10 +109,16 @@ import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.io
 import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.launchUrl
+import com.arnyminerz.filmagentaproto.utils.now
 import com.arnyminerz.filmagentaproto.utils.toast
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import com.arnyminerz.filmagentaproto.utils.ui
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
+import com.redsys.tpvvinapplibrary.ErrorResponse
+import com.redsys.tpvvinapplibrary.IPaymentResult
+import com.redsys.tpvvinapplibrary.ResultResponse
+import com.redsys.tpvvinapplibrary.TPVV
+import com.redsys.tpvvinapplibrary.TPVVConstants
 import compose.icons.SimpleIcons
 import compose.icons.simpleicons.Facebook
 import compose.icons.simpleicons.Googleplay
@@ -118,9 +126,12 @@ import compose.icons.simpleicons.Instagram
 import compose.icons.simpleicons.Telegram
 import compose.icons.simpleicons.Tiktok
 import compose.icons.simpleicons.Twitter
+import io.sentry.Sentry
+import java.util.Locale
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(
     ExperimentalTextApi::class,
@@ -131,8 +142,6 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     companion object {
         val TOP_BAR_HEIGHT = (56 + 16).dp
-
-        private const val TAG = "MainActivity"
     }
 
     private val viewModel by viewModels<MainViewModel>()
@@ -185,7 +194,7 @@ class MainActivity : AppCompatActivity() {
                     accountsList = accounts,
                     selectedAccountIndex = selectedAccountIndex ?: -1,
                     onAccountSelected = { index, _ ->
-                        Log.i(TAG, "Switching account to #$index")
+                        Timber.i("Switching account to #$index")
                         doAsync {
                             dataStore.edit {
                                 it[SELECTED_ACCOUNT] = index
@@ -200,24 +209,58 @@ class MainActivity : AppCompatActivity() {
                     onDismissRequested = { showingAccountsDialog = false },
                 )
 
+            if (databaseData?.isEmpty() == true)
+                return@setContentThemed InitialLoadScreen()
+
+            var paymentMadeResult by remember { mutableStateOf<Pair<ResultResponse?, ErrorResponse?>?>(null) }
+            paymentMadeResult?.let {
+                PaymentMadeBottomSheet(it) { paymentMadeResult = null }
+            }
+
             val processingPayment by viewModel.processingPayment.observeAsState(false)
             var showingPaymentBottomSheet by remember { mutableStateOf(false) }
             if (showingPaymentBottomSheet)
                 PaymentBottomSheet(
                     isLoading = processingPayment,
                     onPaymentRequested = { amount, concept ->
-                        viewModel.makePayment(amount, concept) { paymentUrl ->
-                            showingPaymentBottomSheet = false
-                            launchTabsUrl(paymentUrl)
+                        if (!BuildConfig.DEBUG) {
+                            // Use old method for production TODO: migrate to Redsys
+                            viewModel.makePayment(amount, concept) { paymentUrl ->
+                                showingPaymentBottomSheet = false
+                                launchTabsUrl(paymentUrl)
+                            }
+                            return@PaymentBottomSheet
                         }
+
+                        val orderCode = "APP" + SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
+                            .format(now())
+
+                        Timber.i("Making web payment for $amount € (${amount * 100})")
+                        TPVV.doDirectPayment(
+                            this,
+                            orderCode,
+                            amount * 100,
+                            TPVVConstants.PAYMENT_TYPE_NORMAL,
+                            null,
+                            concept,
+                            HashMap(),
+                            object : IPaymentResult {
+                                override fun paymentResultOK(response: ResultResponse) {
+                                    paymentMadeResult = response to null
+                                }
+
+                                override fun paymentResultKO(response: ErrorResponse) {
+                                    Timber.e("Could not make payment. Error (${response.code}): ${response.desc}")
+                                    paymentMadeResult = null to response
+                                    Sentry.captureException(PaymentException(response))
+                                }
+                            },
+                        )
                     },
                     onDismissRequest = { showingPaymentBottomSheet = false },
                 )
 
             var currentPage by remember { mutableStateOf(0) }
-
-            if (databaseData?.isEmpty() == true)
-                return@setContentThemed InitialLoadScreen()
 
             selectedAccountIndex?.let { accountIndex ->
                 Content(
@@ -377,7 +420,7 @@ class MainActivity : AppCompatActivity() {
                             ) {
                                 Icon(Icons.Outlined.AdminPanelSettings, "")
                             }
-                        
+
                         FloatingActionButton(onClick = onPaymentBottomSheetRequested) {
                             Icon(Icons.Rounded.Wallet, "")
                         }
@@ -508,7 +551,7 @@ class MainActivity : AppCompatActivity() {
             val personalDataList = personalDataDao.getAll()
             val accounts =
                 socios.map { socio -> socio to personalDataList.find { it.name == socio.Nombre } }
-            Log.i(TAG, "Got ${accounts.size} associated accounts for #$associatedWithId")
+            Timber.i("Got ${accounts.size} associated accounts for #$associatedWithId")
             associatedAccounts.postValue(accounts)
         }
 
@@ -533,6 +576,7 @@ class MainActivity : AppCompatActivity() {
             availableEvents.postValue(available)
         }
 
+        @Deprecated("Use Redsys payment")
         fun makePayment(
             amount: Double,
             concept: String,
@@ -540,17 +584,17 @@ class MainActivity : AppCompatActivity() {
         ) = async {
             val paymentUrl = try {
                 processingPayment.postValue(true)
-                Log.d(TAG, "Requesting a payment of $amount €. Getting customer...")
+                Timber.d("Requesting a payment of $amount €. Getting customer...")
                 val customer = customer.first()
                     ?: throw IllegalStateException("Could not get current customer.")
-                Log.d(TAG, "Customer ID for payment: ${customer.id}")
+                Timber.d("Customer ID for payment: ${customer.id}")
                 val payments = wooCommerceDao.getAllAvailablePayments()
-                Log.d(TAG, "Making request...")
+                Timber.d("Making request...")
                 val url = RemoteCommerce.transferAmount(amount, concept, payments, customer)
-                Log.i(TAG, "Payment url: $url")
+                Timber.i("Payment url: $url")
                 url
             } catch (e: Exception) {
-                Log.e(TAG, "Could not make payment: ${e.message}")
+                Timber.e("Could not make payment: ${e.message}")
                 null
             } finally {
                 processingPayment.postValue(false)
@@ -565,16 +609,16 @@ class MainActivity : AppCompatActivity() {
             metadata: List<Order.Metadata>,
             @UiThread onComplete: (paymentUrl: String) -> Unit
         ) = async {
-            Log.i(TAG, "Signing up for event (price=${event.price}). Metadata: $metadata")
+            Timber.i("Signing up for event (price=${event.price}). Metadata: $metadata")
             val paymentUrl = RemoteCommerce.eventSignup(
                 customer,
                 "", // FIXME: Set notes
                 event = event,
                 metadata = metadata,
             )
-            Log.i(TAG, "Adding event...")
+            Timber.i("Adding event...")
             wooCommerceDao.insert(event)
-            Log.i(TAG, "Event sign up is complete.")
+            Timber.i("Event sign up is complete.")
             ui { onComplete(paymentUrl) }
         }
 

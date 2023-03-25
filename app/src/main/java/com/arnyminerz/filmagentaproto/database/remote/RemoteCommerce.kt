@@ -291,6 +291,7 @@ object RemoteCommerce {
      * @param customer The customer that is making the payment.
      * @return The URL for making the payment.
      */
+    @Deprecated("Use RedSys gateway")
     @WorkerThread
     suspend fun transferAmount(
         amount: Double,
