@@ -131,4 +131,5 @@
     <string name="admin_event_general_reservations">Acepta Reservas hasta el</string>
     <string name="admin_event_actions">Acciones</string>
     <string name="admin_event_actions_scan">Escanear QR</string>
+    <string name="admin_event_people">Asistentes</string>
 </resources>
