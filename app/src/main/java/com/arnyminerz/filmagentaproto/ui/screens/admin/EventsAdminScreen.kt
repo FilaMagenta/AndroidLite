@@ -34,7 +34,6 @@ import com.arnyminerz.filmagentaproto.ui.components.admin.AdminEventItem
 import com.arnyminerz.filmagentaproto.ui.dialogs.admin.PeopleListBottomSheet
 import com.arnyminerz.filmagentaproto.utils.by
 import com.arnyminerz.filmagentaproto.utils.choose
-import com.arnyminerz.filmagentaproto.utils.now
 
 @Composable
 @ExperimentalMaterial3Api
@@ -92,9 +91,7 @@ fun ColumnScope.EventsAdminScreen(
             events
                 ?.filter { (event, _) ->
                     if (!showPastEvents)
-                        event.eventDate?.let { eventDate ->
-                            eventDate >= now()
-                        } ?: true
+                        !event.hasPassed
                     else
                         true
                 }

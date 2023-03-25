@@ -16,6 +16,7 @@ import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
 import com.arnyminerz.filmagentaproto.utils.getObjectOrNull
 import com.arnyminerz.filmagentaproto.utils.mapObjects
+import com.arnyminerz.filmagentaproto.utils.now
 import com.arnyminerz.filmagentaproto.utils.toJSON
 import java.util.Calendar
 import java.util.Date
@@ -45,7 +46,7 @@ data class Event(
     val attributes: List<Attribute>,
     @ColumnInfo(defaultValue = InStock) @StockStatus val stockStatus: String,
     @ColumnInfo(defaultValue = "0") val stockQuantity: Int,
-): WooClass(id) {
+) : WooClass(id) {
     companion object : JsonSerializer<Event> {
         private val untilKeyword = Regex(
             "Reservas? hasta el",
@@ -167,10 +168,10 @@ data class Event(
             )
         }
 
-        data class Option(val displayValue: String, val price: Double): JsonSerializable {
+        data class Option(val displayValue: String, val price: Double) : JsonSerializable {
             val value = displayValue.toLowerCase(Locale.current).replace(' ', '-')
 
-            companion object: JsonSerializer<Option> {
+            companion object : JsonSerializer<Option> {
                 override fun fromJSON(json: JSONObject): Option = Option(
                     json.getString("displayValue"),
                     json.getDouble("price"),
@@ -204,8 +205,8 @@ data class Event(
         val id: Long,
         val price: Double,
         val attributes: List<ShortAttribute>,
-    ): JsonSerializable {
-        companion object: JsonSerializer<Variation> {
+    ) : JsonSerializable {
+        companion object : JsonSerializer<Variation> {
             override fun fromJSON(json: JSONObject): Variation = Variation(
                 json.getLong("id"),
                 json.getString("price").toDoubleOrNull() ?: 0.0,
@@ -217,8 +218,8 @@ data class Event(
             val id: Long,
             val name: String,
             val option: String,
-        ): JsonSerializable {
-            companion object: JsonSerializer<ShortAttribute> {
+        ) : JsonSerializable {
+            companion object : JsonSerializer<ShortAttribute> {
                 override fun fromJSON(json: JSONObject): ShortAttribute = ShortAttribute(
                     json.getLong("id"),
                     json.getString("name"),
@@ -396,4 +397,13 @@ data class Event(
     val title: String = Regex("^\\d+ ?").find(name)?.let {
         name.replace(it.value, "")
     } ?: name
+
+    /**
+     * Returns whether the event has already passed or not. This is done by comparing the event's
+     * date with the current date, and if 4 hours have passed, it's considered as true.
+     */
+    @Ignore
+    val hasPassed: Boolean = eventDate?.let { date ->
+        date.time - now().time < -4 * 60 * 1000
+    } ?: false
 }

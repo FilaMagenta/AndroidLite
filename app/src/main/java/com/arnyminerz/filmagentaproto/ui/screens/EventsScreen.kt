@@ -72,7 +72,7 @@ fun EventsScreen(
 
         return events
             // Filter past events
-            ?.filter { event -> event.eventDate?.time?.let { it >= now } ?: true }
+            ?.filter { event -> !event.hasPassed }
             // Order by proximity or reservations limit
             // ?.sortedBy { event ->
             //     event.eventDate?.time ?: event.acceptsReservationsUntil?.time
