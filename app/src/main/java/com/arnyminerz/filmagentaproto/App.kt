@@ -56,6 +56,10 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
         // Initialize Sentry
         SentryAndroid.init(this) { options ->
             options.dsn = BuildConfig.SENTRY_DSN
+            options.tracesSampleRate = if (BuildConfig.DEBUG)
+                1.0
+            else
+                0.3
         }
 
         // Initialize Timber
