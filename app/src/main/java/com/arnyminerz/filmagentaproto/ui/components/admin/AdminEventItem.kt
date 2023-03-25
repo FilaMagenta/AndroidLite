@@ -85,7 +85,9 @@ fun AdminEventItem(
     onTicketsListRequested: () -> Unit,
 ) {
     OutlinedCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
     ) {
         Text(
             text = event.title,
@@ -112,7 +114,8 @@ fun AdminEventItem(
             onClick = onPeopleListRequested,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(top = 4.dp)
+                .padding(vertical = 2.dp, horizontal = 8.dp),
         ) {
             Icon(Icons.Rounded.ReceiptLong, null)
             Text(
@@ -125,7 +128,7 @@ fun AdminEventItem(
             onClick = onTicketsListRequested,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 2.dp, horizontal = 8.dp),
         ) {
             Icon(Icons.Rounded.PictureAsPdf, null)
             Text(
