@@ -7,11 +7,15 @@
     <string name="yes">Yes</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
+    <string name="none">None</string>
+    <string name="retry">Retry</string>
 
     <string name="keyboard_backspace">Backspace</string>
 
     <string name="first_load_title">Loading</string>
     <string name="first_load_message">The first load of the application is being performed. Please, wait until all the data is fetched.</string>
+    <string name="first_load_failed_title">Load Failed</string>
+    <string name="first_load_failed_message">Something has failed during the initial load. Press the button below to try again, check the error notification if any, or contact an administrator.</string>
 
     <string name="accounts_list">Accounts list</string>
     <string name="accounts_new">Add new Account</string>
@@ -143,8 +147,16 @@
     <string name="admin_scan_loading">Verifying…</string>
     <string name="admin_scan_correct">Correct!</string>
     <string name="admin_scan_invalid">Invalid!</string>
+    <string name="admin_scan_repeated">Repeated!</string>
+    <string name="admin_scan_repeated_msg">This code has already been scanned</string>
     <string name="admin_tickets_ready">Tickets Ready!</string>
     <string name="admin_tickets_generating">Generating tickets…</string>
+
+    <string name="admin_event_general">General Information</string>
+    <string name="admin_event_general_date">Event Date</string>
+    <string name="admin_event_general_reservations">Accepts Reservations Until</string>
+    <string name="admin_event_actions">Actions</string>
+    <string name="admin_event_actions_scan">Scan QR</string>
 
     <string name="shortcut_admin_label">Admin Panel</string>
 </resources>

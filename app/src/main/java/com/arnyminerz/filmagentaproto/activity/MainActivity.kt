@@ -520,7 +520,7 @@ class MainActivity : AppCompatActivity() {
 
         val databaseData = remoteDatabaseDao.getAllLive()
 
-        val workerState = SyncWorker.getLiveState(application)
+        val workerState = SyncWorker.getLiveStates(application)
 
         val isLoading = workerState.map { list ->
             list.any { it.state == WorkInfo.State.RUNNING }

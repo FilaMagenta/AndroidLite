@@ -1,8 +1,5 @@
 package com.arnyminerz.filmagentaproto.database.data.woo
 
-import android.graphics.Bitmap
-import android.util.Base64
-import android.util.Log
 import androidx.annotation.StringDef
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -16,12 +13,9 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Status.Companion.REFUNDE
 import com.arnyminerz.filmagentaproto.database.data.woo.Status.Companion.TRASH
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
-import com.arnyminerz.filmagentaproto.security.AESEncryption
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
 import com.arnyminerz.filmagentaproto.utils.mapObjects
 import com.arnyminerz.filmagentaproto.utils.toJSON
-import com.google.zxing.BarcodeFormat
-import com.journeyapps.barcodescanner.BarcodeEncoder
 import java.util.Date
 import org.json.JSONObject
 
@@ -61,31 +55,6 @@ data class Order(
             json.getLong("customer_id"),
             json.getJSONArray("line_items").mapObjects { Product.fromJSON(it) },
         )
-
-        /**
-         * Verifies the contents of a scanned QR code.
-         * @param contents What was scanned from the QR code.
-         * @return `null` if the code is not valid, the customer's name otherwise.
-         */
-        fun verifyQRCode(contents: String): String? {
-            Log.d("QR_CODE", "Encoded QR code: $contents")
-            val decoded = Base64.decode(contents, Base64.NO_WRAP).decodeToString()
-            Log.d("QR_CODE", "Decoded QR code: $decoded")
-            val json = JSONObject(decoded)
-            if (!json.has("customer") || !json.has("confirmation_code") || !json.has("confirmation_hash")) {
-                Log.d("QR_CODE", "JSON missing keys.")
-                return null
-            }
-            val code = json.getString("confirmation_code")
-            val decodedCode = Base64.decode(code, Base64.NO_WRAP).decodeToString()
-            Log.d("QR_CODE", "Decoded code: $decodedCode")
-            val hash = json.getString("confirmation_hash")
-            val decryptedHash = AESEncryption.decrypt(hash)
-            Log.d("QR_CODE", "Decrypted Hash: $decryptedHash")
-            if (decodedCode != decryptedHash)
-                return null
-            return json.getString("customer")
-        }
     }
 
     override fun toJSON(): JSONObject = JSONObject().apply {
@@ -97,25 +66,6 @@ data class Order(
         put("total", total)
         put("customer_id", customerId)
         put("line_items", items.toJSON())
-    }
-
-    /**
-     * Obtains a QR code with the data of the order. Contains a QR code with the customer's name,
-     * with key "customer"; and another key named "confirmation", that contains the confirmation
-     * code to be scanned.
-     */
-    fun getQRCode(customer: Customer, size: Int = 400): Bitmap {
-        val barcodeEncoder = BarcodeEncoder()
-        val content = JSONObject().apply {
-            put("customer", customer.firstName + " " + customer.lastName)
-            val encodedCode = Base64.encodeToString(hashCode().toString().toByteArray(), Base64.NO_WRAP)
-            put("confirmation_code", encodedCode)
-            put("confirmation_hash", AESEncryption.encrypt(hashCode().toString()))
-        }
-        Log.d("QR_CODE", "Encoding to QR: $content")
-        val encodedContents = Base64.encodeToString(content.toString().toByteArray(), Base64.NO_WRAP)
-        Log.d("QR_CODE", "QR Base64: $encodedContents")
-        return barcodeEncoder.encodeBitmap(encodedContents, BarcodeFormat.QR_CODE, size, size)
     }
 
     data class Product(

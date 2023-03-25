@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.map
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -20,7 +21,6 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.Operation
 import androidx.work.WorkManager
 import androidx.work.WorkRequest.Companion.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
@@ -45,6 +45,7 @@ import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import io.sentry.ITransaction
 import io.sentry.Sentry
 import io.sentry.SpanStatus
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 import timber.log.Timber
@@ -67,7 +68,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         private const val WORKER_TAG = "sync_worker"
         const val TAG_PERIODIC = "periodic"
 
-        private const val UNIQUE_WORK_NAME = "sync"
+        private const val PERIODIC_WORK_NAME = "sync"
 
         private const val SYNC_CUSTOMERS = "sync_customers"
 
@@ -106,7 +107,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 .build()
             WorkManager.getInstance(context)
                 .enqueueUniqueWork(
-                    UNIQUE_WORK_NAME,
+                    PERIODIC_WORK_NAME,
                     ExistingWorkPolicy.KEEP,
                     request,
                 )
@@ -120,7 +121,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             syncOrders: Boolean = true,
             syncEvents: Boolean = true,
             syncPayments: Boolean = true,
-        ): Operation {
+        ): UUID {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
                 .addTag(WORKER_TAG)
                 .setConstraints(Constraints(NetworkType.CONNECTED))
@@ -140,13 +141,23 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     )
                 )
                 .build()
-            return WorkManager.getInstance(context)
-                .enqueueUniqueWork(UNIQUE_WORK_NAME, ExistingWorkPolicy.REPLACE, request)
+            Timber.i("Enqueuing new work request.")
+            WorkManager.getInstance(context).enqueue(request)
+            return request.id
         }
 
-        fun getLiveState(context: Context) = WorkManager
+        fun getScheduledLiveState(context: Context) = WorkManager
+            .getInstance(context)
+            .getWorkInfosForUniqueWorkLiveData(PERIODIC_WORK_NAME)
+            .map { it.firstOrNull() }
+
+        fun getLiveStates(context: Context) = WorkManager
             .getInstance(context)
             .getWorkInfosByTagLiveData(WORKER_TAG)
+
+        fun getLiveState(context: Context, uuid: UUID) = WorkManager
+            .getInstance(context)
+            .getWorkInfoByIdLiveData(uuid)
     }
 
     private val am = AccountManager.get(appContext)

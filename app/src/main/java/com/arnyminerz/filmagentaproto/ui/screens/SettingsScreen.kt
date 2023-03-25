@@ -65,12 +65,10 @@ fun SettingsScreen() {
             SettingsCategory(
                 text = stringResource(R.string.settings_category_advanced),
             )
-            val workInfos by SyncWorker.getLiveState(context).observeAsState()
+            val workInfo by SyncWorker.getScheduledLiveState(context).observeAsState()
             SettingsItem(
                 headline = stringResource(R.string.settings_worker_title),
-                supporting = when(
-                    workInfos?.firstOrNull { it.tags.contains(SyncWorker.TAG_PERIODIC) }?.state
-                ) {
+                supporting = when(workInfo?.state) {
                     WorkInfo.State.ENQUEUED -> stringResource(R.string.settings_worker_enqueued)
                     WorkInfo.State.RUNNING -> stringResource(R.string.settings_worker_running)
                     WorkInfo.State.SUCCEEDED -> stringResource(R.string.settings_worker_success)

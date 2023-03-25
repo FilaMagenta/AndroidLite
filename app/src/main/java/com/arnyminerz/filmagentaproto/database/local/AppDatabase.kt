@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
+import com.arnyminerz.filmagentaproto.database.data.admin.ScannedCode
 import com.arnyminerz.filmagentaproto.database.data.woo.AvailablePayment
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
@@ -19,13 +20,14 @@ import com.arnyminerz.filmagentaproto.worker.SyncWorker
 @Database(
     entities = [
         PersonalData::class, Socio::class, Event::class, Order::class, Customer::class,
-        AvailablePayment::class,
+        AvailablePayment::class, ScannedCode::class
     ],
-    version = 4,
+    version = 5,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
         AutoMigration(from = 3, to = 4),
+        AutoMigration(from = 4, to = 5),
     ]
 )
 @TypeConverters(Converters::class, WooConverters::class)
@@ -62,4 +64,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun remoteDatabaseDao(): RemoteDatabaseDao
 
     abstract fun wooCommerceDao(): WooCommerceDao
+
+    abstract fun adminDao(): AdminDao
 }
