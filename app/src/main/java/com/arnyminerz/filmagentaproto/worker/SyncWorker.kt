@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
@@ -17,13 +16,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
-import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
-import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkRequest.Companion.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
@@ -50,6 +47,7 @@ import io.sentry.Sentry
 import io.sentry.SpanStatus
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
+import timber.log.Timber
 
 enum class ProgressStep(@StringRes val textRes: Int) {
     INITIALIZING(R.string.sync_step_initializing),
@@ -66,7 +64,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
 
     companion object {
-        private const val TAG = "sync_worker"
+        private const val WORKER_TAG = "sync_worker"
         const val TAG_PERIODIC = "periodic"
 
         private const val UNIQUE_WORK_NAME = "sync"
@@ -93,24 +91,23 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         private const val NOTIFICATION_ID = 20230315
         private const val ERROR_NOTIFICATION_ID = 20230324
 
+        /**
+         * The number of attempts to do before giving up on synchronization.
+         */
+        private const val ATTEMPTS = 5
+
         fun schedule(context: Context) {
-            val request = PeriodicWorkRequest
-                .Builder(
-                    SyncWorker::class.java,
-                    8,
-                    TimeUnit.HOURS,
-                    15,
-                    TimeUnit.MINUTES,
-                )
-                .addTag(TAG)
+            val request = OneTimeWorkRequestBuilder<SyncWorker>()
+                .addTag(WORKER_TAG)
                 .addTag(TAG_PERIODIC)
                 .setConstraints(Constraints(NetworkType.CONNECTED))
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 15, TimeUnit.MINUTES)
+                .setInitialDelay(4, TimeUnit.HOURS)
                 .build()
             WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(
+                .enqueueUniqueWork(
                     UNIQUE_WORK_NAME,
-                    ExistingPeriodicWorkPolicy.KEEP,
+                    ExistingWorkPolicy.KEEP,
                     request,
                 )
         }
@@ -125,7 +122,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             syncPayments: Boolean = true,
         ): Operation {
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
-                .addTag(TAG)
+                .addTag(WORKER_TAG)
                 .setConstraints(Constraints(NetworkType.CONNECTED))
                 .setBackoffCriteria(
                     BackoffPolicy.LINEAR,
@@ -149,7 +146,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
         fun getLiveState(context: Context) = WorkManager
             .getInstance(context)
-            .getWorkInfosByTagLiveData(TAG)
+            .getWorkInfosByTagLiveData(WORKER_TAG)
     }
 
     private val am = AccountManager.get(appContext)
@@ -165,7 +162,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     private var isFirstSynchronization = false
 
     override suspend fun doWork(): Result {
-        Log.i(TAG, "Running Synchronization...")
+        Timber.i("Running Synchronization...")
 
         transaction = Sentry.startTransaction("SyncWorker", "synchronization")
 
@@ -173,6 +170,11 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
         return try {
             synchronize()
+
+            // Schedule a new work
+            schedule(applicationContext)
+
+            return Result.success()
         } catch (e: Exception) {
             // Log the exception
             e.printStackTrace()
@@ -184,15 +186,19 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             // Notify Sentry about the error
             Sentry.captureException(e)
 
-            // Show the error notification
-            showErrorNotification(e)
+            // If reached ATTEMPTS, give up, return failure and show notification
+            if (runAttemptCount >= ATTEMPTS) {
+                // Show the error notification
+                showErrorNotification(e)
 
-            Result.failure(
-                workDataOf(
-                    EXCEPTION_CLASS to e::class.java.name,
-                    EXCEPTION_MESSAGE to e.message,
+                Result.failure(
+                    workDataOf(
+                        EXCEPTION_CLASS to e::class.java.name,
+                        EXCEPTION_MESSAGE to e.message,
+                    )
                 )
-            )
+            } else
+                Result.retry()
         } finally {
             notificationManager.cancel(NOTIFICATION_ID)
             
@@ -203,7 +209,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     /**
      * Runs the synchronization process for the app.
      */
-    private suspend fun synchronize(): Result {
+    private suspend fun synchronize() {
         setProgress(ProgressStep.INITIALIZING)
 
         // Get access to the database
@@ -224,7 +230,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             val authToken: String? = am.peekAuthToken(account, Authenticator.AuthTokenType)
 
             if (authToken == null) {
-                Log.e(TAG, "Credentials for ${account.name} are not valid, clearing password...")
+                Timber.e("Credentials for ${account.name} are not valid, clearing password...")
                 am.clearPassword(account)
                 return@forEach
             }
@@ -295,7 +301,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 for (associated in associateds) try {
                     // Log in with the user's credentials
                     val associatedDni = associated.Dni ?: continue
-                    Log.d(TAG, "Logging in with \"${associated.Nombre}\" and $associatedDni")
+                    Timber.d("Logging in with \"${associated.Nombre}\" and $associatedDni")
                     val authToken = RemoteServer.login(associated.Nombre, associatedDni)
                     // Fetch the data for the associated
                     val html = RemoteServer.fetch(authToken)
@@ -309,8 +315,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                         personalDataDao.update(data)
                     }
                 } catch (e: Exception) {
-                    Log.e(
-                        TAG,
+                    Timber.e(
                         "Could not synchronize data for associated: ${associated.idSocio}",
                         e,
                     )
@@ -320,9 +325,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             setProgress(ProgressStep.INTERMEDIATE)
         }
 
-        Log.i(TAG, "Finished synchronization")
-
-        return Result.success()
+        Timber.i("Finished synchronization")
     }
 
     /**
@@ -356,12 +359,12 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         val shouldSync = inputData.getBoolean(shouldSyncInputKey, true)
         if (shouldSync) {
             setProgress(progressStep)
-            Log.d(TAG, "Getting list from remote...")
+            Timber.d("Getting list from remote...")
             val list = remoteFetcher()
 
             listExtraProcessing(list)
 
-            Log.d(TAG, "Updating database...")
+            Timber.d("Updating database...")
             for ((index, item) in list.withIndex()) {
                 setProgress(progressStep, index to list.size)
                 try {
@@ -371,7 +374,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 }
             }
 
-            Log.d(TAG, "Synchronizing deletions...")
+            Timber.d("Synchronizing deletions...")
             val storedList = databaseFetcher()
             for (stored in storedList)
                 if (list.find { it.id == stored.id } == null)
@@ -407,12 +410,12 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             val customer = customers.find { it.username.equals(dni, true) }
                 ?: throw IndexOutOfBoundsException("Could not find logged in user in the customers database.")
             if (customerId == null) {
-                Log.i(TAG, "Customer ID: ${customer.id}")
+                Timber.i("Customer ID: ${customer.id}")
                 customerId = customer.id
                 am.setUserData(account, "customer_id", customerId.toString())
             }
             if (isAdmin == null) {
-                Log.i(TAG, "Customer role: ${customer.role}")
+                Timber.i("Customer role: ${customer.role}")
                 isAdmin = customer.role == ROLE_ADMINISTRATOR
                 am.setUserData(account, "customer_admin", isAdmin.toString())
             }
