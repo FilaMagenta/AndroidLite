@@ -132,4 +132,5 @@
     <string name="admin_event_actions">Accions</string>
     <string name="admin_event_actions_scan">Escanejar QR</string>
     <string name="admin_event_people">Assistents</string>
+    <string name="admin_events_sort_scanned">Escanejats</string>
 </resources>

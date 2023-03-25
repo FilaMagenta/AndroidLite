@@ -144,6 +144,7 @@
     <string name="admin_events_order_number">Order #%d</string>
     <string name="admin_events_sort_name">Sort by Name</string>
     <string name="admin_events_sort_order">Sort by Order</string>
+    <string name="admin_events_sort_scanned">Sort by Scanned</string>
     <string name="admin_scan_loading">Verifying…</string>
     <string name="admin_scan_correct">Correct!</string>
     <string name="admin_scan_invalid">Invalid!</string>

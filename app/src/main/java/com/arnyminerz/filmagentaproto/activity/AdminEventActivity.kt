@@ -14,18 +14,27 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.rounded.ChevronLeft
+import androidx.compose.material.icons.rounded.FontDownload
+import androidx.compose.material.icons.rounded.Numbers
+import androidx.compose.material.icons.rounded.QrCode2
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,12 +42,12 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -64,13 +73,9 @@ import com.arnyminerz.filmagentaproto.utils.await
 import com.arnyminerz.filmagentaproto.utils.getParcelableExtraCompat
 import com.arnyminerz.filmagentaproto.utils.toastAsync
 import com.arnyminerz.filmagentaproto.worker.TicketWorker
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.shimmer
-import com.google.accompanist.placeholder.placeholder
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import java.util.Locale
-import kotlin.random.Random
 import timber.log.Timber
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -85,6 +90,10 @@ class AdminEventActivity : AppCompatActivity() {
         const val SCAN_RESULT_FAIL = 2
         const val SCAN_RESULT_INVALID = 3
         const val SCAN_RESULT_REPEATED = 4
+
+        private const val SORT_BY_NAME = 0
+        private const val SORT_BY_ORDER = 1
+        private const val SORT_BY_SCANNED = 2
 
         private fun errorIntent(throwable: Throwable) = Intent().apply {
             putExtra(RESULT_ERROR, throwable)
@@ -183,7 +192,9 @@ class AdminEventActivity : AppCompatActivity() {
                     )
                 }
             ) { paddingValues ->
-                val orders by viewModel.orders.observeAsState(initial = emptyList())
+                val orders by viewModel.ordersCustomer.observeAsState(initial = emptyMap())
+                var sortBy by remember { mutableStateOf(SORT_BY_NAME) }
+                val codes by viewModel.adminDao.getAllScannedCodesLive().observeAsState()
 
                 LazyColumn(
                     Modifier
@@ -198,37 +209,70 @@ class AdminEventActivity : AppCompatActivity() {
 
                     // Header for people
                     stickyHeader {
-                        Text(
-                            text = stringResource(R.string.admin_event_people),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 26.sp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background),
-                        )
+                        Column {
+                            Text(
+                                text = stringResource(R.string.admin_event_people),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 26.sp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.background),
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(BottomSheetDefaults.ContainerColor)
+                                    .padding(horizontal = 8.dp)
+                                    .horizontalScroll(rememberScrollState()),
+                            ) {
+                                FilterChip(
+                                    selected = sortBy == SORT_BY_NAME,
+                                    onClick = { sortBy = SORT_BY_NAME },
+                                    label = { Text(stringResource(R.string.admin_events_sort_name)) },
+                                    leadingIcon = { Icon(Icons.Rounded.FontDownload, null) },
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                )
+                                FilterChip(
+                                    selected = sortBy == SORT_BY_ORDER,
+                                    onClick = { sortBy = SORT_BY_ORDER },
+                                    label = { Text(stringResource(R.string.admin_events_sort_order)) },
+                                    leadingIcon = { Icon(Icons.Rounded.Numbers, null) },
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                )
+                                FilterChip(
+                                    selected = sortBy == SORT_BY_SCANNED,
+                                    onClick = { sortBy = SORT_BY_SCANNED },
+                                    label = { Text(stringResource(R.string.admin_events_sort_scanned)) },
+                                    leadingIcon = { Icon(Icons.Rounded.QrCode2, null) },
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                )
+                            }
+                        }
                     }
 
                     // All the people signed up
-                    items(orders) { order ->
+                    items(
+                        orders.toList()
+                            .sortedBy { (order, customer) ->
+                                when (sortBy) {
+                                    SORT_BY_NAME -> customer.firstName
+                                    SORT_BY_ORDER -> "${order.id}"
+                                    SORT_BY_SCANNED -> (codes?.find { it.hashCode == order.hashCode().toLong() } != null).toString()
+                                    else -> "#${order.id}"
+                                }
+                            }
+                    ) { (order, customer) ->
                         val hashCode = order.hashCode().toLong()
                         val scannedCode by viewModel.adminDao.getFromHashCodeLive(hashCode).observeAsState()
-
-                        val customer = viewModel.ordersCustomer[order.id]
-                        LaunchedEffect(Unit) { viewModel.loadOrderCustomer(order) }
 
                         OutlinedCard(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = customer?.let { it.firstName + " " + it.lastName }
-                                    ?: " ".repeat(Random.nextInt(8, 16)),
+                                text = customer.let { it.firstName + " " + it.lastName },
                                 modifier = Modifier
-                                    .placeholder(
-                                        visible = customer == null,
-                                        color = Color.Gray,
-                                        highlight = PlaceholderHighlight.shimmer(),
-                                    ),
+                                    .padding(12.dp)
                             )
                             if (scannedCode != null)
                                 Text("Scanned!")
@@ -307,7 +351,7 @@ class AdminEventActivity : AppCompatActivity() {
 
         val orders = MutableLiveData<List<Order>>()
 
-        val ordersCustomer = mutableStateMapOf<Long, Customer>()
+        val ordersCustomer = MutableLiveData<Map<Order, Customer>>()
 
         /**
          * Loads the event to be used into [event] from its id.
@@ -316,9 +360,14 @@ class AdminEventActivity : AppCompatActivity() {
             Timber.d("Loading event #$eventId")
             val loadedEvent = wooCommerceDao.getEvent(eventId)!!
             event.postValue(loadedEvent)
+
             Timber.d("Loading event orders...")
             val ordersList = loadedEvent.getOrders(getApplication())
             orders.postValue(ordersList)
+
+            Timber.d("Loading order customers...")
+            val ordersCustomerList = ordersList.associateWith { wooCommerceDao.getCustomer(it.customerId)!! }
+            ordersCustomer.postValue(ordersCustomerList)
         }
 
         /**
@@ -376,15 +425,6 @@ class AdminEventActivity : AppCompatActivity() {
             } finally {
                 Timber.d("Finished generating tickets PDF.")
                 ticketsProgress.postValue(null)
-            }
-        }
-
-        fun loadOrderCustomer(order: Order) {
-            if (ordersCustomer.containsKey(order.id)) return
-
-            async {
-                val customer = wooCommerceDao.getCustomer(order.customerId)!!
-                ordersCustomer[order.id] = customer
             }
         }
     }
