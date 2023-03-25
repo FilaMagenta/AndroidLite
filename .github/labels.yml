@@ -73,6 +73,10 @@
   description: Indicates that the issue is regarding some translation.
   color: 59F4BD
 
+- name: payments
+  description: When there are updates on the payments system
+  color: F1CC88
+
 - name: major
   description: Major changes
   color: 16970B
