@@ -17,7 +17,10 @@ interface AdminDao {
     fun getAllScannedCodesLive(): LiveData<List<ScannedCode>>
 
     @Query("SELECT * FROM scanned_codes WHERE hashCode=:hashCode")
-    fun getFromHashCode(hashCode: Long): ScannedCode?
+    suspend fun getFromHashCode(hashCode: Long): ScannedCode?
+
+    @Query("SELECT * FROM scanned_codes WHERE hashCode=:hashCode")
+    fun getFromHashCodeLive(hashCode: Long): LiveData<ScannedCode?>
 
     @Insert
     suspend fun insert(vararg data: ScannedCode)

@@ -157,6 +157,7 @@
     <string name="admin_event_general_reservations">Accepts Reservations Until</string>
     <string name="admin_event_actions">Actions</string>
     <string name="admin_event_actions_scan">Scan QR</string>
+    <string name="admin_event_people">People</string>
 
     <string name="shortcut_admin_label">Admin Panel</string>
 </resources>
