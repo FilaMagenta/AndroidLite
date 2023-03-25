@@ -4,7 +4,9 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,7 +56,6 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.getOrders
-import com.arnyminerz.filmagentaproto.documents.Ticket
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.Tooltip
@@ -65,9 +66,9 @@ import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.await
 import com.arnyminerz.filmagentaproto.utils.toastAsync
+import com.arnyminerz.filmagentaproto.worker.TicketWorker
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
-import java.io.FileOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -106,15 +107,7 @@ class AdminActivity : AppCompatActivity() {
     private val savePdfLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("application/pdf")
     ) { uri ->
-        if (uri != null) {
-            val parcel =
-                contentResolver.openFileDescriptor(uri, "w") ?: return@registerForActivityResult
-            val outputStream = FileOutputStream(parcel.fileDescriptor)
-            viewModel.generatePdf(outputStream).invokeOnCompletion {
-                outputStream.close()
-                parcel.close()
-            }
-        }
+        if (uri != null) viewModel.generatePdf(uri)
     }
 
     private val viewModel by viewModels<ViewModel>()
@@ -157,8 +150,9 @@ class AdminActivity : AppCompatActivity() {
             }
 
             val ticketsProgress by viewModel.ticketsProgress.observeAsState()
+            val pdfGenerationState by viewModel.pdfGenerationProgress.observeAsState()
             ticketsProgress?.let {
-                GeneratingTicketsDialog(it)
+                GeneratingTicketsDialog(it, pdfGenerationState)
             }
 
             Scaffold(
@@ -269,6 +263,7 @@ class AdminActivity : AppCompatActivity() {
         val scanCustomer = MutableLiveData<String?>(null)
 
         val ticketsProgress = MutableLiveData<Pair<Int, Int>?>(null)
+        val pdfGenerationProgress = TicketWorker.workerState(application)
 
         private fun eventsOrdersLive(events: List<Event>): LiveData<List<Pair<Event, List<Order>>>> =
             MutableLiveData<List<Pair<Event, List<Order>>>>().apply {
@@ -303,24 +298,29 @@ class AdminActivity : AppCompatActivity() {
             orders.postValue(event to event.getOrders(getApplication()))
         }
 
-        fun generatePdf(outputStream: FileOutputStream) = async {
+        @Suppress("BlockingMethodInNonBlockingContext")
+        fun generatePdf(target: Uri) = async {
             try {
                 ticketsProgress.postValue(0 to 0)
+
                 val (event, orders) = orders.await()
-                val tickets = Ticket.TicketData.fromOrders(
+                val tickets = TicketWorker.TicketData.fromOrders(
                     wooCommerceDao,
                     event,
                     orders,
                 ) { current, value -> ticketsProgress.postValue(current to value) }
 
-                with(getApplication<Application>()) {
-                    Ticket.generatePDF(tickets, outputStream) { current, max ->
-                        ticketsProgress.postValue(current to max)
-                    }
-                }
+                // Start generating
+                val workerState = TicketWorker.generate(
+                    getApplication(), tickets, target,
+                )
+
+                // Wait until worker ends
+                workerState.result.get()
 
                 getApplication<Application>().toastAsync(R.string.admin_tickets_ready)
             } finally {
+                Log.d(TAG, "Finished generating tickets PDF.")
                 ticketsProgress.postValue(null)
             }
         }

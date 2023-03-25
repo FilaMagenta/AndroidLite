@@ -12,10 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.work.WorkInfo
 import com.arnyminerz.filmagentaproto.R
+import com.arnyminerz.filmagentaproto.worker.TicketWorker
 
 @Composable
-fun GeneratingTicketsDialog(progress: Pair<Int, Int>) {
+fun GeneratingTicketsDialog(progress: Pair<Int, Int>, generationState: List<WorkInfo>?) {
     val (current, max) = progress
 
     AlertDialog(
@@ -32,6 +34,13 @@ fun GeneratingTicketsDialog(progress: Pair<Int, Int>) {
                     CircularProgressIndicator()
                 }
                 if (max > 0) Text("$current / $max")
+                if (generationState?.isNotEmpty() == true) {
+                    val workInfo = generationState.first()
+                    val progressData = workInfo.progress
+                    val workerCurrent = progressData.getInt(TicketWorker.PROGRESS_CURRENT, 0)
+                    val workerMax = progressData.getInt(TicketWorker.PROGRESS_MAX, 0)
+                    if (workerMax > 0) Text("$workerCurrent / $workerMax")
+                }
             }
         },
         confirmButton = {},
