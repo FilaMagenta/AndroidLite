@@ -12,9 +12,12 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.EventBusy
@@ -26,12 +29,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,6 +47,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.admin.ScannedCode
+import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
@@ -53,34 +61,46 @@ import com.arnyminerz.filmagentaproto.ui.dialogs.admin.ScanResultBottomSheet
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.await
+import com.arnyminerz.filmagentaproto.utils.getParcelableExtraCompat
 import com.arnyminerz.filmagentaproto.utils.toastAsync
 import com.arnyminerz.filmagentaproto.worker.TicketWorker
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.shimmer
+import com.google.accompanist.placeholder.placeholder
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import java.util.Locale
+import kotlin.random.Random
 import timber.log.Timber
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 class AdminEventActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_EVENT = "event"
+
+        const val RESULT_ERROR = "error"
 
         const val SCAN_RESULT_OK = 0
         const val SCAN_RESULT_LOADING = 1
         const val SCAN_RESULT_FAIL = 2
         const val SCAN_RESULT_INVALID = 3
         const val SCAN_RESULT_REPEATED = 4
+
+        private fun errorIntent(throwable: Throwable) = Intent().apply {
+            putExtra(RESULT_ERROR, throwable)
+        }
     }
 
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    class Contract : ActivityResultContract<Event, Void?>() {
+    class Contract : ActivityResultContract<Event, Throwable?>() {
         override fun createIntent(context: Context, input: Event): Intent =
             Intent(context, AdminEventActivity::class.java).apply {
                 putExtra(EXTRA_EVENT, input.id)
             }
 
-        override fun parseResult(resultCode: Int, intent: Intent?): Void? = null
+        override fun parseResult(resultCode: Int, intent: Intent?): Throwable? =
+            intent?.getParcelableExtraCompat(RESULT_ERROR, Throwable::class)
     }
 
     private val barcodeLauncher = registerForActivityResult(ScanContract()) { result ->
@@ -107,7 +127,12 @@ class AdminEventActivity : AppCompatActivity() {
             return
         }
 
-        viewModel.load(eventId)
+        viewModel.load(eventId).invokeOnCompletion { error ->
+            if (error != null) {
+                setResult(Activity.RESULT_CANCELED, errorIntent(error))
+                finish()
+            }
+        }
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -158,26 +183,55 @@ class AdminEventActivity : AppCompatActivity() {
                     )
                 }
             ) { paddingValues ->
+                val orders by viewModel.orders.observeAsState(initial = emptyList())
+
                 LazyColumn(
                     Modifier
                         .padding(paddingValues)
                         .padding(horizontal = 8.dp),
                 ) {
                     // Event Information
-                    item {
-                        GeneralInformation(event)
+                    item { GeneralInformation(event) }
+
+                    // Action Buttons
+                    item { Actions(event) }
+
+                    // Header for people
+                    stickyHeader {
+                        Text(
+                            text = stringResource(R.string.admin_event_people),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 26.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.background),
+                        )
                     }
-                    item {
-                        ButtonWithIcon(
-                            icon = Icons.Outlined.QrCodeScanner,
-                            text = stringResource(R.string.admin_event_actions_scan),
-                        ) { scanQRCode() }
-                        ButtonWithIcon(
-                            icon = Icons.Outlined.PictureAsPdf,
-                            text = stringResource(R.string.admin_events_export_tickets),
+
+                    // All the people signed up
+                    items(orders) { order ->
+                        val hashCode = order.hashCode().toLong()
+                        val scannedCode by viewModel.adminDao.getFromHashCodeLive(hashCode).observeAsState()
+
+                        val customer = viewModel.ordersCustomer[order.id]
+                        LaunchedEffect(Unit) { viewModel.loadOrderCustomer(order) }
+
+                        OutlinedCard(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            viewModel.loadOrders(event)
-                            savePdfLauncher.launch(event.title + ".pdf")
+                            Text(
+                                text = customer?.let { it.firstName + " " + it.lastName }
+                                    ?: " ".repeat(Random.nextInt(8, 16)),
+                                modifier = Modifier
+                                    .placeholder(
+                                        visible = customer == null,
+                                        color = Color.Gray,
+                                        highlight = PlaceholderHighlight.shimmer(),
+                                    ),
+                            )
+                            if (scannedCode != null)
+                                Text("Scanned!")
                         }
                     }
                 }
@@ -210,6 +264,25 @@ class AdminEventActivity : AppCompatActivity() {
         )
     }
 
+    @Composable
+    fun Actions(event: Event) {
+        Text(
+            text = stringResource(R.string.admin_event_actions),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 26.sp,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        ButtonWithIcon(
+            icon = Icons.Outlined.QrCodeScanner,
+            text = stringResource(R.string.admin_event_actions_scan),
+        ) { scanQRCode() }
+        ButtonWithIcon(
+            icon = Icons.Outlined.PictureAsPdf,
+            text = stringResource(R.string.admin_events_export_tickets),
+        ) { savePdfLauncher.launch(event.title + ".pdf") }
+    }
+
     private fun scanQRCode() {
         val options = ScanOptions().apply {
             setDesiredBarcodeFormats(ScanOptions.QR_CODE)
@@ -222,7 +295,7 @@ class AdminEventActivity : AppCompatActivity() {
     class ViewModel(application: Application) : AndroidViewModel(application) {
         private val database = AppDatabase.getInstance(application)
         private val wooCommerceDao = database.wooCommerceDao()
-        private val adminDao = database.adminDao()
+        val adminDao = database.adminDao()
 
         val event = MutableLiveData<Event>()
 
@@ -232,15 +305,20 @@ class AdminEventActivity : AppCompatActivity() {
         val ticketsProgress = MutableLiveData<Pair<Int, Int>?>(null)
         val pdfGenerationProgress = TicketWorker.workerState(application)
 
-        val orders = MutableLiveData<Pair<Event, List<Order>>>(null)
+        val orders = MutableLiveData<List<Order>>()
+
+        val ordersCustomer = mutableStateMapOf<Long, Customer>()
 
         /**
          * Loads the event to be used into [event] from its id.
          */
         fun load(eventId: Long) = async {
             Timber.d("Loading event #$eventId")
-            val loadedEvent = wooCommerceDao.getEvent(eventId)
+            val loadedEvent = wooCommerceDao.getEvent(eventId)!!
             event.postValue(loadedEvent)
+            Timber.d("Loading event orders...")
+            val ordersList = loadedEvent.getOrders(getApplication())
+            orders.postValue(ordersList)
         }
 
         /**
@@ -271,13 +349,6 @@ class AdminEventActivity : AppCompatActivity() {
         }
 
         /**
-         * Loads the orders contained in an event into [orders].
-         */
-        fun loadOrders(event: Event) = async {
-            orders.postValue(event to event.getOrders(getApplication()))
-        }
-
-        /**
          * Generates the PDF for tickets from the orders in [orders].
          */
         @Suppress("BlockingMethodInNonBlockingContext")
@@ -285,7 +356,8 @@ class AdminEventActivity : AppCompatActivity() {
             try {
                 ticketsProgress.postValue(0 to 0)
 
-                val (event, orders) = orders.await()
+                val event = event.await()
+                val orders = orders.await()
                 val tickets = TicketWorker.TicketData.fromOrders(
                     wooCommerceDao,
                     event,
@@ -304,6 +376,15 @@ class AdminEventActivity : AppCompatActivity() {
             } finally {
                 Timber.d("Finished generating tickets PDF.")
                 ticketsProgress.postValue(null)
+            }
+        }
+
+        fun loadOrderCustomer(order: Order) {
+            if (ordersCustomer.containsKey(order.id)) return
+
+            async {
+                val customer = wooCommerceDao.getCustomer(order.customerId)!!
+                ordersCustomer[order.id] = customer
             }
         }
     }
