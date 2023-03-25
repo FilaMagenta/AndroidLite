@@ -55,6 +55,8 @@
             android:launchMode="singleInstance"
             android:taskAffinity="" />
 
+        <activity android:name=".activity.AdminEventActivity" />
+
         <!-- Set Scanner to vertical -->
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"

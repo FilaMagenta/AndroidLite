@@ -26,12 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.components.admin.AdminEventItem
-import com.arnyminerz.filmagentaproto.ui.dialogs.admin.PeopleListBottomSheet
 import com.arnyminerz.filmagentaproto.utils.by
 import com.arnyminerz.filmagentaproto.utils.choose
 
@@ -40,8 +38,7 @@ import com.arnyminerz.filmagentaproto.utils.choose
 @ExperimentalFoundationApi
 fun ColumnScope.EventsAdminScreen(
     events: List<Pair<Event, List<Order>>>?,
-    customers: List<Customer>,
-    onPdfExport: (Event) -> Unit,
+    onEventRequested: (Event) -> Unit,
 ) {
     Text(
         text = stringResource(R.string.admin_events_title),
@@ -98,17 +95,10 @@ fun ColumnScope.EventsAdminScreen(
                 ?.sortedByDescending { (event, _) -> event.eventDate }
                 ?: emptyList()
         ) { (event, orders) ->
-            var showSheet by remember { mutableStateOf(false) }
-            if (showSheet)
-                PeopleListBottomSheet(peopleList = orders, customers = customers) {
-                    showSheet = false
-                }
-
             AdminEventItem(
                 event,
                 orders,
-                onPeopleListRequested = { showSheet = true },
-                onTicketsListRequested = { onPdfExport(event) },
+                onEventRequested = { onEventRequested(event) },
             )
         }
     }

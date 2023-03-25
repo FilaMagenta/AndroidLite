@@ -58,6 +58,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
+import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed

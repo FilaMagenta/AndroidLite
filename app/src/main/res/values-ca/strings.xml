@@ -120,4 +120,15 @@
     <string name="admin_scan_invalid">Invàlid!</string>
     <string name="admin_tickets_ready">Tiquets llestos!</string>
     <string name="admin_tickets_generating">Generant tiquets…</string>
+    <string name="none">Cap</string>
+    <string name="retry">Reintentar</string>
+    <string name="first_load_failed_title">Càrrega Fallida</string>
+    <string name="first_load_failed_message">Alguna cosa ha fallat durant la càrrega inicial. Prem el botó de sota per a tornar-ho a provar, comprova la notificació d\'error si hi ha alguna, o contacta a un adminsitrador.</string>
+    <string name="admin_scan_repeated">Repetit!</string>
+    <string name="admin_scan_repeated_msg">Aquest codi ja s\'ha escanejat abans</string>
+    <string name="admin_event_general">Informació General</string>
+    <string name="admin_event_general_date">Data de l\'Esdeveniment</string>
+    <string name="admin_event_general_reservations">Accepta Reserves fins a</string>
+    <string name="admin_event_actions">Accions</string>
+    <string name="admin_event_actions_scan">Escanejar QR</string>
 </resources>

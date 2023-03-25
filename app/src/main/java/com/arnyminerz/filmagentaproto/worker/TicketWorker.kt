@@ -23,6 +23,7 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
+import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.documents.DocumentUtils
@@ -73,9 +74,9 @@ class TicketWorker(context: Context, params: WorkerParameters) :
 
         const val RESULT_ERROR = "error"
 
-        const val ERROR_MISSING_TARGET = "missing_target"
-        const val ERROR_MISSING_TICKETS = "missing_tickets"
-        const val ERROR_TARGET_NOT_FOUND = "target_not_found"
+        const val ERROR_MISSING_TARGET = "target"
+        const val ERROR_MISSING_TICKETS = "tickets"
+        const val ERROR_TARGET_NOT_FOUND = "not_found"
 
         const val PROGRESS_CURRENT = "current"
         const val PROGRESS_MAX = "max"

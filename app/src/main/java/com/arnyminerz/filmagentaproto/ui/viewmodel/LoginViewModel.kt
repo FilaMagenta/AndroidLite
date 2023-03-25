@@ -33,7 +33,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         am.addAccountExplicitly(account, nif, Bundle())
         am.setAuthToken(account, Authenticator.AuthTokenType, token)
 
-        SyncWorker.run(activity).result.get()
+        SyncWorker.run(activity)
 
         ui {
             activity.setResult(Activity.RESULT_OK)

@@ -2,7 +2,6 @@ package com.arnyminerz.filmagentaproto.database.remote
 
 import android.net.Uri
 import android.util.Base64
-import android.util.Log
 import androidx.annotation.WorkerThread
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.database.data.woo.AvailablePayment
@@ -23,8 +22,7 @@ import javax.net.ssl.HttpsURLConnection
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-
-private const val TAG = "RemoteCommerce"
+import timber.log.Timber
 
 object RemoteCommerce {
     private val BaseEndpoint = Uri.Builder()
@@ -60,12 +58,12 @@ object RemoteCommerce {
         beforeConnection: (HttpsURLConnection) -> Unit = {},
         block: (HttpsURLConnection) -> R,
     ): R {
-        Log.d(TAG, "$method > $this")
+        Timber.d("$method > $this")
         val url = toURL()
         val connection = url.openConnection() as HttpsURLConnection
         connection.requestMethod = method
-        connection.readTimeout = 60 * 1000
-        connection.connectTimeout = 60 * 1000
+        connection.readTimeout = 45 * 1000
+        connection.connectTimeout = 20 * 1000
         connection.instanceFollowRedirects = true
 
         val auth = BuildConfig.WOO_CONSUMER_KEY + ":" + BuildConfig.WOO_CONSUMER_SECRET
@@ -80,6 +78,8 @@ object RemoteCommerce {
             connection.connect()
 
             block(connection)
+        } catch (e: Exception) {
+            throw e
         } finally {
             connection.disconnect()
         }
@@ -149,7 +149,7 @@ object RemoteCommerce {
         perPage: Int = 40,
         pageProcessor: suspend (json: JSONObject, progress: Pair<Int, Int>) -> T,
     ): List<T> {
-        Log.d(TAG, "Getting page $page of $uri...")
+        Timber.d("Getting page $page of $uri...")
         val endpoint = uri.buildUpon()
             .appendQueryParameter("page", "$page")
             .appendQueryParameter("per_page", "$perPage")
@@ -198,28 +198,25 @@ object RemoteCommerce {
         return multiPageGet(endpoint) { eventJson, progress ->
             progressCallback(progress)
 
-            Log.d(TAG, "Parsing event.")
+            Timber.d("Parsing event.")
             val eventId = eventJson.getLong("id")
             val price = eventJson.getDouble("price")
 
-            Log.d(TAG, "Getting variations...")
+            Timber.d("Getting variations...")
             val variationEndpoint = ProductsEndpoint.buildUpon()
                 .appendPath(eventId.toString())
                 .appendPath("variations")
                 .build()
             val variations = getList(variationEndpoint, Event.Variation.Companion)
-            Log.d(TAG, "Got ${variations.size} variations for event #$eventId: $variations")
+            Timber.d("Got ${variations.size} variations for event #$eventId: $variations")
 
-            Log.d(
-                TAG,
-                "Event parsing. Processing attributes..."
-            )
+            Timber.d("Event parsing. Processing attributes...")
             val attributes = eventJson.getJSONArray("attributes").mapObjects { attributeJson ->
                 val id = attributeJson.getLong("id")
                 val options = attributeJson.getStringJSONArray("options")
 
                 val attribute = cachedAttributes.getValue(id)
-                Log.d(TAG, "Processing event attributes...")
+                Timber.d("Processing event attributes...")
                 val variation = variations.find { variation ->
                     variation.attributes.find { it.id == attribute.id } != null
                 }
@@ -233,7 +230,7 @@ object RemoteCommerce {
                     variation = variation,
                 )
             }
-            Log.d(TAG, "Converting JSON to Event...")
+            Timber.d("Converting JSON to Event...")
             Event.fromJSON(eventJson).copy(attributes = attributes)
         }
     }
@@ -258,7 +255,7 @@ object RemoteCommerce {
 
     @WorkerThread
     suspend fun customersList(page: Int = 1): List<Customer> {
-        Log.d(TAG, "Getting page $page of customers...")
+        Timber.d("Getting page $page of customers...")
         val endpoint = CustomersEndpoint.buildUpon()
             .appendQueryParameter("context", "view")
             .appendQueryParameter("role", "all")
@@ -316,7 +313,7 @@ object RemoteCommerce {
             put("paid", false)
             put("line_items", lineItems)
         }
-        Log.d(TAG, "Making POST request to $OrdersEndpoint with: $body")
+        Timber.d("Making POST request to $OrdersEndpoint with: $body")
         val response = post(OrdersEndpoint, body)
         val json = JSONObject(response)
         return json.getString("payment_url")
@@ -336,14 +333,14 @@ object RemoteCommerce {
         event: Event,
         metadata: List<Order.Metadata>
     ): String {
-        Log.d(TAG, "Creating item for event...")
+        Timber.d("Creating item for event...")
         val item = JSONObject().apply {
             put("product_id", event.id)
             put("quantity", 1)
             put("meta_data", metadata.toJSON())
         }
 
-        Log.d(TAG, "Building body for request...")
+        Timber.d("Building body for request...")
         val body = JSONObject().apply {
             put("customer_id", customer.id)
             put("customer_note", notes.takeIf { it.isNotBlank() })
@@ -352,7 +349,7 @@ object RemoteCommerce {
             put("set_paid", event.price <= 0.0)
             put("line_items", JSONArray().apply { put(item) })
         }
-        Log.d(TAG, "Making POST request to $OrdersEndpoint with: $body")
+        Timber.d( "Making POST request to $OrdersEndpoint with: $body")
         val response = post(OrdersEndpoint, body)
         val json = JSONObject(response)
         return json.getString("payment_url")

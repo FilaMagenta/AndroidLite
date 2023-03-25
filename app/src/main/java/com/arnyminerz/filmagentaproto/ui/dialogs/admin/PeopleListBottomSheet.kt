@@ -36,6 +36,7 @@ import com.arnyminerz.filmagentaproto.utils.capitalizedWords
 private const val SORT_BY_NAME = 0
 private const val SORT_BY_ORDER = 1
 
+@Deprecated("Use AdminEventActivity")
 @Composable
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
