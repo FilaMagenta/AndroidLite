@@ -21,14 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.work.WorkInfo
-import com.arnyminerz.filmagentaproto.ProgressStep
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.SyncWorker
 import com.arnyminerz.filmagentaproto.activity.MainActivity
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.ui.components.BalanceCard
 import com.arnyminerz.filmagentaproto.ui.components.TransactionCard
 import com.arnyminerz.filmagentaproto.ui.components.UnacceptedPolicyCard
+import com.arnyminerz.filmagentaproto.worker.ProgressStep
+import com.arnyminerz.filmagentaproto.worker.SyncWorker
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
