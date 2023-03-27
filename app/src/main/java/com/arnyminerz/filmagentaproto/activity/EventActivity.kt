@@ -7,7 +7,6 @@ import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
@@ -67,12 +66,11 @@ import com.arnyminerz.filmagentaproto.utils.getParcelableExtraCompat
 import com.arnyminerz.filmagentaproto.utils.launchCalendarInsert
 import java.util.Locale
 import kotlinx.parcelize.Parcelize
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 class EventActivity : AppCompatActivity() {
     companion object {
-        private const val TAG = "EventActivity"
-
         private const val EXTRA_EVENT_ID = "event"
         private const val EXTRA_CUSTOMER_ID = "customer"
 
@@ -93,7 +91,7 @@ class EventActivity : AppCompatActivity() {
         val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1)
         val customerId = intent.getLongExtra(EXTRA_CUSTOMER_ID, -1)
         if (eventId < 0 || customerId < 0) {
-            Log.e(TAG, "Tried to launch activity without any Event or Customer.")
+            Timber.e("Tried to launch activity without any Event or Customer.")
             setResult(Activity.RESULT_CANCELED, errorIntent(IllegalArgumentException("Missing extras.")))
             finish()
             return
@@ -101,7 +99,7 @@ class EventActivity : AppCompatActivity() {
 
         viewModel.load(eventId, customerId).invokeOnCompletion { error ->
             if (error != null) {
-                Log.e(TAG, "Could not load event.", error)
+                Timber.e("Could not load event.", error)
                 setResult(Activity.RESULT_CANCELED, errorIntent(error))
                 finish()
             }
@@ -338,42 +336,42 @@ class EventActivity : AppCompatActivity() {
         private val dao = database.wooCommerceDao()
 
         fun load(eventId: Long, customerId: Long) = async {
-            Log.d(TAG, "Loading event #$eventId for customer #$customerId")
+            Timber.d("Loading event #$eventId for customer #$customerId")
 
             val event = dao.getEvent(eventId)
                 .also {
                     if (it == null)
-                        Log.e(TAG, "Could not find a customer with id $customerId")
+                        Timber.e("Could not find a customer with id $customerId")
                     else
-                        Log.d(TAG, "Event loaded!")
+                        Timber.d("Event loaded!")
                 }
             this@EventViewModel.event.postValue(event)
 
             val customer = dao.getCustomer(customerId)
                 .also {
                     if (it == null)
-                        Log.e(TAG, "Could not find a customer with id $customerId")
+                        Timber.e("Could not find a customer with id $customerId")
                     else
-                        Log.d(TAG, "Customer loaded!")
+                        Timber.d("Customer loaded!")
                 }
             this@EventViewModel.customer.postValue(customer)
 
             var order: Order? = null
             if (event != null && customer != null) {
-                Log.d(TAG, "Getting all orders...")
+                Timber.d("Getting all orders...")
                 val orders = dao.getAllOrders()
-                Log.d(TAG, "Searching for order...")
+                Timber.d("Searching for order...")
                 order = orders
                     .filter { it.customerId == customer.id }
                     .firstOrNull { item -> item.items.find { it.productId == event.id } != null }
                     .also {
                         if (it == null)
-                            Log.e(TAG, "Could not find an order from event and customer!")
+                            Timber.e("Could not find an order from event and customer!")
                         else
-                            Log.d(TAG, "Order loaded!")
+                            Timber.d("Order loaded!")
                     }
             } else
-                Log.w(TAG, "Won't load order.")
+                Timber.w("Won't load order.")
             this@EventViewModel.order.postValue(order)
 
             if (event == null || customer == null || order == null)
@@ -389,14 +387,11 @@ class EventActivity : AppCompatActivity() {
         ) = async {
             val order = order.value
             if (order == null) {
-                Log.w(
-                    TAG,
-                    "Could not find a matching order for event #$event and customer #$customer"
-                )
+                Timber.w("Could not find a matching order for event #$event and customer #$customer")
                 return@async
             }
             RemoteCommerce.eventCancel(order.id)
-            Log.i(TAG, "Event cancelled. Deleting from db...")
+            Timber.i("Event cancelled. Deleting from db...")
             dao.delete(event)
         }
     }
