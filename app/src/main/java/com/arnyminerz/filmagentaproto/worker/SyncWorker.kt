@@ -21,6 +21,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkRequest.Companion.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
@@ -104,6 +105,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 .setConstraints(Constraints(NetworkType.CONNECTED))
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 15, TimeUnit.MINUTES)
                 .setInitialDelay(4, TimeUnit.HOURS)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
             WorkManager.getInstance(context)
                 .enqueueUniqueWork(
