@@ -3,6 +3,7 @@ package com.arnyminerz.filmagentaproto.database.data
 import android.accounts.Account
 import androidx.room.Entity
 import androidx.room.Ignore
+import com.arnyminerz.filmagentaproto.exceptions.ParseException
 import org.jsoup.Jsoup
 
 @Entity(tableName = "user_data", primaryKeys = ["accountName", "accountType"])
@@ -15,7 +16,13 @@ data class PersonalData(
     val transactions: List<Transaction>,
 ) {
     companion object {
-        fun fromHtml(html: String, account: Account): PersonalData {
+        /**
+         * Creates a new [PersonalData] from the contents of the given html page.
+         * @param html The html sources to decode.
+         * @param account The account that is loading the data.
+         * @throws NullPointerException If there's a missing element in the source code.
+         */
+        fun fromHtml(html: String, account: Account): PersonalData = try {
             val data = Jsoup.parse(html)
             val name = data.getElementsByClass("nombresocio").first()!!.text()
             val tables = data.getElementsByClass("table-responsive")
@@ -52,7 +59,9 @@ data class PersonalData(
                 ?.times(-1)
                 ?: 0.0
 
-            return PersonalData(account.name, account.type, name, inwards, outwards, transactions)
+            PersonalData(account.name, account.type, name, inwards, outwards, transactions)
+        } catch (e: Exception) {
+            throw ParseException(html, e)
         }
     }
 
