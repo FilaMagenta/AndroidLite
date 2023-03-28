@@ -540,9 +540,13 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 PROGRESS to progress?.let { (current, max) -> current.toDouble() / max.toDouble() },
             )
         )
-        setForeground(
-            createForegroundInfo(step, progress)
-        )
+        try {
+            setForeground(
+                createForegroundInfo(step, progress)
+            )
+        } catch (e: IllegalStateException) {
+            Timber.i("Cannot update foreground info since progress is in background.")
+        }
     }
 
     /**
