@@ -131,4 +131,11 @@
     <string name="admin_event_actions_scan">Escanejar QR</string>
     <string name="admin_event_people">Assistents</string>
     <string name="admin_events_sort_scanned">Escanejats</string>
+    <string name="login_password">Contrassenya</string>
+    <string name="login_password_aux">La contrassenya que s\'empra per a iniciar sessió. Si no tens una, pots introduïr la que vulgues, i prémer \"Iniciar Sessió\".</string>
+    <string name="login_password_confirm">Confirmar Contrassenya</string>
+    <string name="login_password_confirm_aux">Per favor, torna a introduïr la contrassenya.</string>
+    <string name="login_password_confirm_match">Les constrassenyes no coincideixen.</string>
+    <string name="dialog_account_migration_title">Migració del compte</string>
+    <string name="dialog_account_migration_message">El mètode d\'inici de sessió de l\'app ha sigut actualitzat per a fer-lo més segur. Per favor, torna a iniciar sessió per a seguir fent servir l\'aplicació.</string>
 </resources>
