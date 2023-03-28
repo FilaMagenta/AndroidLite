@@ -183,12 +183,13 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             synchronize()
 
             // Schedule a new work
-            schedule(applicationContext)
+            if (tags.contains(TAG_PERIODIC))
+                schedule(applicationContext)
 
             return Result.success()
         } catch (e: Exception) {
             // Log the exception
-            e.printStackTrace()
+            Timber.e(e, "Could not complete synchronization.")
 
             // Append the error to the transaction
             transaction.throwable = e
@@ -257,29 +258,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     continue
                 }
 
-                val transactions = RemoteDatabaseInterface.fetchTransactions(idSocio)
-                val name = RemoteDatabaseInterface.fetchSocio(idSocio) {
-                    it.getString("Nombre") + " " + it.getString("Apellidos")
-                }.first()
-
-                for (transaction in transactions)
-                    try {
-                        transactionsDao.insert(transaction)
-                    } catch (e: SQLiteConstraintException) {
-                        transactionsDao.update(transaction)
-                    }
-
-                // Show notifications for new transactions
-                val allTransactions = transactionsDao.getAll()
-                for (transaction in allTransactions)
-                    if (!transaction.notified) {
-                        // No notifications should be shown during the first synchronization
-                        if (!isFirstSynchronization)
-                            notifyTransaction(name, transaction)
-                        transactionsDao.update(
-                            transaction.copy(notified = true)
-                        )
-                    }
+                synchronizeSocio(idSocio)
 
                 setProgress(ProgressStep.INTERMEDIATE)
             }
@@ -316,35 +295,48 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 if (associateds.isEmpty()) continue
 
                 // Iterate each associated, and log in with their credentials to fetch the data
-                // TODO: Migrate methods. Associated accounts' data can be fetched directly from the database
-                /*for (associated in associateds) try {
-                    // Log in with the user's credentials
-                    val associatedDni = associated.Dni ?: continue
-                    Timber.d("Logging in with \"${associated.Nombre}\" and $associatedDni")
-                    val authToken = RemoteServer.login(associated.Nombre, associatedDni)
-                    // Fetch the data for the associated
-                    val html = RemoteServer.fetch(authToken)
-                    val data = PersonalData.fromHtml(
-                        html,
-                        Account(associated.Nombre, Authenticator.AuthTokenType)
-                    )
-                    try {
-                        personalDataDao.insert(data)
-                    } catch (e: SQLiteConstraintException) {
-                        personalDataDao.update(data)
-                    }
+                for (associated in associateds) try {
+                    synchronizeSocio(associated.idSocio)
                 } catch (e: Exception) {
                     Timber.e(
-                        "Could not synchronize data for associated: ${associated.idSocio}",
-                        e,
+                        e, "Could not synchronize data for associated: ${associated.idSocio}",
                     )
                     continue
-                }*/
+                }
             }
             setProgress(ProgressStep.INTERMEDIATE)
         }
 
         Timber.i("Finished synchronization")
+    }
+
+    /**
+     * Synchronizes all the data for the socio with the given id.
+     */
+    private suspend fun synchronizeSocio(idSocio: Long) {
+        val transactions = RemoteDatabaseInterface.fetchTransactions(idSocio)
+        val name = RemoteDatabaseInterface.fetchSocio(idSocio) {
+            it.getString("Nombre") + " " + it.getString("Apellidos")
+        }.first()
+
+        for (transaction in transactions)
+            try {
+                transactionsDao.insert(transaction)
+            } catch (e: SQLiteConstraintException) {
+                transactionsDao.update(transaction)
+            }
+
+        // Show notifications for new transactions
+        val allTransactions = transactionsDao.getAll()
+        for (transaction in allTransactions)
+            if (!transaction.notified) {
+                // No notifications should be shown during the first synchronization
+                if (!isFirstSynchronization)
+                    notifyTransaction(name, transaction)
+                transactionsDao.update(
+                    transaction.copy(notified = true)
+                )
+            }
     }
 
     /**
@@ -411,7 +403,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         account: Account,
     ) {
         val span = transaction.startChild("fetchAndUpdateWooData")
-        val dni = am.getPassword(account)
+        val dni = account.name
 
         var customerId: Long? = am.getUserData(account, "customer_id")?.toLongOrNull()
         var isAdmin: Boolean? = am.getUserData(account, "customer_admin")?.toBoolean()
