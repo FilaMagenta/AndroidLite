@@ -2,7 +2,9 @@ package com.arnyminerz.filmagentaproto.database.remote
 
 import androidx.annotation.WorkerThread
 import com.arnyminerz.filmagentaproto.BuildConfig
+import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
+import java.sql.ResultSet
 import java.sql.SQLException
 import timber.log.Timber
 
@@ -30,6 +32,37 @@ object RemoteDatabaseInterface {
     @WorkerThread
     fun fetchAll(): List<Socio> = interact { database ->
         database.query("SELECT * FROM tbSocios ts;", Socio)
+    }
+
+    /**
+     * Fetches all the transactions made by the user with the given id.
+     */
+    @WorkerThread
+    fun fetchTransactions(idSocio: Long) = interact { database ->
+        database.query(
+            "tbApuntesSocios",
+            where = mapOf("idSocio" to idSocio),
+            parser = Transaction.Companion
+        )
+    }
+
+    /**
+     * Fetches the idSocio column for the given DNI.
+     * @return The id of the socio with the given DNI, or null if not found or not a number.
+     */
+    @WorkerThread
+    fun fetchIdSocioFromDni(dni: String) = interact { database ->
+        database.query(
+            "tbSocios",
+            select = setOf("idSocio"),
+            where = mapOf("Dni" to dni),
+            predicate = { it.getString("idSocio") }
+        ).firstOrNull()?.toLongOrNull()
+    }
+
+    @WorkerThread
+    fun <T: Any> fetchSocio(idSocio: Long, predicate: (row: ResultSet) -> T) = interact { database ->
+        database.query("tbSocios", select = null, where = mapOf("idSocio" to idSocio), predicate)
     }
 
     /**

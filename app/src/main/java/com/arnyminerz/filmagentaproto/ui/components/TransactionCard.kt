@@ -1,5 +1,6 @@
 package com.arnyminerz.filmagentaproto.ui.components
 
+import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +15,12 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.Transaction
+
+private val dateFormatter: SimpleDateFormat
+    get() = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
 
 @Composable
 fun TransactionCard(transaction: Transaction) {
@@ -31,7 +34,7 @@ fun TransactionCard(transaction: Transaction) {
         )
     ) {
         Text(
-            text = transaction.date,
+            text = dateFormatter.format(transaction.date),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp)
@@ -40,7 +43,7 @@ fun TransactionCard(transaction: Transaction) {
             fontWeight = FontWeight.Bold,
         )
         Text(
-            text = transaction.description.lowercase().capitalize(Locale.current),
+            text = transaction.concept.lowercase().capitalize(Locale.current),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
@@ -53,25 +56,16 @@ fun TransactionCard(transaction: Transaction) {
                 .padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.End,
         ) {
-            (transaction.enters ?: transaction.exits?.times(-1))?.let { amount ->
-                Text(
-                    text = "%.2f €".format(amount),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (amount > 0)
-                        colorResource(R.color.green)
-                    else
-                        MaterialTheme.colorScheme.error,
-                )
-            }
+            Text(
+                // TODO: Display transaction.units
+                text = "%.2f €".format(transaction.price),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (transaction.income)
+                    colorResource(R.color.green)
+                else
+                    MaterialTheme.colorScheme.error,
+            )
         }
     }
-}
-
-@Preview
-@Composable
-fun TransactionCardPreview() {
-    TransactionCard(
-        Transaction("2022-12-03", "This is the description of the transaction", 1, 20.0, null, false)
-    )
 }

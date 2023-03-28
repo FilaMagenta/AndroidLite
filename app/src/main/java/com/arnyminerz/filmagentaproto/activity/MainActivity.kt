@@ -78,7 +78,7 @@ import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_VERSION
-import com.arnyminerz.filmagentaproto.database.data.PersonalData
+import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
@@ -447,7 +447,6 @@ class MainActivity : AppCompatActivity() {
                         finish()
                     }
 
-                val personalData by viewModel.personalData.observeAsState()
                 val selectedAccount = accounts.getOrNull(accountIndex)
                 val topPadding by animateDpAsState(
                     if (currentPage == 0)
@@ -479,16 +478,16 @@ class MainActivity : AppCompatActivity() {
 
                 selectedAccount
                     ?.let { account ->
-                        val data = personalData
-                            ?.find { it.accountName == account.name && it.accountType == account.type }
-                        data?.let { account to it }
+                        am.getUserData(account, Authenticator.USER_DATA_ID_SOCIO)?.toLongOrNull()
                     }
-                    ?.let { (account, data) ->
-                        val dni = am.getPassword(account).trimmedAndCaps
-                        data to databaseData?.find { it.Dni?.trimmedAndCaps == dni }
+                    ?.let { idSocio ->
+                        val transactionsLive = viewModel.transactionsDao.getByIdSocioLive(idSocio)
+                        val socioData = databaseData?.find { it.idSocio == idSocio }
+                        socioData to transactionsLive
                     }
-                    ?.let { (data, socio) ->
+                    ?.let { (socio, liveTransactions) ->
                         val pagerState = rememberPagerState()
+                        val transactions by liveTransactions.observeAsState(emptyList())
 
                         LaunchedEffectFlow(pagerState, { it.currentPage }) {
                             onPageChanged(it)
@@ -509,7 +508,7 @@ class MainActivity : AppCompatActivity() {
                                 ),
                         ) { page ->
                             when (page) {
-                                0 -> MainPage(data, viewModel)
+                                0 -> MainPage(transactions, viewModel)
                                 1 -> EventsScreen(viewModel) { event, customer ->
                                     eventViewRequestLauncher.launch(
                                         EventActivity.InputData(customer, event)
@@ -534,7 +533,7 @@ class MainActivity : AppCompatActivity() {
 
     class MainViewModel(application: Application) : AndroidViewModel(application) {
         private val database = AppDatabase.getInstance(application)
-        private val personalDataDao = database.personalDataDao()
+        val transactionsDao = database.transactionsDao()
         private val remoteDatabaseDao = database.remoteDatabaseDao()
         private val wooCommerceDao = database.wooCommerceDao()
 
@@ -547,8 +546,6 @@ class MainActivity : AppCompatActivity() {
 
         val accounts = (application as App).accounts
 
-        val personalData = personalDataDao.getAllLive()
-
         val databaseData = remoteDatabaseDao.getAllLive()
 
         val workerState = SyncWorker.getLiveStates(application)
@@ -557,7 +554,7 @@ class MainActivity : AppCompatActivity() {
             list.any { it.state == WorkInfo.State.RUNNING }
         }
 
-        val associatedAccounts = MutableLiveData<List<Pair<Socio, PersonalData?>>>()
+        val associatedAccountsTransactions = MutableLiveData<Map<Socio, List<Transaction>>>()
 
         val customer = selectedAccount
             .map { index ->
@@ -577,13 +574,13 @@ class MainActivity : AppCompatActivity() {
 
         val processingPayment = MutableLiveData(false)
 
-        fun getAssociatedAccounts(associatedWithId: Int) = async {
+        fun getAssociatedAccounts(associatedWithId: Long) = async {
             val socios = remoteDatabaseDao.getAllAssociatedWith(associatedWithId)
-            val personalDataList = personalDataDao.getAll()
-            val accounts =
-                socios.map { socio -> socio to personalDataList.find { it.name == socio.Nombre } }
-            Timber.i("Got ${accounts.size} associated accounts for #$associatedWithId")
-            associatedAccounts.postValue(accounts)
+            val personalDataList = socios.associateWith { socio ->
+                transactionsDao.getByIdSocio(socio.idSocio)
+            }
+            Timber.i("Got ${socios.size} associated accounts for #$associatedWithId")
+            associatedAccountsTransactions.postValue(personalDataList)
         }
 
         private suspend fun isConfirmed(event: Event, customer: Customer?): Boolean {

@@ -16,6 +16,7 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
         const val AuthTokenType = "com.arnyminerz.filmagentaproto"
 
         const val USER_DATA_VERSION = "version"
+        const val USER_DATA_ID_SOCIO = "id_socio"
 
         const val VERSION = 1
     }
@@ -47,9 +48,13 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
         val am = AccountManager.get(context)
 
         val version: Int? = am.getUserData(account, USER_DATA_VERSION)?.toIntOrNull()
+        val idSocio: Long? = am.getUserData(account, USER_DATA_ID_SOCIO)?.toLongOrNull()
         if (version != VERSION) {
             // Old authentication, or version out of date, must authorize again
             Timber.w("Removing old account type for ${account.name}. Version: $version")
+            am.removeAccountExplicitly(account)
+        } else if (idSocio == null) {
+            Timber.w("Removing account since it doesn't have a valid $USER_DATA_ID_SOCIO.")
             am.removeAccountExplicitly(account)
         } else {
             var token: String? = am.peekAuthToken(account, authTokenType)

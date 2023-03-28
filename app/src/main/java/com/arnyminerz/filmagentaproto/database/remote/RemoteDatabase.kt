@@ -49,7 +49,32 @@ class RemoteDatabase(
         return list
     }
 
-    fun <T : Any> query(sql: String, parser: RemoteDataParser<T>): List<T> = query(sql) { parser.parse(it) }
+    fun <T : Any> query(sql: String, parser: RemoteDataParser<T>): List<T> =
+        query(sql) { parser.parse(it) }
+
+    fun <T : Any> query(
+        table: String,
+        select: Set<String>? = null,
+        where: Map<String, Any>? = null,
+        predicate: (row: ResultSet) -> T
+    ): List<T> {
+        val predicateQuery = select?.joinToString(", ") ?: "*"
+        val whereQuery = where?.toList()?.joinToString(", ") { (key, value) ->
+            val quotedValue = if (value is Int || value is Long || value is Float || value is Double)
+                value
+            else
+                "'$value'"
+            "$key=$quotedValue"
+        } ?: ""
+        return query("SELECT $predicateQuery FROM $table WHERE $whereQuery", predicate)
+    }
+
+    fun <T : Any> query(
+        table: String,
+        select: Set<String>? = null,
+        where: Map<String, Any>? = null,
+        parser: RemoteDataParser<T>
+    ): List<T> = query(table, select, where) { parser.parse(it) }
 
     /**
      * Runs the SQL update query stated in [sql].
