@@ -59,6 +59,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
+import com.arnyminerz.filmagentaproto.ui.components.HtmlText
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.async
@@ -228,11 +229,10 @@ class EventActivity : AppCompatActivity() {
             event.cutDescription
                 .takeIf { it.isNotBlank() }
                 ?.let {
-                    Text(
+                    HtmlText(
                         text = it,
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 8.dp),

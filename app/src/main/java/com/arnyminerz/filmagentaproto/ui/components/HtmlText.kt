@@ -1,10 +1,12 @@
 package com.arnyminerz.filmagentaproto.ui.components
 
 import android.text.Html
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -14,7 +16,12 @@ private val BoldStyle = SpanStyle(fontWeight = FontWeight.Bold)
 private val ItalicStyle = SpanStyle(fontStyle = FontStyle.Italic)
 
 @Composable
-fun HtmlText(text: String, modifier: Modifier = Modifier, fontSize: TextUnit) {
+fun HtmlText(
+    text: String,
+    modifier: Modifier = Modifier,
+    fontSize: TextUnit,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+) {
     val annotatedString = buildAnnotatedString {
         var counter = 0
         while (counter < text.length) {
@@ -50,5 +57,6 @@ fun HtmlText(text: String, modifier: Modifier = Modifier, fontSize: TextUnit) {
         text = annotatedString,
         modifier = modifier,
         fontSize = fontSize,
+        style = style,
     )
 }
