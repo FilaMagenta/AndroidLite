@@ -30,10 +30,13 @@
     <string name="google_play" translatable="false">Google Play</string>
 
     <string name="login_title">Login</string>
-    <string name="login_name">Name</string>
-    <string name="login_name_aux">Your first name, without any tildes or accents</string>
     <string name="login_nif">NIF</string>
     <string name="login_nif_aux">Your DNI, NIE, or whatever your NIF is</string>
+    <string name="login_password">Password</string>
+    <string name="login_password_aux">Your password used for logging in. If you don\'t have one, type one that you will remember, and press login.</string>
+    <string name="login_password_confirm">Confirm Password</string>
+    <string name="login_password_confirm_aux">Please, introduce your password again.</string>
+    <string name="login_password_confirm_match">Passwords do not match.</string>
     <string name="login_action">Login</string>
 
     <string name="settings_category_general">General</string>
@@ -134,6 +137,9 @@
     <string name="notification_transaction_title">New movement in your account</string>
     <string name="notification_transaction_charge_message" formatted="true">You have been charged with %.2f € with concept \"%s\".</string>
     <string name="notification_transaction_input_message" formatted="true">%.2f € have been transferred to your account with concept \"%s\".</string>
+
+    <string name="dialog_account_migration_title">Account migration</string>
+    <string name="dialog_account_migration_message">The login method for the app has been updated to make it more secure. Please, log in again to keep using the app.</string>
 
     <string name="admin_title">Admin View</string>
     <string name="admin_events_title">Events</string>

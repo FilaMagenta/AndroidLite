@@ -8,8 +8,6 @@
     <string name="accounts_new">Añadir Nueva Cuenta</string>
     <string name="accounts_remove">Eliminar Cuenta</string>
     <string name="login_title">Inicio de Sesión</string>
-    <string name="login_name">Nombre</string>
-    <string name="login_name_aux">Tu nombre, sin acentos ni tildes</string>
     <string name="login_nif">NIF</string>
     <string name="login_nif_aux">Tu DNI, NIE, o sea cual sea tu NIF</string>
     <string name="login_action">Iniciar Sesión</string>

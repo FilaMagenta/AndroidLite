@@ -39,6 +39,7 @@ class LoginActivity : AppCompatActivity() {
         const val EXTRA_AUTH_TOKEN_TYPE = "auth_token_type"
         const val EXTRA_ADDING_NEW_ACCOUNT = "adding_new_account"
         const val EXTRA_RESPONSE = "response"
+        const val EXTRA_DNI = "dni"
     }
 
     private val viewModel by viewModels<LoginViewModel>()
@@ -69,6 +70,8 @@ class LoginActivity : AppCompatActivity() {
 
         accountType = intent.getStringExtra(EXTRA_ACCOUNT_TYPE)!!
         authTokenType = intent.getStringExtra(EXTRA_AUTH_TOKEN_TYPE)!!
+
+        val initialDni = intent.getStringExtra(EXTRA_DNI)
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -108,7 +111,10 @@ class LoginActivity : AppCompatActivity() {
                         }
                 }
 
-                LoginScreen(Modifier.padding(paddingValues)) { name, nif, token ->
+                LoginScreen(
+                    initialDni = initialDni,
+                    modifier = Modifier.padding(paddingValues),
+                ) { name, nif, token ->
                     // Store the returned credentials
                     viewModel.credentials.postValue(Credentials(name, nif, token))
                 }

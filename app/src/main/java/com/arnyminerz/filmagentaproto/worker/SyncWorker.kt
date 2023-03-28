@@ -29,7 +29,6 @@ import com.arnyminerz.filmagentaproto.NotificationChannels
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.activity.ShareMessageActivity
-import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.database.data.woo.WooClass
@@ -39,7 +38,6 @@ import com.arnyminerz.filmagentaproto.database.local.RemoteDatabaseDao
 import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
-import com.arnyminerz.filmagentaproto.database.remote.RemoteServer
 import com.arnyminerz.filmagentaproto.utils.PermissionsUtils
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import io.sentry.ITransaction
@@ -251,7 +249,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 // Fetch the data and update the database
                 setProgress(ProgressStep.SYNC_TRANSACTIONS)
 
-                val html = RemoteServer.fetch(authToken)
+                // TODO: Migrate methods
+                /*val html = RemoteServer.fetch(authToken)
                 val data = PersonalData.fromHtml(html, account)
                 val dbData = personalDataDao.getByAccount(account.name, account.type)
                 if (dbData == null)
@@ -273,7 +272,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                     }
                     // Update the stored transactions
                     personalDataDao.updateTransactions(account.name, newTransactions)
-                }
+                }*/
 
                 setProgress(ProgressStep.INTERMEDIATE)
             }
@@ -310,7 +309,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 if (associateds.isEmpty()) continue
 
                 // Iterate each associated, and log in with their credentials to fetch the data
-                for (associated in associateds) try {
+                // TODO: Migrate methods. Associated accounts' data can be fetched directly from the database
+                /*for (associated in associateds) try {
                     // Log in with the user's credentials
                     val associatedDni = associated.Dni ?: continue
                     Timber.d("Logging in with \"${associated.Nombre}\" and $associatedDni")
@@ -332,7 +332,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                         e,
                     )
                     continue
-                }
+                }*/
             }
             setProgress(ProgressStep.INTERMEDIATE)
         }

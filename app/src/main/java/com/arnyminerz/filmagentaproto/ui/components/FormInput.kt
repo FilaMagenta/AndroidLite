@@ -40,6 +40,7 @@ fun FormInput(
     capitalization: KeyboardCapitalization = KeyboardCapitalization.Words,
     isPassword: Boolean = false,
     autoCorrect: Boolean = false,
+    error: String? = null,
     onGo: (() -> Unit)? = null,
 ) {
     val autofillNode = AutofillNode(
@@ -53,13 +54,14 @@ fun FormInput(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        supportingText = { Text(supportingText) },
+        supportingText = { Text(error ?: supportingText) },
         keyboardOptions = KeyboardOptions(
             capitalization = capitalization,
             autoCorrect = autoCorrect,
             keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Ascii,
             imeAction = if (nextFocusRequester != null) ImeAction.Next else ImeAction.Go,
         ),
+        isError = error != null,
         enabled = enabled,
         singleLine = true,
         maxLines = 1,

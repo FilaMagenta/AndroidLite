@@ -51,6 +51,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -58,6 +59,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -75,6 +77,7 @@ import com.arnyminerz.filmagentaproto.App
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
+import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_VERSION
 import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
@@ -94,6 +97,7 @@ import com.arnyminerz.filmagentaproto.ui.components.ModalNavigationDrawer
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.ProfileImage
+import com.arnyminerz.filmagentaproto.ui.dialogs.AccountMigrationDialog
 import com.arnyminerz.filmagentaproto.ui.dialogs.AccountsDialog
 import com.arnyminerz.filmagentaproto.ui.dialogs.PaymentBottomSheet
 import com.arnyminerz.filmagentaproto.ui.dialogs.PaymentMadeBottomSheet
@@ -107,6 +111,7 @@ import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.io
+import com.arnyminerz.filmagentaproto.utils.launch
 import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.launchUrl
 import com.arnyminerz.filmagentaproto.utils.now
@@ -128,6 +133,7 @@ import compose.icons.simpleicons.Tiktok
 import compose.icons.simpleicons.Twitter
 import io.sentry.Sentry
 import java.util.Locale
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -427,6 +433,20 @@ class MainActivity : AppCompatActivity() {
                     }
                 },
             ) { paddingValues ->
+                var showingAccountMigrationDialog by remember { mutableStateOf(false) }
+                if (showingAccountMigrationDialog)
+                    AccountMigrationDialog {
+                        val account = accounts[accountIndex]
+                        Timber.w("Removing old account (${account.name}) and redirecting to login screen.")
+                        am.removeAccountExplicitly(account)
+                        LoginActivity::class.launch {
+                            putExtra(LoginActivity.EXTRA_ACCOUNT_TYPE, account.type)
+                            putExtra(LoginActivity.EXTRA_AUTH_TOKEN_TYPE, account.type)
+                            putExtra(LoginActivity.EXTRA_DNI, account.name)
+                        }
+                        finish()
+                    }
+
                 val personalData by viewModel.personalData.observeAsState()
                 val selectedAccount = accounts.getOrNull(accountIndex)
                 val topPadding by animateDpAsState(
@@ -447,10 +467,20 @@ class MainActivity : AppCompatActivity() {
                     viewModel.getAssociatedAccounts(socio.idSocio)
                 }
 
+                LaunchedEffect(selectedAccount) {
+                    snapshotFlow { selectedAccount }
+                        .filterNotNull()
+                        .collect { account ->
+                            val version = am.getUserData(account, USER_DATA_VERSION)?.toIntOrNull()
+                            if (version != Authenticator.VERSION)
+                                showingAccountMigrationDialog = true
+                        }
+                }
+
                 selectedAccount
                     ?.let { account ->
-                        val data =
-                            personalData?.find { it.accountName == account.name && it.accountType == account.type }
+                        val data = personalData
+                            ?.find { it.accountName == account.name && it.accountType == account.type }
                         data?.let { account to it }
                     }
                     ?.let { (account, data) ->
@@ -496,6 +526,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    // TODO: If list is empty, return to login screen
                     ?: LoadingBox()
             }
         }
