@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 
 private const val TAG = "RemoteServer"
 
+@Deprecated("Use Wordpress login and database fetching")
 object RemoteServer {
 
     private val loginEndpoint = Uri.Builder()
