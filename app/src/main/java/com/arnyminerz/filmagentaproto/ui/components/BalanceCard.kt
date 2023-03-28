@@ -84,7 +84,7 @@ fun BalanceCard(
         }
         Row(Modifier.padding(8.dp)) {
             TextCol(
-                value = inwards + outwards,
+                value = inwards - outwards,
                 label = R.string.balance_balance,
                 modifier = Modifier.padding(end = 4.dp),
             )
@@ -94,7 +94,7 @@ fun BalanceCard(
                 modifier = Modifier.padding(end = 8.dp),
             )
             TextCol(
-                value = outwards,
+                value = -outwards,
                 label = R.string.balance_out,
                 modifier = Modifier.padding(start = 8.dp),
             )

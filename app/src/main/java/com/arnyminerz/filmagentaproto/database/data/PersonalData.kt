@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import com.arnyminerz.filmagentaproto.exceptions.ParseException
 import org.jsoup.Jsoup
 
+@Deprecated("Use Transaction with \"transactions\" table.")
 @Entity(tableName = "user_data", primaryKeys = ["accountName", "accountType"])
 data class PersonalData(
     val accountName: String,
@@ -13,7 +14,7 @@ data class PersonalData(
     val name: String,
     val inwards: Double,
     val outwards: Double,
-    val transactions: List<Transaction>,
+    val transactions: List<OldTransaction>,
 ) {
     companion object {
         /**
@@ -33,7 +34,7 @@ data class PersonalData(
                 .map { tr -> tr.getElementsByTag("td") }
                 .filter { it.isNotEmpty() }
                 .map { tds ->
-                    Transaction(
+                    OldTransaction(
                         tds[0].text(),
                         tds[1].text(),
                         tds[2].text().toLong(),

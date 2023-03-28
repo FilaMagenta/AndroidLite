@@ -10,8 +10,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.credentials.Credentials
+import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
 import com.arnyminerz.filmagentaproto.utils.async
-import com.arnyminerz.filmagentaproto.utils.capitalized
 import com.arnyminerz.filmagentaproto.utils.ui
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
 
@@ -25,13 +25,17 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     fun addAccount(activity: Activity) = async {
         val credentials = credentials.value ?: throw IllegalStateException("Credentials not ready.")
 
-        val name = credentials.name.lowercase().capitalized()
-        val nif = credentials.nif
+        val dni = credentials.nif.uppercase()
+        val password = credentials.password
         val token = credentials.token
 
-        val account = Account(name, Authenticator.AuthTokenType)
-        am.addAccountExplicitly(account, nif, Bundle())
+        val idSocio = RemoteDatabaseInterface.fetchIdSocioFromDni(dni)
+
+        val account = Account(dni, Authenticator.AuthTokenType)
+        am.addAccountExplicitly(account, password, Bundle())
         am.setAuthToken(account, Authenticator.AuthTokenType, token)
+        am.setUserData(account, Authenticator.USER_DATA_VERSION, Authenticator.VERSION.toString())
+        am.setUserData(account, Authenticator.USER_DATA_ID_SOCIO, idSocio.toString())
 
         SyncWorker.run(activity)
 

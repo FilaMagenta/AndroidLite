@@ -1,3 +1,3 @@
 package com.arnyminerz.filmagentaproto.exceptions
 
-class WrongCredentialsException: RuntimeException("Provided invalid credentials.")
+class WrongCredentialsException(msg: String): SecurityException(msg)

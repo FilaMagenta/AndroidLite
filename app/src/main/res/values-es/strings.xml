@@ -8,8 +8,6 @@
     <string name="accounts_new">Añadir Nueva Cuenta</string>
     <string name="accounts_remove">Eliminar Cuenta</string>
     <string name="login_title">Inicio de Sesión</string>
-    <string name="login_name">Nombre</string>
-    <string name="login_name_aux">Tu nombre, sin acentos ni tildes</string>
     <string name="login_nif">NIF</string>
     <string name="login_nif_aux">Tu DNI, NIE, o sea cual sea tu NIF</string>
     <string name="login_action">Iniciar Sesión</string>
@@ -133,4 +131,11 @@
     <string name="admin_event_actions_scan">Escanear QR</string>
     <string name="admin_event_people">Asistentes</string>
     <string name="admin_events_sort_scanned">Escaneados</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_password_aux">La contraseña que usas para iniciar sesión. Si no tienes ninguna, escribe una que vayas a recordar, y pulsa en \"Iniciar Sesión.\"</string>
+    <string name="login_password_confirm">Confirmar Contraseña</string>
+    <string name="login_password_confirm_aux">Por favor, vuelve a introducir la contraseña.</string>
+    <string name="login_password_confirm_match">Las contraseñas no coinciden.</string>
+    <string name="dialog_account_migration_title">Migración de la cuenta</string>
+    <string name="dialog_account_migration_message">El método de inicio de sesión de la aplicación ha sido actualitzado para hacerlo más seguro. Por favor, inicia sesión otra vez para seguir usando la aplicación.</string>
 </resources>

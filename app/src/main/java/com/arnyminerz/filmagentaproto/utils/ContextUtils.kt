@@ -1,5 +1,6 @@
 package com.arnyminerz.filmagentaproto.utils
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -8,6 +9,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.browser.customtabs.CustomTabsIntent
+import kotlin.reflect.KClass
 
 @IntDef(Toast.LENGTH_SHORT, Toast.LENGTH_LONG)
 annotation class ToastDuration
@@ -60,3 +62,8 @@ fun Context.launchUrl(url: String) = Intent(Intent.ACTION_VIEW)
         data = Uri.parse(url)
     }
     .also { startActivity(it) }
+
+context(Context)
+@UiThread
+fun <A: Activity> KClass<A>.launch(applies: Intent.() -> Unit) =
+    startActivity(Intent(this@Context, java).apply(applies))

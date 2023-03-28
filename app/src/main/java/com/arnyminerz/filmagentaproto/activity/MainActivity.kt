@@ -51,6 +51,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -58,6 +59,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -75,7 +77,8 @@ import com.arnyminerz.filmagentaproto.App
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
-import com.arnyminerz.filmagentaproto.database.data.PersonalData
+import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_VERSION
+import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
@@ -94,6 +97,7 @@ import com.arnyminerz.filmagentaproto.ui.components.ModalNavigationDrawer
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.components.ProfileImage
+import com.arnyminerz.filmagentaproto.ui.dialogs.AccountMigrationDialog
 import com.arnyminerz.filmagentaproto.ui.dialogs.AccountsDialog
 import com.arnyminerz.filmagentaproto.ui.dialogs.PaymentBottomSheet
 import com.arnyminerz.filmagentaproto.ui.dialogs.PaymentMadeBottomSheet
@@ -107,6 +111,7 @@ import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.io
+import com.arnyminerz.filmagentaproto.utils.launch
 import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.launchUrl
 import com.arnyminerz.filmagentaproto.utils.now
@@ -128,6 +133,7 @@ import compose.icons.simpleicons.Tiktok
 import compose.icons.simpleicons.Twitter
 import io.sentry.Sentry
 import java.util.Locale
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -427,7 +433,20 @@ class MainActivity : AppCompatActivity() {
                     }
                 },
             ) { paddingValues ->
-                val personalData by viewModel.personalData.observeAsState()
+                var showingAccountMigrationDialog by remember { mutableStateOf(false) }
+                if (showingAccountMigrationDialog)
+                    AccountMigrationDialog {
+                        val account = accounts[accountIndex]
+                        Timber.w("Removing old account (${account.name}) and redirecting to login screen.")
+                        am.removeAccountExplicitly(account)
+                        LoginActivity::class.launch {
+                            putExtra(LoginActivity.EXTRA_ACCOUNT_TYPE, account.type)
+                            putExtra(LoginActivity.EXTRA_AUTH_TOKEN_TYPE, account.type)
+                            putExtra(LoginActivity.EXTRA_DNI, account.name)
+                        }
+                        finish()
+                    }
+
                 val selectedAccount = accounts.getOrNull(accountIndex)
                 val topPadding by animateDpAsState(
                     if (currentPage == 0)
@@ -447,18 +466,28 @@ class MainActivity : AppCompatActivity() {
                     viewModel.getAssociatedAccounts(socio.idSocio)
                 }
 
+                LaunchedEffect(selectedAccount) {
+                    snapshotFlow { selectedAccount }
+                        .filterNotNull()
+                        .collect { account ->
+                            val version = am.getUserData(account, USER_DATA_VERSION)?.toIntOrNull()
+                            if (version != Authenticator.VERSION)
+                                showingAccountMigrationDialog = true
+                        }
+                }
+
                 selectedAccount
                     ?.let { account ->
-                        val data =
-                            personalData?.find { it.accountName == account.name && it.accountType == account.type }
-                        data?.let { account to it }
+                        am.getUserData(account, Authenticator.USER_DATA_ID_SOCIO)?.toLongOrNull()
                     }
-                    ?.let { (account, data) ->
-                        val dni = am.getPassword(account).trimmedAndCaps
-                        data to databaseData?.find { it.Dni?.trimmedAndCaps == dni }
+                    ?.let { idSocio ->
+                        val transactionsLive = viewModel.transactionsDao.getByIdSocioLive(idSocio)
+                        val socioData = databaseData?.find { it.idSocio == idSocio }
+                        socioData to transactionsLive
                     }
-                    ?.let { (data, socio) ->
+                    ?.let { (socio, liveTransactions) ->
                         val pagerState = rememberPagerState()
+                        val transactions by liveTransactions.observeAsState(emptyList())
 
                         LaunchedEffectFlow(pagerState, { it.currentPage }) {
                             onPageChanged(it)
@@ -479,7 +508,7 @@ class MainActivity : AppCompatActivity() {
                                 ),
                         ) { page ->
                             when (page) {
-                                0 -> MainPage(data, viewModel)
+                                0 -> MainPage(transactions, viewModel)
                                 1 -> EventsScreen(viewModel) { event, customer ->
                                     eventViewRequestLauncher.launch(
                                         EventActivity.InputData(customer, event)
@@ -496,6 +525,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    // TODO: If list is empty, return to login screen
                     ?: LoadingBox()
             }
         }
@@ -503,7 +533,7 @@ class MainActivity : AppCompatActivity() {
 
     class MainViewModel(application: Application) : AndroidViewModel(application) {
         private val database = AppDatabase.getInstance(application)
-        private val personalDataDao = database.personalDataDao()
+        val transactionsDao = database.transactionsDao()
         private val remoteDatabaseDao = database.remoteDatabaseDao()
         private val wooCommerceDao = database.wooCommerceDao()
 
@@ -516,8 +546,6 @@ class MainActivity : AppCompatActivity() {
 
         val accounts = (application as App).accounts
 
-        val personalData = personalDataDao.getAllLive()
-
         val databaseData = remoteDatabaseDao.getAllLive()
 
         val workerState = SyncWorker.getLiveStates(application)
@@ -526,7 +554,7 @@ class MainActivity : AppCompatActivity() {
             list.any { it.state == WorkInfo.State.RUNNING }
         }
 
-        val associatedAccounts = MutableLiveData<List<Pair<Socio, PersonalData?>>>()
+        val associatedAccountsTransactions = MutableLiveData<Map<Socio, List<Transaction>>>()
 
         val customer = selectedAccount
             .map { index ->
@@ -546,13 +574,13 @@ class MainActivity : AppCompatActivity() {
 
         val processingPayment = MutableLiveData(false)
 
-        fun getAssociatedAccounts(associatedWithId: Int) = async {
+        fun getAssociatedAccounts(associatedWithId: Long) = async {
             val socios = remoteDatabaseDao.getAllAssociatedWith(associatedWithId)
-            val personalDataList = personalDataDao.getAll()
-            val accounts =
-                socios.map { socio -> socio to personalDataList.find { it.name == socio.Nombre } }
-            Timber.i("Got ${accounts.size} associated accounts for #$associatedWithId")
-            associatedAccounts.postValue(accounts)
+            val personalDataList = socios.associateWith { socio ->
+                transactionsDao.getByIdSocio(socio.idSocio)
+            }
+            Timber.i("Got ${socios.size} associated accounts for #$associatedWithId")
+            associatedAccountsTransactions.postValue(personalDataList)
         }
 
         private suspend fun isConfirmed(event: Event, customer: Customer?): Boolean {

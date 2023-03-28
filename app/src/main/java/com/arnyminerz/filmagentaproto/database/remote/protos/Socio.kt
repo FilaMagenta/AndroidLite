@@ -12,7 +12,7 @@ import java.sql.ResultSet
 
 @Entity(tableName = "socios")
 data class Socio(
-    @PrimaryKey val idSocio: Int,
+    @PrimaryKey val idSocio: Long,
     val Nombre: String,
     val Apellidos: String,
     val Direccion: String?,
@@ -140,7 +140,7 @@ data class Socio(
         )
 
         override fun parse(row: ResultSet): Socio = Socio(
-            row.getInt(1),
+            row.getLong(1),
             row.getString(2),
             row.getString(3),
             row.getString(4),

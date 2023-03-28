@@ -23,23 +23,24 @@ import androidx.compose.ui.unit.sp
 import androidx.work.WorkInfo
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.activity.MainActivity
-import com.arnyminerz.filmagentaproto.database.data.PersonalData
+import com.arnyminerz.filmagentaproto.database.data.Transaction
+import com.arnyminerz.filmagentaproto.database.data.inwards
+import com.arnyminerz.filmagentaproto.database.data.outwards
 import com.arnyminerz.filmagentaproto.ui.components.BalanceCard
 import com.arnyminerz.filmagentaproto.ui.components.TransactionCard
-import com.arnyminerz.filmagentaproto.ui.components.UnacceptedPolicyCard
 import com.arnyminerz.filmagentaproto.worker.ProgressStep
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
-fun MainPage(data: PersonalData, viewModel: MainActivity.MainViewModel) {
+fun MainPage(transactions: List<Transaction>, viewModel: MainActivity.MainViewModel) {
     val context = LocalContext.current
 
     val workerState by viewModel.workerState.observeAsState()
     val isRefreshing by viewModel.isLoading.observeAsState(true)
 
-    val associatedAccounts by viewModel.associatedAccounts.observeAsState(emptyList())
+    val associatedAccounts by viewModel.associatedAccountsTransactions.observeAsState(emptyMap())
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
@@ -95,8 +96,8 @@ fun MainPage(data: PersonalData, viewModel: MainActivity.MainViewModel) {
             // Balance
             item {
                 BalanceCard(
-                    data.inwards,
-                    data.outwards,
+                    transactions.inwards,
+                    transactions.outwards,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp)
@@ -104,28 +105,19 @@ fun MainPage(data: PersonalData, viewModel: MainActivity.MainViewModel) {
                 )
             }
             // Associated accounts balance
-            items(associatedAccounts) { (associatedSocio, associatedData) ->
-                if (associatedData == null)
-                    UnacceptedPolicyCard(
-                        associatedSocio,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                            .padding(bottom = 8.dp),
-                    )
-                else
-                    BalanceCard(
-                        associatedData.inwards,
-                        associatedData.outwards,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                            .padding(bottom = 8.dp),
-                        title = "${associatedSocio.Nombre} ${associatedSocio.Apellidos}",
-                    )
+            items(associatedAccounts.toList()) { (associatedSocio, transactions) ->
+                BalanceCard(
+                    transactions.inwards,
+                    transactions.outwards,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .padding(bottom = 8.dp),
+                    title = "${associatedSocio.Nombre} ${associatedSocio.Apellidos}",
+                )
             }
             items(
-                data.transactions.sortedByDescending { it.timestamp?.time ?: 0L },
+                transactions.sortedByDescending { it.date.time },
             ) { TransactionCard(it) }
         }
     }

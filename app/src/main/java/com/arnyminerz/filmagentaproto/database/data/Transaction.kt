@@ -1,44 +1,73 @@
 package com.arnyminerz.filmagentaproto.database.data
 
-import androidx.room.Ignore
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
+import com.arnyminerz.filmagentaproto.database.prototype.RemoteDataParser
 import com.arnyminerz.filmagentaproto.utils.getBooleanOrNull
-import com.arnyminerz.filmagentaproto.utils.getDoubleOrNull
-import java.text.SimpleDateFormat
+import java.sql.ResultSet
 import java.util.Date
-import java.util.Locale
 import org.json.JSONObject
 
+@Entity(tableName = "transactions")
 data class Transaction(
-    val date: String,
-    val description: String,
-    val units: Long,
-    val enters: Double?,
-    val exits: Double?,
+    @PrimaryKey val id: Long,
+    val idSocio: Long,
+    val date: Date,
+    val concept: String,
+    /** The amount of units ordered */
+    val units: Int,
+    /** The price of each unit */
+    val unitPrice: Double,
+    /** The total price. Should be units*unitPrice */
+    val price: Double,
+    /** If true, the money is entering the account, if false, it's an expense. */
+    val income: Boolean,
+    /** Used for notifying about new transactions */
     val notified: Boolean,
 ): JsonSerializable {
-    companion object: JsonSerializer<Transaction> {
+    companion object: JsonSerializer<Transaction>, RemoteDataParser<Transaction> {
         override fun fromJSON(json: JSONObject): Transaction = Transaction(
-            json.getString("date"),
-            json.getString("description"),
-            json.getLong("units"),
-            json.getDoubleOrNull("enters"),
-            json.getDoubleOrNull("exits"),
-            json.getBooleanOrNull("notified") ?: true,
+            json.getLong("id"),
+            json.getLong("id_socio"),
+            Date(json.getLong("date")),
+            json.getString("concept"),
+            json.getInt("units"),
+            json.getDouble("unit_price"),
+            json.getDouble("price"),
+            json.getBoolean("income"),
+            json.getBooleanOrNull("notified") ?: false,
+        )
+
+        override fun parse(row: ResultSet): Transaction = Transaction(
+            row.getLong("idApunte"),
+            row.getLong("idSocio"),
+            row.getDate("Fecha"),
+            row.getString("Concepto"),
+            row.getInt("Unidades"),
+            row.getDouble("Precio"),
+            row.getDouble("Importe"),
+            row.getString("Tipo") == "I",
+            false,
         )
     }
 
     override fun toJSON(): JSONObject = JSONObject().apply {
-        put("date", date)
-        put("description", description)
+        put("id", id)
+        put("id_socio", idSocio)
+        put("date", date.time)
+        put("concept", concept)
         put("units", units)
-        put("enters", enters)
-        put("exits", exits)
+        put("unit_price", unitPrice)
+        put("price", price)
+        put("income", income)
         put("notified", notified)
     }
-
-    @Ignore
-    val timestamp: Date? = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-        .parse(date)
 }
+
+val Iterable<Transaction>.inwards: Double
+    get() = filter { it.income }.sumOf { it.price }
+
+val Iterable<Transaction>.outwards: Double
+    get() = filter { !it.income }.sumOf { it.price }

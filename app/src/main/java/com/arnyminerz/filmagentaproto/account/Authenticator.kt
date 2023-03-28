@@ -7,14 +7,18 @@ import android.accounts.AccountManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import com.arnyminerz.filmagentaproto.activity.LoginActivity
-import com.arnyminerz.filmagentaproto.database.remote.RemoteServer
-import kotlinx.coroutines.runBlocking
+import com.arnyminerz.filmagentaproto.exceptions.WrongCredentialsException
+import timber.log.Timber
 
 class Authenticator(private val context: Context) : AbstractAccountAuthenticator(context) {
     companion object {
         const val AuthTokenType = "com.arnyminerz.filmagentaproto"
+
+        const val USER_DATA_VERSION = "version"
+        const val USER_DATA_ID_SOCIO = "id_socio"
+
+        const val VERSION = 1
     }
 
     override fun addAccount(
@@ -42,31 +46,46 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
         options: Bundle?
     ): Bundle {
         val am = AccountManager.get(context)
-        var token: String? = am.peekAuthToken(account, authTokenType)
 
-        if (token == null || token.isEmpty()) {
-            val password: String? = am.getPassword(account)
-            if (password != null) runBlocking {
-                token = try {
-                    RemoteServer.login(account.name, password)
-                } catch (e: Exception) {
-                    Log.e("Authenticator", "Could not log in.", e)
-                    null
+        val version: Int? = am.getUserData(account, USER_DATA_VERSION)?.toIntOrNull()
+        val idSocio: Long? = am.getUserData(account, USER_DATA_ID_SOCIO)?.toLongOrNull()
+        if (version != VERSION) {
+            // Old authentication, or version out of date, must authorize again
+            Timber.w("Removing old account type for ${account.name}. Version: $version")
+            am.removeAccountExplicitly(account)
+        } else if (idSocio == null) {
+            Timber.w("Removing account since it doesn't have a valid $USER_DATA_ID_SOCIO.")
+            am.removeAccountExplicitly(account)
+        } else {
+            var token: String? = am.peekAuthToken(account, authTokenType)
+
+            // If no token is found, try logging in with the stored password and dni
+            if (token?.isNotEmpty() != true) {
+                val dni = account.name
+                val password: String? = am.getPassword(account)
+                if (password != null)
+                    try {
+                        token = RemoteAuthentication.login(dni, password)
+                    } catch (_: WrongCredentialsException) {
+                        Timber.w("Got wrong credentials stored for ${account.name}.")
+                    } catch (_: IllegalArgumentException) {
+                        Timber.w("Credentials for ${account.name} are not available on the server.")
+                    }
+            }
+            if (token?.isNotEmpty() == true)
+                return Bundle().apply {
+                    putString(AccountManager.KEY_ACCOUNT_NAME, account.name)
+                    putString(AccountManager.KEY_ACCOUNT_TYPE, account.type)
+                    putString(AccountManager.KEY_AUTHTOKEN, token)
                 }
-            }
         }
-        if (token?.isNotEmpty() == true)
-            return Bundle().apply {
-                putString(AccountManager.KEY_ACCOUNT_NAME, account.name)
-                putString(AccountManager.KEY_ACCOUNT_TYPE, account.type)
-                putString(AccountManager.KEY_AUTHTOKEN, token)
-            }
 
         // If this is reached, user must log in again
         val intent = Intent(context, LoginActivity::class.java).apply {
             putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
             putExtra(LoginActivity.EXTRA_ACCOUNT_TYPE, account.type)
             putExtra(LoginActivity.EXTRA_AUTH_TOKEN_TYPE, authTokenType)
+            putExtra(LoginActivity.EXTRA_DNI, account.name)
         }
         return Bundle().apply {
             putParcelable(AccountManager.KEY_INTENT, intent)

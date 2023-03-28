@@ -29,18 +29,17 @@ import com.arnyminerz.filmagentaproto.NotificationChannels
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.activity.ShareMessageActivity
-import com.arnyminerz.filmagentaproto.database.data.PersonalData
 import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.database.data.woo.WooClass
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
-import com.arnyminerz.filmagentaproto.database.local.PersonalDataDao
 import com.arnyminerz.filmagentaproto.database.local.RemoteDatabaseDao
+import com.arnyminerz.filmagentaproto.database.local.TransactionsDao
 import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
-import com.arnyminerz.filmagentaproto.database.remote.RemoteServer
 import com.arnyminerz.filmagentaproto.utils.PermissionsUtils
+import com.arnyminerz.filmagentaproto.utils.now
 import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
 import io.sentry.ITransaction
 import io.sentry.Sentry
@@ -165,7 +164,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
     private lateinit var notificationManager: NotificationManagerCompat
 
-    private lateinit var personalDataDao: PersonalDataDao
+    private lateinit var transactionsDao: TransactionsDao
     private lateinit var remoteDatabaseDao: RemoteDatabaseDao
     private lateinit var wooCommerceDao: WooCommerceDao
 
@@ -184,12 +183,13 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             synchronize()
 
             // Schedule a new work
-            schedule(applicationContext)
+            if (tags.contains(TAG_PERIODIC))
+                schedule(applicationContext)
 
             return Result.success()
         } catch (e: Exception) {
             // Log the exception
-            e.printStackTrace()
+            Timber.e(e, "Could not complete synchronization.")
 
             // Append the error to the transaction
             transaction.throwable = e
@@ -213,7 +213,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 Result.retry()
         } finally {
             notificationManager.cancel(NOTIFICATION_ID)
-            
+
             transaction.finish()
         }
     }
@@ -226,54 +226,39 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
         // Get access to the database
         val database = AppDatabase.getInstance(applicationContext)
-        personalDataDao = database.personalDataDao()
+        transactionsDao = database.transactionsDao()
         remoteDatabaseDao = database.remoteDatabaseDao()
         wooCommerceDao = database.wooCommerceDao()
 
         // Store if this is the first synchronization
-        isFirstSynchronization = personalDataDao.getAll().isEmpty()
+        isFirstSynchronization = transactionsDao.getAll().isEmpty()
 
         val syncTransactions = inputData.getBoolean(SYNC_TRANSACTIONS, true)
         val syncSocios = inputData.getBoolean(SYNC_SOCIOS, true)
 
         // Synchronize data of all the accounts
         val accounts = am.getAccountsByType(Authenticator.AuthTokenType)
-        accounts.forEach { account ->
+        for (account in accounts) {
             val authToken: String? = am.peekAuthToken(account, Authenticator.AuthTokenType)
+            val dni = account.name
 
             if (authToken == null) {
-                Timber.e("Credentials for ${account.name} are not valid, clearing password...")
+                Timber.e("Credentials for $dni are not valid, clearing password...")
                 am.clearPassword(account)
-                return@forEach
+                continue
             }
 
             if (syncTransactions) {
                 // Fetch the data and update the database
                 setProgress(ProgressStep.SYNC_TRANSACTIONS)
 
-                val html = RemoteServer.fetch(authToken)
-                val data = PersonalData.fromHtml(html, account)
-                val dbData = personalDataDao.getByAccount(account.name, account.type)
-                if (dbData == null)
-                    personalDataDao.insert(data)
-                else
-                    personalDataDao.update(dbData)
-
-                // Show notifications for new transactions
-                personalDataDao.getByAccount(account.name, account.type)?.let { updatedData ->
-                    val newTransactions = updatedData.transactions.map { transaction ->
-                        if (transaction.notified)
-                            transaction
-                        else {
-                            // No notifications should be shown during the first synchronization
-                            if (!isFirstSynchronization)
-                                notifyTransaction(data.accountName, transaction)
-                            transaction.copy(notified = true)
-                        }
-                    }
-                    // Update the stored transactions
-                    personalDataDao.updateTransactions(account.name, newTransactions)
+                val idSocio = RemoteDatabaseInterface.fetchIdSocioFromDni(dni)
+                if (idSocio == null) {
+                    Timber.e("Could not get idSocio for DNI=$dni")
+                    continue
                 }
+
+                synchronizeSocio(idSocio)
 
                 setProgress(ProgressStep.INTERMEDIATE)
             }
@@ -311,25 +296,10 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
                 // Iterate each associated, and log in with their credentials to fetch the data
                 for (associated in associateds) try {
-                    // Log in with the user's credentials
-                    val associatedDni = associated.Dni ?: continue
-                    Timber.d("Logging in with \"${associated.Nombre}\" and $associatedDni")
-                    val authToken = RemoteServer.login(associated.Nombre, associatedDni)
-                    // Fetch the data for the associated
-                    val html = RemoteServer.fetch(authToken)
-                    val data = PersonalData.fromHtml(
-                        html,
-                        Account(associated.Nombre, Authenticator.AuthTokenType)
-                    )
-                    try {
-                        personalDataDao.insert(data)
-                    } catch (e: SQLiteConstraintException) {
-                        personalDataDao.update(data)
-                    }
+                    synchronizeSocio(associated.idSocio)
                 } catch (e: Exception) {
                     Timber.e(
-                        "Could not synchronize data for associated: ${associated.idSocio}",
-                        e,
+                        e, "Could not synchronize data for associated: ${associated.idSocio}",
                     )
                     continue
                 }
@@ -338,6 +308,35 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         }
 
         Timber.i("Finished synchronization")
+    }
+
+    /**
+     * Synchronizes all the data for the socio with the given id.
+     */
+    private suspend fun synchronizeSocio(idSocio: Long) {
+        val transactions = RemoteDatabaseInterface.fetchTransactions(idSocio)
+        val name = RemoteDatabaseInterface.fetchSocio(idSocio) {
+            it.getString("Nombre") + " " + it.getString("Apellidos")
+        }.first()
+
+        for (transaction in transactions)
+            try {
+                transactionsDao.insert(transaction)
+            } catch (e: SQLiteConstraintException) {
+                transactionsDao.update(transaction)
+            }
+
+        // Show notifications for new transactions
+        val allTransactions = transactionsDao.getAll()
+        for (transaction in allTransactions)
+            if (!transaction.notified) {
+                // No notifications should be shown during the first synchronization
+                if (!isFirstSynchronization)
+                    notifyTransaction(name, transaction)
+                transactionsDao.update(
+                    transaction.copy(notified = true)
+                )
+            }
     }
 
     /**
@@ -404,7 +403,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         account: Account,
     ) {
         val span = transaction.startChild("fetchAndUpdateWooData")
-        val dni = am.getPassword(account)
+        val dni = account.name
 
         var customerId: Long? = am.getUserData(account, "customer_id")?.toLongOrNull()
         var isAdmin: Boolean? = am.getUserData(account, "customer_admin")?.toBoolean()
@@ -541,9 +540,13 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 PROGRESS to progress?.let { (current, max) -> current.toDouble() / max.toDouble() },
             )
         )
-        setForeground(
-            createForegroundInfo(step, progress)
-        )
+        try {
+            setForeground(
+                createForegroundInfo(step, progress)
+            )
+        } catch (e: IllegalStateException) {
+            Timber.i("Cannot update foreground info since progress is in background.")
+        }
     }
 
     /**
@@ -590,17 +593,17 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     private fun notifyTransaction(accountName: String, transaction: Transaction) {
         if (!PermissionsUtils.hasNotificationPermission(applicationContext)) return
 
-        val message = if (transaction.enters != null)
+        val message = if (transaction.income)
             applicationContext.getString(
                 R.string.notification_transaction_input_message,
-                transaction.enters,
-                transaction.description,
+                transaction.price,
+                transaction.concept,
             )
         else
             applicationContext.getString(
                 R.string.notification_transaction_charge_message,
-                transaction.exits,
-                transaction.description,
+                transaction.price,
+                transaction.concept,
             )
 
         val notification =
@@ -609,8 +612,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 .setContentTitle(applicationContext.getString(R.string.notification_transaction_title))
                 .setContentText(message)
                 .setContentInfo(accountName)
-                .setWhen(transaction.timestamp?.time ?: 0)
-                .setShowWhen(transaction.timestamp != null)
+                .setWhen(transaction.date.time)
+                .setShowWhen((now().time - transaction.date.time) > 24 * 60 * 1000)
                 .build()
         notificationManager.notify(Random.nextInt(), notification)
     }
