@@ -324,7 +324,7 @@ object RemoteCommerce {
      * @param notes Some extra notes, if any, to leave.
      * @param event The event to sign up for.
      * @param customer The customer that is making the request.
-     * @return The URL for making the payment for the event.
+     * @return The URL for making the payment for the event, and the order made.
      */
     @WorkerThread
     suspend fun eventSignup(
@@ -332,7 +332,7 @@ object RemoteCommerce {
         notes: String,
         event: Event,
         metadata: List<Order.Metadata>
-    ): String {
+    ): Pair<String, Order> {
         Timber.d("Creating item for event...")
         val item = JSONObject().apply {
             put("product_id", event.id)
@@ -352,7 +352,8 @@ object RemoteCommerce {
         Timber.d( "Making POST request to $OrdersEndpoint with: $body")
         val response = post(OrdersEndpoint, body)
         val json = JSONObject(response)
-        return json.getString("payment_url")
+        val responseOrder = Order.fromJSON(json)
+        return json.getString("payment_url") to responseOrder
     }
 
     /**
