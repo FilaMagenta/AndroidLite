@@ -1,6 +1,5 @@
 package com.arnyminerz.filmagentaproto.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -28,8 +27,8 @@ import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.components.stickyHeaderWithIcon
 import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.toast
-import java.util.Calendar
 import kotlinx.coroutines.flow.filterNotNull
+import timber.log.Timber
 
 @Composable
 @ExperimentalMaterial3Api
@@ -68,8 +67,6 @@ fun EventsScreen(
      * returned.
      */
     fun processEventsList(events: List<Event>?): List<Event> {
-        val now = Calendar.getInstance().time.time
-
         return events
             // Filter past events
             ?.filter { event -> !event.hasPassed }
@@ -113,10 +110,7 @@ fun EventsScreen(
                     mainViewModel
                         .signUpForEvent(customerState!!, event, metadata) { paymentUrl ->
                             if (event.price > 0.0) {
-                                Log.i(
-                                    "EventScreen",
-                                    "Event is not free, redirecting to the payment gateway..."
-                                )
+                                Timber.i("Event is not free, redirecting to the payment gateway...")
                                 context.launchTabsUrl(paymentUrl)
                             }
                         }
