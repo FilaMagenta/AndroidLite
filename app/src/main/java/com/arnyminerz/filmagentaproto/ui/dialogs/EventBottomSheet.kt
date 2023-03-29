@@ -1,6 +1,5 @@
 package com.arnyminerz.filmagentaproto.ui.dialogs
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
+import timber.log.Timber
 
 @Composable
 @ExperimentalMaterial3Api
@@ -148,10 +148,7 @@ fun EventBottomSheet(
                 enabled = !isConfirming,
                 onClick = {
                     isConfirming = true
-                    Log.d(
-                        "EventBottomSheet",
-                        "Submitting event ${event.id}. Selected: $selectedAttributesOption"
-                    )
+                    Timber.d("Submitting event ${event.id}. Selected: $selectedAttributesOption")
                     onSubmit(selectedAttributesOption.values.toList()) {
                         isConfirming = false
                         onDismissRequest()
