@@ -638,14 +638,14 @@ class MainActivity : AppCompatActivity() {
             @UiThread onComplete: (paymentUrl: String) -> Unit
         ) = async {
             Timber.i("Signing up for event (price=${event.price}). Metadata: $metadata")
-            val paymentUrl = RemoteCommerce.eventSignup(
+            val (paymentUrl, order) = RemoteCommerce.eventSignup(
                 customer,
                 "", // FIXME: Set notes
                 event = event,
                 metadata = metadata,
             )
-            Timber.i("Adding event...")
-            wooCommerceDao.insert(event)
+            Timber.i("Adding order to database...")
+            wooCommerceDao.insert(order)
             Timber.i("Event sign up is complete.")
             ui { onComplete(paymentUrl) }
         }
