@@ -1,11 +1,31 @@
 package com.arnyminerz.filmagentaproto.security
 
+import androidx.annotation.StringRes
+import com.arnyminerz.filmagentaproto.R
+import com.arnyminerz.filmagentaproto.utils.allLowerCase
+import com.arnyminerz.filmagentaproto.utils.allUpperCase
+import com.arnyminerz.filmagentaproto.utils.isNumber
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.security.spec.InvalidKeySpecException
 import java.util.Arrays
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
+
+enum class PasswordSafety(@StringRes val labelRes: Int?) {
+    /** The password given is safe */
+    Safe(null),
+    /** The password given is not safe because it contains things related to the Filà Magenta */
+    Magenta(R.string.register_password_unsafe_magenta),
+    /** The password given is not safe because it's too short */
+    Short(R.string.register_password_unsafe_short),
+    /** The password given is not safe because it contains only capital letters */
+    AllCaps(R.string.register_password_unsafe_all_caps),
+    /** The password given is not safe because it contains only lower case letters */
+    AllLowercase(R.string.register_password_unsafe_all_lowe),
+    /** The password given is not safe because it only contains numbers. */
+    AllNumbers(R.string.register_password_unsafe_all_numb),
+}
 
 /**
  * A utility class to hash passwords and check passwords vs hashed values. It uses a combination of hashing and unique
@@ -20,6 +40,12 @@ object Passwords {
     private val RANDOM = SecureRandom()
     private const val ITERATIONS = 100000
     private const val KEY_LENGTH = 256
+
+    /** The minimum password length */
+    private const val MIN_LENGTH = 8
+
+    /** All the words forbidden for passwords because they break [PasswordSafety.Magenta] */
+    private val FILA_TOPICS = listOf("1865", "magenta")
 
     /**
      * Returns a random salt to be used to hash a password.
@@ -96,4 +122,17 @@ object Passwords {
         }
         return sb.toString()
     }
+
+    /**
+     * Checks if a given password is safe or not.
+     */
+    fun isSafePassword(password: String): PasswordSafety =
+        when {
+            password.length < MIN_LENGTH -> PasswordSafety.Short
+            password.allLowerCase -> PasswordSafety.AllLowercase
+            password.allUpperCase -> PasswordSafety.AllCaps
+            password.isNumber -> PasswordSafety.AllNumbers
+            FILA_TOPICS.any { password.contains(it, true) } -> PasswordSafety.Magenta
+            else -> PasswordSafety.Safe
+        }
 }

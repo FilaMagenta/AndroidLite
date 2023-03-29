@@ -28,6 +28,8 @@ import coil.compose.AsyncImage
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.RemoteAuthentication
 import com.arnyminerz.filmagentaproto.exceptions.WrongCredentialsException
+import com.arnyminerz.filmagentaproto.security.PasswordSafety
+import com.arnyminerz.filmagentaproto.security.Passwords
 import com.arnyminerz.filmagentaproto.ui.components.FormInput
 import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.toastAsync
@@ -59,6 +61,8 @@ fun LoginScreen(
 
         val passwordFocusRequester = remember { FocusRequester() }
         val repeatPasswordFocusRequester = remember { FocusRequester() }
+
+        val safePassword = if (shouldCreateAccount) Passwords.isSafePassword(password) else null
 
         fun performLogin() {
             fieldsEnabled = false
@@ -117,6 +121,10 @@ fun LoginScreen(
             enabled = fieldsEnabled,
             label = stringResource(R.string.login_nif),
             supportingText = stringResource(R.string.login_nif_aux),
+            error = safePassword
+                ?.takeIf { it != PasswordSafety.Safe }
+                ?.labelRes
+                ?.let { stringResource(it) },
             nextFocusRequester = passwordFocusRequester,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             capitalization = KeyboardCapitalization.Characters,
@@ -153,7 +161,9 @@ fun LoginScreen(
         }
         Button(
             onClick = ::performLogin,
-            enabled = fieldsEnabled && (if (shouldCreateAccount) password == passwordConfirmation else true),
+            enabled = fieldsEnabled &&
+                    (if (shouldCreateAccount) password == passwordConfirmation else true) &&
+                    (safePassword == null || safePassword == PasswordSafety.Safe),
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(end = 8.dp),
