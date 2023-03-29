@@ -11,6 +11,11 @@
     <string name="login_nif">NIF</string>
     <string name="login_nif_aux">Tu DNI, NIE, o sea cual sea tu NIF</string>
     <string name="login_action">Iniciar Sesión</string>
+    <string name="register_password_unsafe_magenta">Tu contraseña no puede estar relacionada con la Filà Magenta.</string>
+    <string name="register_password_unsafe_short">Tu contraseña es demasiado corta.</string>
+    <string name="register_password_unsafe_all_caps">Tu contraseña no puede contener únicamente letras mayúsculas.</string>
+    <string name="register_password_unsafe_all_lowe">Tu contraseña no puede contener únicamente letras minúsculas.</string>
+    <string name="register_password_unsafe_all_numb">Tu contraseña no puede contener únicamente números.</string>
     <string name="settings_category_general">General</string>
     <string name="settings_category_advanced">Avanzado</string>
     <string name="settings_language">Idioma</string>

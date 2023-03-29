@@ -15,3 +15,21 @@ fun String.capitalizedWords(locale: java.util.Locale = java.util.Locale.getDefau
     split(" ").joinToString(" ") { it.capitalized(locale) }
 
 fun Uri.toURL(): URL = URL(toString())
+
+/**
+ * Returns true if the word is all capital letters.
+ */
+val String.allUpperCase: Boolean
+    get() = all { it.isUpperCase() }
+
+/**
+ * Returns true if the word is all lower-case letters.
+ */
+val String.allLowerCase: Boolean
+    get() = all { it.isLowerCase() }
+
+/**
+ * Returns true if the word is all numbers.
+ */
+val String.isNumber: Boolean
+    get() = all { it.isDigit() }

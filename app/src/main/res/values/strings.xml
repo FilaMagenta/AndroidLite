@@ -38,6 +38,11 @@
     <string name="login_password_confirm_aux">Please, introduce your password again.</string>
     <string name="login_password_confirm_match">Passwords do not match.</string>
     <string name="login_action">Login</string>
+    <string name="register_password_unsafe_magenta">Your password cannot be related to the Filà Magenta.</string>
+    <string name="register_password_unsafe_short">Your password is too short.</string>
+    <string name="register_password_unsafe_all_caps">Your password must not contain only upper-case letters.</string>
+    <string name="register_password_unsafe_all_lowe">Your password must not contain only lower-case letters.</string>
+    <string name="register_password_unsafe_all_numb">Your password must not contain only numbers.</string>
 
     <string name="settings_category_general">General</string>
     <string name="settings_category_advanced">Advanced</string>

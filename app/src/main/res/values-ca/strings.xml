@@ -10,6 +10,11 @@
     <string name="login_title">Inici de Sessió</string>
     <string name="login_nif">NIF</string>
     <string name="login_nif_aux">El teu DNI, NIE, o el que aplique</string>
+    <string name="register_password_unsafe_magenta">La teua contrassenya no pot estar relacionada amb la Filà Magenta.</string>
+    <string name="register_password_unsafe_short">La teua contrassenya és massa curta.</string>
+    <string name="register_password_unsafe_all_caps">La teua contrassenya no pot contenir únicament lletres majúscules.</string>
+    <string name="register_password_unsafe_all_lowe">La teua contrassenya no pot contenir únicament lletres minúscules.</string>
+    <string name="register_password_unsafe_all_numb">La teua contrassenya no pot contenir únicament números.</string>
     <string name="settings_category_general">General</string>
     <string name="settings_category_advanced">Avançat</string>
     <string name="settings_language">Idioma</string>
