@@ -68,8 +68,8 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        accountType = intent.getStringExtra(EXTRA_ACCOUNT_TYPE)!!
-        authTokenType = intent.getStringExtra(EXTRA_AUTH_TOKEN_TYPE)!!
+        accountType = intent.getStringExtra(EXTRA_ACCOUNT_TYPE) ?: AuthTokenType
+        authTokenType = intent.getStringExtra(EXTRA_AUTH_TOKEN_TYPE) ?: AuthTokenType
 
         val initialDni = intent.getStringExtra(EXTRA_DNI)
 
