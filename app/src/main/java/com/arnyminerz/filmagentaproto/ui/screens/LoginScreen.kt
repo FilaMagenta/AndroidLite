@@ -65,6 +65,8 @@ fun LoginScreen(
         val safePassword = if (shouldCreateAccount) Passwords.isSafePassword(password) else null
 
         fun performLogin() {
+            if (safePassword != null && safePassword != PasswordSafety.Safe) return
+
             fieldsEnabled = false
             doAsync {
                 if (!shouldCreateAccount)
