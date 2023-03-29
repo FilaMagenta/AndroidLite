@@ -102,7 +102,7 @@
     <string name="sync_error_message">La sincronització no s\'ha pogut dur a terme. Per favor, comparteix l\'error amb un adminstrador.</string>
     <string name="telegram_channel">Canal de Telegram</string>
     <string name="website">Pàgina Web</string>
-    <string name="notification_transaction_title">Nou movement al compte</string>
+    <string name="notification_transaction_title">Nou moviment al compte</string>
     <string name="notification_transaction_charge_message">Se t\'han cobrat %.2f € en concepte de \"%s\".</string>
     <string name="notification_transaction_input_message">Se t\'han ingressat %.2f € al teu compte en concepte de \"%s\".</string>
     <string name="enabled">Habilitat</string>

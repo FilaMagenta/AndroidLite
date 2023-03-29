@@ -104,7 +104,7 @@
     <string name="website">Página Web</string>
     <string name="notification_transaction_title">Nuevo movimiento en tu cuenta</string>
     <string name="notification_transaction_charge_message">Se te han cobrado %.2f en concepto de \"%s\".</string>
-    <string name="notification_transaction_input_message">Se te han ingresado %2.f € a tu cuenta en concepto de \"%s\".</string>
+    <string name="notification_transaction_input_message">Se te han ingresado %.2f € a tu cuenta en concepto de \"%s\".</string>
     <string name="enabled">Habilitado</string>
     <string name="disabled">Deshabilitado</string>
     <string name="admin_title">Administrador</string>
