@@ -58,7 +58,10 @@ fun TransactionCard(transaction: Transaction) {
         ) {
             Text(
                 // TODO: Display transaction.units
-                text = "%.2f €".format(transaction.price),
+                text = if (transaction.units > 1)
+                    "%.2f € x %d".format(transaction.price, transaction.units)
+                else
+                    "%.2f €".format(transaction.price),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = if (transaction.income)
