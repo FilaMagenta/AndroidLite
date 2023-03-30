@@ -32,6 +32,7 @@ import com.arnyminerz.filmagentaproto.security.PasswordSafety
 import com.arnyminerz.filmagentaproto.security.Passwords
 import com.arnyminerz.filmagentaproto.ui.components.FormInput
 import com.arnyminerz.filmagentaproto.utils.doAsync
+import com.arnyminerz.filmagentaproto.utils.isValidDni
 import com.arnyminerz.filmagentaproto.utils.toastAsync
 import com.arnyminerz.filmagentaproto.utils.ui
 import java.security.NoSuchAlgorithmException
@@ -165,6 +166,8 @@ fun LoginScreen(
         Button(
             onClick = ::performLogin,
             enabled = fieldsEnabled &&
+                    password.length >= Passwords.MIN_LENGTH &&
+                    dni.isValidDni &&
                     (if (shouldCreateAccount) password == passwordConfirmation else true) &&
                     (safePassword == null || safePassword == PasswordSafety.Safe),
             modifier = Modifier
