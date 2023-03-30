@@ -53,6 +53,7 @@ fun LoginScreen(
             .fillMaxSize()
             .then(modifier),
     ) {
+        // TODO: Verify DNI
         var dni by remember { mutableStateOf(initialDni ?: "") }
         var password by remember { mutableStateOf("") }
         var passwordConfirmation by remember { mutableStateOf<String?>(null) }

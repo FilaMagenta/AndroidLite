@@ -20,7 +20,7 @@ interface TransactionsDao {
     suspend fun getByIdSocio(idSocio: Long): List<Transaction>
 
     @Query("SELECT * FROM transactions WHERE idSocio=:idSocio")
-    fun getByIdSocioLive(idSocio: Long): LiveData<List<Transaction>>
+    fun getByIdSocioLive(idSocio: Long?): LiveData<List<Transaction>>
 
     @Insert
     suspend fun insert(vararg data: Transaction)

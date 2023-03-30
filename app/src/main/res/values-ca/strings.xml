@@ -4,6 +4,7 @@
     <string name="back">Enrere</string>
     <string name="cancel">Cancel·la</string>
     <string name="keyboard_backspace">Esborrar</string>
+    <string name="sync_run">Sincronitza</string>
     <string name="accounts_list">Comptes</string>
     <string name="accounts_new">Afegeix un compte</string>
     <string name="accounts_remove">Eliminar Compte</string>
