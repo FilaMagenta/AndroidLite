@@ -42,7 +42,7 @@ object Passwords {
     private const val KEY_LENGTH = 256
 
     /** The minimum password length */
-    private const val MIN_LENGTH = 8
+    const val MIN_LENGTH = 8
 
     /** All the words forbidden for passwords because they break [PasswordSafety.Magenta] */
     private val FILA_TOPICS = listOf("1865", "magenta")
