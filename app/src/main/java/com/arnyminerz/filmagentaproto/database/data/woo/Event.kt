@@ -1,6 +1,5 @@
 package com.arnyminerz.filmagentaproto.database.data.woo
 
-import android.util.Log
 import androidx.annotation.StringDef
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
@@ -22,6 +21,7 @@ import java.util.Calendar
 import java.util.Date
 import org.json.JSONException
 import org.json.JSONObject
+import timber.log.Timber
 
 @StringDef(InStock, OutOfStock, OnBackOrder)
 annotation class StockStatus {
@@ -57,7 +57,7 @@ data class Event(
         )
 
         private val untilKeywordLine = Regex(
-            "<.*>Reservas? hasta el.*</.*>",
+            "(<.*>)?Reservas? hasta el.*(</.*>)?",
             setOf(
                 RegexOption.MULTILINE,
                 RegexOption.IGNORE_CASE,
@@ -81,7 +81,7 @@ data class Event(
         )
 
         private val dateRegex = Regex(
-            "^.*(lunes|martes|mi[ée]rcoles|jueves|viernes|s[aá]bado|domingo) ?(d[ií]a)? ?\\d+ ?(de)? ?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) ?(del?)? ?(20\\d{2})?[ .,]*(\\d{1,2}:\\d{2})?.*$",
+            "^.*(lunes|martes|mi[ée]rcoles|jueves|viernes|s[aá]bado|domingo)? ?(d[ií]a)? ?\\d+ ?(de)? ?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) ?(del?)? ?(20\\d{2})?[ .,]*(\\d{1,2}:\\d{2})?.*$",
             setOf(
                 RegexOption.MULTILINE,
                 RegexOption.IGNORE_CASE,
@@ -241,23 +241,29 @@ data class Event(
         }
     }
 
+    enum class Type(val keywords: Set<String>) {
+        Breakfast(setOf("esmorzar", "almuerzo", "desayuno")),
+        Lunch(setOf("comida", "dinar")),
+        Dinner(setOf("cena", "sopar")),
+    }
+
     override fun toString(): String = id.toString()
 
     @Ignore
     val acceptsReservationsUntil: Date? = shortDescription.let { desc ->
         val keywordFind = untilKeyword.find(desc)
         if (keywordFind == null) {
-            Log.d("Event", "Keyword not found in event $id")
+            Timber.d("Keyword not found in event $id")
             return@let null
         }
         val position = keywordFind.range.last
         if (position < 0) {
-            Log.d("Event", "Could not cut event $id. position=$position")
+            Timber.d("Could not cut event $id. position=$position")
             return@let null
         }
         val lineBreak = desc.indexOf('\n', position)
         if (position < 0 || lineBreak < 0) {
-            Log.d("Event", "Could not cut event $id. lineBreak=$lineBreak")
+            Timber.d("Could not cut event $id. lineBreak=$lineBreak")
             return@let null
         }
 
@@ -268,14 +274,14 @@ data class Event(
 
         val firstSpace = until.indexOf(' ')
         if (firstSpace < 0) {
-            Log.d("Event", "Could not find space in event $id. until=\"$until\"")
+            Timber.d("Could not find space in event $id. until=\"$until\"")
             return@let null
         }
 
         val dayString = until.substring(0, firstSpace)
         val day = dayString.toIntOrNull()
         if (day == null) {
-            Log.d("Event", "Could not parse number in event $id. dayString=\"$dayString\"")
+            Timber.d("Could not parse number in event $id. dayString=\"$dayString\"")
             return@let null
         }
 
@@ -283,6 +289,10 @@ data class Event(
         val monthIndex = months.indexOfFirst { until.contains(it, ignoreCase = true) }
 
         val calendar = Calendar.getInstance()
+
+        // Reset seconds and millis
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
 
         // Check if year is specified
         val yearFind = yearRegex.find(until)
@@ -338,6 +348,10 @@ data class Event(
 
         val calendar = Calendar.getInstance()
 
+        // Reset seconds and millis
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
         // Update time
         var timeUpdated = false
         val timeFind = timeRegex.find(found)
@@ -392,6 +406,11 @@ data class Event(
     val index: Int = Regex("^\\d+").find(name)
         ?.value
         ?.toIntOrNull() ?: Int.MAX_VALUE
+
+    @Ignore
+    val type: Type? = Type.values().find { type ->
+        type.keywords.find { name.contains(it, true) } != null
+    }
 
     @Ignore
     val title: String = Regex("^\\d+ ?").find(name)?.let {
