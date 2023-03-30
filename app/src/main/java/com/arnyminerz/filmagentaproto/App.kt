@@ -131,9 +131,9 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
         updateAdminQuickAccessShortcut()
     }
 
-    override fun onAccountsUpdated(accounts: Array<out Account>?) {
-        Timber.d("Accounts list updated. There are ${accounts?.size} accounts.")
-        val filteredAccounts = accounts?.filter { it.type == Authenticator.AuthTokenType }
+    override fun onAccountsUpdated(accounts: Array<out Account>) {
+        Timber.d("Accounts list updated. There are ${accounts.size} accounts.")
+        val filteredAccounts = accounts.filter { it.type == Authenticator.AuthTokenType }
         accountsLiveData.postValue(filteredAccounts)
 
         updateUserId()
