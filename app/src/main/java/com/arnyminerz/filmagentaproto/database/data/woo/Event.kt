@@ -81,7 +81,7 @@ data class Event(
         )
 
         private val dateRegex = Regex(
-            "^.*(lunes|martes|mi[ée]rcoles|jueves|viernes|s[aá]bado|domingo) ?(d[ií]a)? ?\\d+ ?(de)? ?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) ?(del?)? ?(20\\d{2})?[ .,]*(\\d{1,2}:\\d{2})?.*$",
+            "^.*(lunes|martes|mi[ée]rcoles|jueves|viernes|s[aá]bado|domingo)? ?(d[ií]a)? ?\\d+ ?(de)? ?(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) ?(del?)? ?(20\\d{2})?[ .,]*(\\d{1,2}:\\d{2})?.*$",
             setOf(
                 RegexOption.MULTILINE,
                 RegexOption.IGNORE_CASE,
