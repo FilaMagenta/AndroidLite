@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.activity.MainActivity
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.ui.components.EventItem
@@ -27,6 +26,7 @@ import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.components.stickyHeaderWithIcon
 import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.toast
+import com.arnyminerz.filmagentaproto.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.filterNotNull
 import timber.log.Timber
 
@@ -34,7 +34,7 @@ import timber.log.Timber
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 fun EventsScreen(
-    mainViewModel: MainActivity.MainViewModel,
+    mainViewModel: MainViewModel,
     onEventSelected: (Event, Customer) -> Unit,
 ) {
     val context = LocalContext.current

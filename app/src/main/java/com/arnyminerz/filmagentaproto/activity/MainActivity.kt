@@ -1,9 +1,7 @@
 package com.arnyminerz.filmagentaproto.activity
 
 import android.Manifest
-import android.accounts.Account
 import android.accounts.AccountManager
-import android.app.Application
 import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.os.Build
@@ -12,7 +10,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -38,6 +35,7 @@ import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.Wallet
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
@@ -69,23 +67,12 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
-import androidx.work.WorkInfo
-import com.arnyminerz.filmagentaproto.App
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
+import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.AuthTokenType
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_VERSION
-import com.arnyminerz.filmagentaproto.database.data.Transaction
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
-import com.arnyminerz.filmagentaproto.database.local.AppDatabase
-import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
-import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.exceptions.PaymentException
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
@@ -108,16 +95,13 @@ import com.arnyminerz.filmagentaproto.ui.screens.ProfilePage
 import com.arnyminerz.filmagentaproto.ui.screens.SettingsScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
-import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.doAsync
-import com.arnyminerz.filmagentaproto.utils.io
 import com.arnyminerz.filmagentaproto.utils.launch
 import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.launchUrl
 import com.arnyminerz.filmagentaproto.utils.now
 import com.arnyminerz.filmagentaproto.utils.toast
-import com.arnyminerz.filmagentaproto.utils.trimmedAndCaps
-import com.arnyminerz.filmagentaproto.utils.ui
+import com.arnyminerz.filmagentaproto.viewmodel.MainViewModel
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
 import com.redsys.tpvvinapplibrary.ErrorResponse
 import com.redsys.tpvvinapplibrary.IPaymentResult
@@ -134,8 +118,6 @@ import compose.icons.simpleicons.Twitter
 import io.sentry.Sentry
 import java.util.Locale
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -177,7 +159,7 @@ class MainActivity : AppCompatActivity() {
 
         am = AccountManager.get(this)
         loginRequestLauncher = registerForActivityResult(LoginActivity.Contract()) { loggedIn ->
-            val accounts = am.getAccountsByType(Authenticator.AuthTokenType)
+            val accounts = am.getAccountsByType(AuthTokenType)
             if (!loggedIn && accounts.isEmpty())
                 finish()
         }
@@ -218,7 +200,11 @@ class MainActivity : AppCompatActivity() {
             if (databaseData?.isEmpty() == true)
                 return@setContentThemed InitialLoadScreen()
 
-            var paymentMadeResult by remember { mutableStateOf<Pair<ResultResponse?, ErrorResponse?>?>(null) }
+            var paymentMadeResult by remember {
+                mutableStateOf<Pair<ResultResponse?, ErrorResponse?>?>(
+                    null
+                )
+            }
             paymentMadeResult?.let {
                 PaymentMadeBottomSheet(it) { paymentMadeResult = null }
             }
@@ -238,8 +224,9 @@ class MainActivity : AppCompatActivity() {
                             return@PaymentBottomSheet
                         }
 
-                        val orderCode = "APP" + SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
-                            .format(now())
+                        val orderCode =
+                            "APP" + SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
+                                .format(now())
 
                         Timber.i("Making web payment for $amount € (${amount * 100})")
                         TPVV.doDirectPayment(
@@ -266,22 +253,17 @@ class MainActivity : AppCompatActivity() {
                     onDismissRequest = { showingPaymentBottomSheet = false },
                 )
 
-            var currentPage by remember { mutableStateOf(0) }
-
-            selectedAccountIndex?.let { accountIndex ->
-                Content(
-                    currentPage, { currentPage = it }, accounts, accountIndex,
-                    { showingAccountsDialog = true }, { showingPaymentBottomSheet = true },
-                    databaseData,
-                )
-            }
+            Content(
+                { showingAccountsDialog = true }, { showingPaymentBottomSheet = true },
+                databaseData,
+            )
         }
     }
 
     override fun onResume() {
         super.onResume()
 
-        val accounts = am.getAccountsByType(Authenticator.AuthTokenType)
+        val accounts = am.getAccountsByType(AuthTokenType)
         if (accounts.isEmpty())
             loginRequestLauncher.launch(
                 LoginActivity.Contract.Data(true, null)
@@ -297,16 +279,34 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     fun Content(
-        currentPage: Int,
-        onPageChanged: (Int) -> Unit,
-        accounts: List<Account>,
-        accountIndex: Int,
         onAccountsDialogRequested: () -> Unit,
         onPaymentBottomSheetRequested: () -> Unit,
         databaseData: List<Socio>?,
     ) {
+        var currentPage by remember { mutableStateOf(0) }
         val scope = rememberCoroutineScope()
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+        val accounts by viewModel.accounts.observeAsState()
+        val account by viewModel.account.collectAsState(null)
+
+        val idSocio by viewModel.idSocio.collectAsState(null)
+        val transactions by viewModel.transactionsDao.getByIdSocioLive(idSocio)
+            .observeAsState()
+        val socio = idSocio?.let { databaseData?.find { it.idSocio == idSocio } }
+
+        LaunchedEffect(accounts) {
+            snapshotFlow { accounts }
+                .collect {
+                    if (it?.isEmpty() == true) {
+                        // There are no added accounts, redirect to login screen
+                        LoginActivity::class.launch {
+                            putExtra(LoginActivity.EXTRA_ACCOUNT_TYPE, AuthTokenType)
+                            putExtra(LoginActivity.EXTRA_AUTH_TOKEN_TYPE, AuthTokenType)
+                        }
+                    }
+                }
+        }
 
         ModalNavigationDrawer(
             items = listOf(
@@ -363,23 +363,21 @@ class MainActivity : AppCompatActivity() {
                                 }
                             },
                             actions = {
-                                accounts
-                                    .takeIf { it.isNotEmpty() }
-                                    ?.getOrNull(accountIndex)
-                                    ?.let {
-                                        ProfileImage(
-                                            name = it.name.uppercase(),
-                                            modifier = Modifier
-                                                .clip(CircleShape)
-                                                .clickable { onAccountsDialogRequested() },
-                                        )
-                                    }
-                                    ?: doAsync {
-                                        if (accountIndex != 0)
-                                            dataStore.edit {
-                                                it[SELECTED_ACCOUNT] = 0
-                                            }
-                                    }
+                                // Run synchronization button
+                                IconButton(
+                                    onClick = { SyncWorker.run(this@MainActivity) },
+                                ) {
+                                    Icon(Icons.Rounded.Sync, stringResource(R.string.sync_run))
+                                }
+                                // Account selection button
+                                account?.let {
+                                    ProfileImage(
+                                        name = it.name.uppercase(),
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .clickable { onAccountsDialogRequested() },
+                                    )
+                                } ?: viewModel.resetCurrentAccount()
                             },
                         )
                     }
@@ -388,7 +386,7 @@ class MainActivity : AppCompatActivity() {
                     NavigationBar {
                         NavigationBarItems(
                             selectedIndex = currentPage,
-                            onSelected = { onPageChanged(it) },
+                            onSelected = { currentPage = it },
                             items = listOf(
                                 NavigationBarItem(
                                     Icons.Rounded.Wallet,
@@ -436,18 +434,16 @@ class MainActivity : AppCompatActivity() {
                 var showingAccountMigrationDialog by remember { mutableStateOf(false) }
                 if (showingAccountMigrationDialog)
                     AccountMigrationDialog {
-                        val account = accounts[accountIndex]
-                        Timber.w("Removing old account (${account.name}) and redirecting to login screen.")
+                        Timber.w("Removing old account (${account?.name}) and redirecting to login screen.")
                         am.removeAccountExplicitly(account)
                         LoginActivity::class.launch {
-                            putExtra(LoginActivity.EXTRA_ACCOUNT_TYPE, account.type)
-                            putExtra(LoginActivity.EXTRA_AUTH_TOKEN_TYPE, account.type)
-                            putExtra(LoginActivity.EXTRA_DNI, account.name)
+                            putExtra(LoginActivity.EXTRA_ACCOUNT_TYPE, account?.type)
+                            putExtra(LoginActivity.EXTRA_AUTH_TOKEN_TYPE, account?.type)
+                            putExtra(LoginActivity.EXTRA_DNI, account?.name)
                         }
                         finish()
                     }
 
-                val selectedAccount = accounts.getOrNull(accountIndex)
                 val topPadding by animateDpAsState(
                     if (currentPage == 0)
                         TOP_BAR_HEIGHT
@@ -456,18 +452,16 @@ class MainActivity : AppCompatActivity() {
                     animationSpec = tween(durationMillis = 300),
                 )
 
-                LaunchedEffectFlow(accountIndex, { it }) { index ->
-                    if (index < 0) return@LaunchedEffectFlow
-                    val account = accounts.getOrNull(index) ?: return@LaunchedEffectFlow
-                    val password: String? = am.getPassword(account)
-                    val dni = password?.trimmedAndCaps
-                    val socio = databaseData?.find { it.Dni?.trimmedAndCaps == dni }
-                        ?: return@LaunchedEffectFlow
-                    viewModel.getAssociatedAccounts(socio.idSocio)
+                // Fetches associated accounts for the current one
+                LaunchedEffect(socio) {
+                    snapshotFlow { socio }
+                        .filterNotNull()
+                        .collect { viewModel.getAssociatedAccounts(it.idSocio) }
                 }
 
-                LaunchedEffect(selectedAccount) {
-                    snapshotFlow { selectedAccount }
+                // Displays the account migration dialog
+                LaunchedEffect(account) {
+                    snapshotFlow { account }
                         .filterNotNull()
                         .collect { account ->
                             val version = am.getUserData(account, USER_DATA_VERSION)?.toIntOrNull()
@@ -476,182 +470,48 @@ class MainActivity : AppCompatActivity() {
                         }
                 }
 
-                selectedAccount
-                    ?.let { account ->
-                        am.getUserData(account, Authenticator.USER_DATA_ID_SOCIO)?.toLongOrNull()
-                    }
-                    ?.let { idSocio ->
-                        val transactionsLive = viewModel.transactionsDao.getByIdSocioLive(idSocio)
-                        val socioData = databaseData?.find { it.idSocio == idSocio }
-                        socioData to transactionsLive
-                    }
-                    ?.let { (socio, liveTransactions) ->
-                        val pagerState = rememberPagerState()
-                        val transactions by liveTransactions.observeAsState(emptyList())
+                transactions?.let { transactionsList ->
+                    val pagerState = rememberPagerState()
 
-                        LaunchedEffectFlow(pagerState, { it.currentPage }) {
-                            onPageChanged(it)
-                        }
-                        LaunchedEffectFlow(
-                            currentPage,
-                            { it },
-                        ) { pagerState.scrollToPage(it) }
+                    LaunchedEffectFlow(pagerState, { it.currentPage }) { currentPage = it }
+                    LaunchedEffectFlow(
+                        currentPage,
+                        { it },
+                    ) { pagerState.scrollToPage(it) }
 
-                        HorizontalPager(
-                            pageCount = 4,
-                            state = pagerState,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(
-                                    top = topPadding,
-                                    bottom = paddingValues.calculateBottomPadding()
-                                ),
-                        ) { page ->
-                            when (page) {
-                                0 -> MainPage(transactions, viewModel)
-                                1 -> EventsScreen(viewModel) { event, customer ->
-                                    eventViewRequestLauncher.launch(
-                                        EventActivity.InputData(customer, event)
-                                    )
-                                }
-                                2 -> socio?.let { socio ->
+                    HorizontalPager(
+                        pageCount = 4,
+                        state = pagerState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(
+                                top = topPadding,
+                                bottom = paddingValues.calculateBottomPadding()
+                            ),
+                    ) { page ->
+                        when (page) {
+                            0 -> MainPage(transactionsList, viewModel)
+                            1 -> EventsScreen(viewModel) { event, customer ->
+                                eventViewRequestLauncher.launch(
+                                    EventActivity.InputData(customer, event)
+                                )
+                            }
+                            2 -> socio?.let { socio ->
+                                accounts?.let { accounts ->
                                     ProfilePage(socio, accounts) { _, index ->
                                         doAsync {
                                             dataStore.edit { it[SELECTED_ACCOUNT] = index }
                                         }
                                     }
-                                } ?: ErrorCard(stringResource(R.string.error_find_data))
-                                3 -> SettingsScreen()
-                            }
+                                } ?: LoadingBox()
+                            } ?: ErrorCard(stringResource(R.string.error_find_data))
+                            3 -> SettingsScreen()
                         }
                     }
-                    // TODO: If list is empty, return to login screen
+                }
+                // TODO: If list is empty, return to login screen
                     ?: LoadingBox()
             }
-        }
-    }
-
-    class MainViewModel(application: Application) : AndroidViewModel(application) {
-        private val database = AppDatabase.getInstance(application)
-        val transactionsDao = database.transactionsDao()
-        private val remoteDatabaseDao = database.remoteDatabaseDao()
-        private val wooCommerceDao = database.wooCommerceDao()
-
-        private val am = AccountManager.get(application)
-
-        val selectedAccount = application
-            .dataStore
-            .data
-            .map { preferences -> preferences[SELECTED_ACCOUNT] ?: 0 }
-
-        val accounts = (application as App).accounts
-
-        val databaseData = remoteDatabaseDao.getAllLive()
-
-        val workerState = SyncWorker.getLiveStates(application)
-
-        val isLoading = workerState.map { list ->
-            list.any { it.state == WorkInfo.State.RUNNING }
-        }
-
-        val associatedAccountsTransactions = MutableLiveData<Map<Socio, List<Transaction>>>()
-
-        val customer = selectedAccount
-            .map { index ->
-                accounts.value?.get(index)?.let { account ->
-                    val customerId: Long = am.getUserData(account, "customer_id")
-                        ?.toLongOrNull() ?: return@let null
-                    wooCommerceDao.getAllCustomers().find { it.id == customerId }
-                }
-            }
-
-        val events = wooCommerceDao.getAllEventsLive()
-
-        val orders = wooCommerceDao.getAllOrdersLive()
-
-        val confirmedEvents = MutableLiveData<List<Event>>()
-        val availableEvents = MutableLiveData<List<Event>>()
-
-        val processingPayment = MutableLiveData(false)
-
-        fun getAssociatedAccounts(associatedWithId: Long) = async {
-            val socios = remoteDatabaseDao.getAllAssociatedWith(associatedWithId)
-            val personalDataList = socios.associateWith { socio ->
-                transactionsDao.getByIdSocio(socio.idSocio)
-            }
-            Timber.i("Got ${socios.size} associated accounts for #$associatedWithId")
-            associatedAccountsTransactions.postValue(personalDataList)
-        }
-
-        private suspend fun isConfirmed(event: Event, customer: Customer?): Boolean {
-            if (customer == null) return false
-            return event.isConfirmed(getApplication(), customer)
-        }
-
-        suspend fun updateConfirmedEvents(customer: Customer?) {
-            if (customer == null) return
-            val events = events.value ?: return
-            val (confirmed, available) = io {
-                val confirmed = mutableMapOf<Event, Boolean>()
-                events.forEach { event ->
-                    confirmed[event] = isConfirmed(event, customer)
-                }
-                val confirmedEvents = confirmed.filter { it.value }.keys.toList()
-                val availableEvents = confirmed.filter { !it.value }.keys.toList()
-                confirmedEvents to availableEvents
-            }
-            confirmedEvents.postValue(confirmed)
-            availableEvents.postValue(available)
-        }
-
-        @Deprecated("Use Redsys payment")
-        fun makePayment(
-            amount: Double,
-            concept: String,
-            @UiThread onComplete: (paymentUrl: String) -> Unit
-        ) = async {
-            val paymentUrl = try {
-                processingPayment.postValue(true)
-                Timber.d("Requesting a payment of $amount €. Getting customer...")
-                val customer = customer.first()
-                    ?: throw IllegalStateException("Could not get current customer.")
-                Timber.d("Customer ID for payment: ${customer.id}")
-                val payments = wooCommerceDao.getAllAvailablePayments()
-                Timber.d("Making request...")
-                val url = RemoteCommerce.transferAmount(amount, concept, payments, customer)
-                Timber.i("Payment url: $url")
-                url
-            } catch (e: Exception) {
-                Timber.e("Could not make payment: ${e.message}")
-                null
-            } finally {
-                processingPayment.postValue(false)
-            } ?: return@async
-            ui { onComplete(paymentUrl) }
-        }
-
-        @Suppress("BlockingMethodInNonBlockingContext")
-        fun signUpForEvent(
-            customer: Customer,
-            event: Event,
-            metadata: List<Order.Metadata>,
-            @UiThread onComplete: (paymentUrl: String) -> Unit
-        ) = async {
-            Timber.i("Signing up for event (price=${event.price}). Metadata: $metadata")
-            val (paymentUrl, order) = RemoteCommerce.eventSignup(
-                customer,
-                "", // FIXME: Set notes
-                event = event,
-                metadata = metadata,
-            )
-            Timber.i("Adding order to database...")
-            wooCommerceDao.insert(order)
-            Timber.i("Event sign up is complete.")
-            ui { onComplete(paymentUrl) }
-        }
-
-        fun deleteEvent(id: Long) = async {
-            wooCommerceDao.deleteEvent(id)
         }
     }
 }
