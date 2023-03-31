@@ -407,11 +407,13 @@ class AdminEventActivity : AppCompatActivity() {
 
                 val event = event.await()
                 val orders = orders.await()
-                val tickets = TicketWorker.TicketData.fromOrders(
-                    wooCommerceDao,
-                    event,
-                    orders,
-                ) { current, value -> ticketsProgress.postValue(current to value) }
+                val tickets = with(getApplication<Application>()) {
+                    TicketWorker.TicketData.fromOrders(
+                        wooCommerceDao,
+                        event,
+                        orders,
+                    ) { current, value -> ticketsProgress.postValue(current to value) }
+                }
 
                 // Start generating
                 val workerState = TicketWorker.generate(
