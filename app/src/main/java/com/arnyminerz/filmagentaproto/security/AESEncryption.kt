@@ -1,6 +1,7 @@
 package com.arnyminerz.filmagentaproto.security
 
 import android.util.Base64
+import androidx.annotation.VisibleForTesting
 import com.arnyminerz.filmagentaproto.BuildConfig
 import javax.crypto.Cipher
 import javax.crypto.SecretKeyFactory
@@ -10,9 +11,11 @@ import javax.crypto.spec.SecretKeySpec
 
 object AESEncryption {
 
-    private val secretKey = Base64.encodeToString(BuildConfig.AES_KEY.toByteArray(), Base64.NO_WRAP)
     private val salt = Base64.encodeToString(BuildConfig.AES_SALT.toByteArray(), Base64.NO_WRAP)
     private val iv = Base64.encodeToString(BuildConfig.AES_IV.toByteArray(), Base64.NO_WRAP)
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun getSecretKey(): String = Base64.encodeToString(BuildConfig.AES_KEY.toByteArray(), Base64.NO_WRAP)
 
     fun encrypt(strToEncrypt: String): String? {
         try {
@@ -20,7 +23,7 @@ object AESEncryption {
 
             val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
             val spec = PBEKeySpec(
-                secretKey.toCharArray(),
+                getSecretKey().toCharArray(),
                 Base64.decode(salt, Base64.NO_WRAP),
                 10000,
                 256
@@ -46,7 +49,7 @@ object AESEncryption {
 
             val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
             val spec = PBEKeySpec(
-                secretKey.toCharArray(),
+                getSecretKey().toCharArray(),
                 Base64.decode(salt, Base64.NO_WRAP),
                 10000,
                 256

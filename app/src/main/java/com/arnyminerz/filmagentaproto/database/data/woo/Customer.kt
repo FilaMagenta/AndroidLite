@@ -2,6 +2,7 @@ package com.arnyminerz.filmagentaproto.database.data.woo
 
 import androidx.annotation.StringDef
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
@@ -99,4 +100,7 @@ data class Customer(
             put("phone", phone)
         }
     }
+
+    @Ignore
+    val fullName: String = "$firstName $lastName"
 }

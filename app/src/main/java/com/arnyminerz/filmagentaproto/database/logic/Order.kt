@@ -49,7 +49,7 @@ fun Order.Companion.verifyQRCode(contents: String): QRVerification? {
         return null
 
     val customer = json.getString("customer")
-    val hashCode = code.toLong()
+    val hashCode = decodedCode.toLong()
 
     return QRVerification(customer, hashCode)
 }
@@ -66,7 +66,7 @@ context(Context)
 fun Order.getQRCode(customer: Customer, size: Int = 400, logoSize: Int = 80): Bitmap {
     val barcodeEncoder = BarcodeEncoder()
     val content = JSONObject().apply {
-        put("customer", customer.firstName + " " + customer.lastName)
+        put("customer", customer.fullName)
         val encodedCode =
             Base64.encodeToString(hashCode().toString().toByteArray(), Base64.NO_WRAP)
         put("confirmation_code", encodedCode)

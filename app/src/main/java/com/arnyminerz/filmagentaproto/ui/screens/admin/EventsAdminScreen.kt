@@ -37,7 +37,7 @@ import com.arnyminerz.filmagentaproto.utils.choose
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
 fun ColumnScope.EventsAdminScreen(
-    events: List<Pair<Event, List<Order>>>?,
+    events: Map<Event, List<Order>>?,
     onEventRequested: (Event) -> Unit,
 ) {
     Text(
@@ -86,6 +86,7 @@ fun ColumnScope.EventsAdminScreen(
         }
         items(
             events
+                ?.toList()
                 ?.filter { (event, _) ->
                     if (!showPastEvents)
                         !event.hasPassed
