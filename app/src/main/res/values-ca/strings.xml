@@ -144,4 +144,5 @@
     <string name="login_password_confirm_match">Les constrassenyes no coincideixen.</string>
     <string name="dialog_account_migration_title">Migració del compte</string>
     <string name="dialog_account_migration_message">El mètode d\'inici de sessió de l\'app ha sigut actualitzat per a fer-lo més segur. Per favor, torna a iniciar sessió per a seguir fent servir l\'aplicació.</string>
+    <string name="events_error_reservations">Ja no s\'accepten més reserves.</string>
 </resources>

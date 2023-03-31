@@ -92,6 +92,7 @@
     <string name="events_confirmed_title">Confirmed</string>
     <string name="events_available_title">Available</string>
     <string name="events_error_stock">No more places are available.</string>
+    <string name="events_error_reservations">Reservations are no longer being accepted.</string>
     <string name="events_reservations_until">Accepts reservations until %s</string>
     <string name="events_event_date">Date: %s</string>
     <string name="events_modal_notes">Extra Notes</string>
