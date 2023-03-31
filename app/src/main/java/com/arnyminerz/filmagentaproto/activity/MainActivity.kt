@@ -72,7 +72,6 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.AuthTokenType
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_VERSION
-import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.exceptions.PaymentException
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
@@ -414,8 +413,8 @@ class MainActivity : AppCompatActivity() {
                 },
                 floatingActionButton = {
                     Row(verticalAlignment = Alignment.Bottom) {
-                        val customer by viewModel.customer.collectAsState(initial = null)
-                        if (customer?.role == ROLE_ADMINISTRATOR)
+                        val isAdmin by viewModel.isAdmin.collectAsState(initial = null)
+                        if (isAdmin == true)
                             SmallFloatingActionButton(
                                 onClick = { adminScreenRequestLauncher.launch(null) },
                                 // containerColor = MaterialTheme.colorScheme.tertiary,

@@ -52,6 +52,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val idSocio = account.map { am.getUserData(it, Authenticator.USER_DATA_ID_SOCIO)?.toLongOrNull() }
 
+    val isAdmin = account.map { am.getUserData(it, Authenticator.USER_DATA_CUSTOMER_ADMIN)?.toBoolean() }
+
     val databaseData = remoteDatabaseDao.getAllLive()
 
     val workerState = SyncWorker.getLiveStates(application)

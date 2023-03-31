@@ -19,6 +19,9 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
         const val USER_DATA_VERSION = "version"
         const val USER_DATA_ID_SOCIO = "id_socio"
 
+        const val USER_DATA_CUSTOMER_ID = "customer_id"
+        const val USER_DATA_CUSTOMER_ADMIN = "customer_admin"
+
         const val VERSION = 1
 
         val ERROR_DNI_NOT_FOUND = 1 to "A socio with the account's DNI was not found."
