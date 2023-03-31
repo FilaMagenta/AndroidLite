@@ -57,7 +57,6 @@ fun TransactionCard(transaction: Transaction) {
             horizontalArrangement = Arrangement.End,
         ) {
             Text(
-                // TODO: Display transaction.units
                 text = if (transaction.units > 1)
                     "%.2f € x %d".format(transaction.price, transaction.units)
                 else

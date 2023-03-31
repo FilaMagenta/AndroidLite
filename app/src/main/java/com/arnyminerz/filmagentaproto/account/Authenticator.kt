@@ -26,6 +26,12 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
 
     private val am = AccountManager.get(context)
 
+    private fun Bundle.putError(error: Pair<Int, String>) {
+        val (code, message) = error
+        putInt(AccountManager.KEY_ERROR_CODE, code)
+        putString(AccountManager.KEY_ERROR_MESSAGE, message)
+    }
+
     override fun addAccount(
         response: AccountAuthenticatorResponse?,
         accountType: String?,
@@ -148,9 +154,7 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
         val dni = account.name
         val idSocio = RemoteDatabaseInterface.fetchIdSocioFromDni(dni)
         if (idSocio == null) {
-            val (code, message) = ERROR_DNI_NOT_FOUND
-            putInt(AccountManager.KEY_ERROR_CODE, code)
-            putString(AccountManager.KEY_ERROR_MESSAGE, message)
+            putError(ERROR_DNI_NOT_FOUND)
             return@apply
         }
 
