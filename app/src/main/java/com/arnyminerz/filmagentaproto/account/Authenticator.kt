@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.arnyminerz.filmagentaproto.activity.LoginActivity
+import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
 import com.arnyminerz.filmagentaproto.exceptions.WrongCredentialsException
 import timber.log.Timber
 
@@ -19,7 +20,11 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
         const val USER_DATA_ID_SOCIO = "id_socio"
 
         const val VERSION = 1
+
+        val ERROR_DNI_NOT_FOUND = 1 to "A socio with the account's DNI was not found."
     }
+
+    private val am = AccountManager.get(context)
 
     override fun addAccount(
         response: AccountAuthenticatorResponse?,
@@ -45,8 +50,6 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
         authTokenType: String?,
         options: Bundle?
     ): Bundle {
-        val am = AccountManager.get(context)
-
         val version: Int? = am.getUserData(account, USER_DATA_VERSION)?.toIntOrNull()
         val idSocio: Long? = am.getUserData(account, USER_DATA_ID_SOCIO)?.toLongOrNull()
         if (version != VERSION) {
@@ -92,13 +95,17 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
         }
     }
 
-    override fun editProperties(p0: AccountAuthenticatorResponse?, p1: String?): Bundle = Bundle()
+    override fun editProperties(p0: AccountAuthenticatorResponse?, p1: String?): Bundle {
+        throw UnsupportedOperationException()
+    }
 
     override fun confirmCredentials(
         p0: AccountAuthenticatorResponse?,
         p1: Account?,
         p2: Bundle?
-    ): Bundle = Bundle()
+    ): Bundle {
+        throw UnsupportedOperationException()
+    }
 
     override fun getAuthTokenLabel(p0: String?): String {
         throw UnsupportedOperationException()
@@ -108,16 +115,49 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
         p0: AccountAuthenticatorResponse?,
         p1: Account?,
         p2: Array<out String>?
-    ): Bundle {
-        throw UnsupportedOperationException()
+    ): Bundle = Bundle().apply {
+        putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false)
+    }
+
+    override fun isCredentialsUpdateSuggested(
+        response: AccountAuthenticatorResponse,
+        account: Account,
+        statusToken: String?
+    ): Bundle = Bundle().apply {
+        val version = am.getUserData(account, USER_DATA_VERSION)?.toLongOrNull()
+        if (version == null || version < VERSION) {
+            Timber.i("Account (${account.name}) doesn't have a version, or it's outdated ($version). Should update credentials.")
+            putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true)
+            return@apply
+        }
+        val idSocio = am.getUserData(account, USER_DATA_ID_SOCIO)?.toLongOrNull()
+        if (idSocio == null) {
+            Timber.i("Account (${account.name}) doesn't contain the idSocio in its data. Should update credentials.")
+            putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true)
+            return@apply
+        }
+        putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false)
     }
 
     override fun updateCredentials(
-        p0: AccountAuthenticatorResponse?,
-        p1: Account?,
-        p2: String?,
-        p3: Bundle?
-    ): Bundle {
-        throw UnsupportedOperationException()
+        response: AccountAuthenticatorResponse,
+        account: Account,
+        authTokenType: String?,
+        options: Bundle?
+    ): Bundle = Bundle().apply {
+        val dni = account.name
+        val idSocio = RemoteDatabaseInterface.fetchIdSocioFromDni(dni)
+        if (idSocio == null) {
+            val (code, message) = ERROR_DNI_NOT_FOUND
+            putInt(AccountManager.KEY_ERROR_CODE, code)
+            putString(AccountManager.KEY_ERROR_MESSAGE, message)
+            return@apply
+        }
+
+        am.setUserData(account, USER_DATA_VERSION, VERSION.toString())
+        am.setUserData(account, USER_DATA_ID_SOCIO, idSocio.toString())
+
+        putString(AccountManager.KEY_ACCOUNT_NAME, account.name)
+        putString(AccountManager.KEY_ACCOUNT_TYPE, account.type)
     }
 }
