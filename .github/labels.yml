@@ -77,6 +77,10 @@
   description: When there are updates on the payments system
   color: F1CC88
 
+- name: admin
+  description: When there are updates on the admins system
+  color: A32424
+
 - name: major
   description: Major changes
   color: 16970B
