@@ -415,6 +415,7 @@ data class Event(
     @Ignore
     val title: String = Regex("^\\d+ ?").find(name)?.let {
         name.replace(it.value, "")
+            .trimEnd(',', '.')
     } ?: name
 
     /**
