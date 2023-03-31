@@ -42,7 +42,15 @@ jobs:
           echo 'AES_IV=${{ secrets.AES_IV }}' >> local.properties
 
       - name: Run unit tests
-        id: test
-        run: |
-          yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;33.0.2"
-          bash ./gradlew test --stacktrace
+        id: unit_tests
+        run: ./gradlew test --stacktrace
+
+      - name: Instrumentation Tests
+        id: instrumentation_tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: default
+          arch: x64
+          profile: Pixel 4
+          script: ./gradlew connectedCheck --stacktrace
