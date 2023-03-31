@@ -43,12 +43,14 @@ private val dateFormat: SimpleDateFormat
 fun EventItem(
     event: Event,
     isConfirmed: Boolean,
+    isArchived: Boolean,
     onEventSelected: () -> Unit,
     onSignUp: (metadata: List<Order.Metadata>, onComplete: () -> Unit) -> Unit,
 ) {
     val context = LocalContext.current
 
-    val inStock = event.stockStatus == StockStatus.InStock || event.stockQuantity > 0
+    val inStock = event.stockStatus == StockStatus.InStock && event.stockQuantity > 0
+    val hasPassed = event.hasPassed
 
     var showingCard by remember { mutableStateOf(false) }
     if (showingCard)
@@ -62,7 +64,7 @@ fun EventItem(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable {
+            .clickable(enabled = isConfirmed || (inStock && hasPassed)) {
                 if (isConfirmed)
                     onEventSelected()
                 else
@@ -78,10 +80,15 @@ fun EventItem(
                 Text(
                     event.title,
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary.copy(
+                        alpha = .3f.takeIf { isArchived } ?: 1f,
+                    ),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
-                    textDecoration = if (!inStock) TextDecoration.LineThrough else TextDecoration.None,
+                    textDecoration = if (!isConfirmed && (!inStock || !hasPassed))
+                        TextDecoration.LineThrough
+                    else
+                        TextDecoration.None,
                 )
                 event.eventDate?.let {
                     IconButton(
@@ -98,9 +105,14 @@ fun EventItem(
                 } ?: IconButton(enabled = false, onClick = { }) { }
             }
 
-            if (!inStock)
+            if (!isConfirmed && !inStock)
                 Text(
                     stringResource(R.string.events_error_stock),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            if (!isConfirmed && !hasPassed)
+                Text(
+                    stringResource(R.string.events_error_reservations),
                     color = MaterialTheme.colorScheme.error,
                 )
 
