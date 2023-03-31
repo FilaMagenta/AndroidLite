@@ -43,6 +43,7 @@ private val dateFormat: SimpleDateFormat
 fun EventItem(
     event: Event,
     isConfirmed: Boolean,
+    isArchived: Boolean,
     onEventSelected: () -> Unit,
     onSignUp: (metadata: List<Order.Metadata>, onComplete: () -> Unit) -> Unit,
 ) {
@@ -79,7 +80,9 @@ fun EventItem(
                 Text(
                     event.title,
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary.copy(
+                        alpha = .3f.takeIf { isArchived } ?: 1f,
+                    ),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
                     textDecoration = if (!isConfirmed && (!inStock || !hasPassed))
