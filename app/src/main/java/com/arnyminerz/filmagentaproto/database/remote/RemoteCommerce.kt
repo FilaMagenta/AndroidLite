@@ -195,7 +195,7 @@ object RemoteCommerce {
             .associateBy { it.id }
             .toMutableMap()
 
-        return multiPageGet(endpoint, perPage = 150) { eventJson, progress ->
+        return multiPageGet(endpoint, perPage = 100) { eventJson, progress ->
             progressCallback(progress)
 
             Timber.d("Parsing event.")
@@ -250,7 +250,7 @@ object RemoteCommerce {
                     builder
             }
             .build()
-        return multiPageGet(endpoint, Order.Companion, perPage = 300)
+        return multiPageGet(endpoint, Order.Companion, perPage = 100)
     }
 
     @WorkerThread
@@ -260,7 +260,7 @@ object RemoteCommerce {
             .appendQueryParameter("context", "view")
             .appendQueryParameter("role", "all")
             .build()
-        return multiPageGet(endpoint, Customer.Companion, perPage = 150)
+        return multiPageGet(endpoint, Customer.Companion, perPage = 100)
     }
 
 
@@ -276,7 +276,7 @@ object RemoteCommerce {
             .appendQueryParameter("status", "publish")
             .appendQueryParameter("category", CATEGORY_PAGO_FULLA.toString())
             .build()
-        return multiPageGet(endpoint, AvailablePayment.Companion, perPage = 150)
+        return multiPageGet(endpoint, AvailablePayment.Companion, perPage = 100)
     }
 
     /**

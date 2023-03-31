@@ -20,6 +20,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest.Companion.MIN_BACKOFF_MILLIS
@@ -28,6 +29,8 @@ import androidx.work.workDataOf
 import com.arnyminerz.filmagentaproto.NotificationChannels
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
+import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_CUSTOMER_ADMIN
+import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_CUSTOMER_ID
 import com.arnyminerz.filmagentaproto.activity.ShareMessageActivity
 import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
@@ -66,6 +69,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     companion object {
         private const val WORKER_TAG = "sync_worker"
         const val TAG_PERIODIC = "periodic"
+
+        const val MANUAL_SYNC_WORK_NAME = "manual_sync"
 
         private const val PERIODIC_WORK_NAME = "sync"
 
@@ -122,7 +127,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             syncEvents: Boolean = true,
             syncPayments: Boolean = true,
         ): UUID {
-            val request = OneTimeWorkRequestBuilder<SyncWorker>()
+            val request: OneTimeWorkRequest = OneTimeWorkRequestBuilder<SyncWorker>()
                 .addTag(WORKER_TAG)
                 .setConstraints(Constraints(NetworkType.CONNECTED))
                 .setBackoffCriteria(
@@ -142,7 +147,11 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 )
                 .build()
             Timber.i("Enqueuing new work request.")
-            WorkManager.getInstance(context).enqueue(request)
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                MANUAL_SYNC_WORK_NAME,
+                ExistingWorkPolicy.KEEP,
+                request,
+            )
             return request.id
         }
 
@@ -405,8 +414,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         val span = transaction.startChild("fetchAndUpdateWooData")
         val dni = account.name
 
-        var customerId: Long? = am.getUserData(account, "customer_id")?.toLongOrNull()
-        var isAdmin: Boolean? = am.getUserData(account, "customer_admin")?.toBoolean()
+        var customerId: Long? = am.getUserData(account, USER_DATA_CUSTOMER_ID)?.toLongOrNull()
+        var isAdmin: Boolean? = am.getUserData(account, USER_DATA_CUSTOMER_ADMIN)?.toBoolean()
 
         // Fetch all customers data
         fetchAndUpdateDatabase(
@@ -423,12 +432,12 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             if (customerId == null) {
                 Timber.i("Customer ID: ${customer.id}")
                 customerId = customer.id
-                am.setUserData(account, "customer_id", customerId.toString())
+                am.setUserData(account, USER_DATA_CUSTOMER_ID, customerId.toString())
             }
             if (isAdmin == null) {
                 Timber.i("Customer role: ${customer.role}")
                 isAdmin = customer.role == ROLE_ADMINISTRATOR
-                am.setUserData(account, "customer_admin", isAdmin.toString())
+                am.setUserData(account, USER_DATA_CUSTOMER_ADMIN, isAdmin.toString())
             }
         }
 
