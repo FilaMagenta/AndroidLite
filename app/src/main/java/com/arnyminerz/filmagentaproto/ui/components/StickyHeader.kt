@@ -3,6 +3,7 @@ package com.arnyminerz.filmagentaproto.ui.components
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,12 +23,14 @@ import androidx.compose.ui.unit.sp
 fun LazyListScope.stickyHeaderWithIcon(
     @StringRes textRes: Int,
     icon: ImageVector,
+    onClick: (() -> Unit)? = null,
 ) {
     stickyHeader {
         Row(
             Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+                .clickable(enabled = onClick != null) { onClick?.invoke() },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
