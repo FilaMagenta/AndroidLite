@@ -328,15 +328,27 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             it.getString("Nombre") + " " + it.getString("Apellidos")
         }.first()
 
-        for (transaction in transactions)
-            try {
+        // Get all the transactions currently stored
+        val oldTransactions = transactionsDao.getByIdSocio(idSocio)
+        // Iterate all the new transactions
+        for (transaction in transactions) {
+            val oldTransaction = oldTransactions.find { transaction.id == it.id }
+            if (oldTransaction != null) {
+                // If the transaction already exists, update it
+                transactionsDao.update(
+                    transaction.copy(
+                        // Make sure to not modify the notified field
+                        notified = oldTransaction.notified,
+                    )
+                )
+            } else {
+                // Otherwise, simply insert the new one
                 transactionsDao.insert(transaction)
-            } catch (e: SQLiteConstraintException) {
-                transactionsDao.update(transaction)
             }
+        }
 
         // Show notifications for new transactions
-        val allTransactions = transactionsDao.getAll()
+        val allTransactions = transactionsDao.getByIdSocio(idSocio)
         for (transaction in allTransactions)
             if (!transaction.notified) {
                 // No notifications should be shown during the first synchronization
