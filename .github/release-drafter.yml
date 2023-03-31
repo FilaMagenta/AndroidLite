@@ -42,7 +42,7 @@ version-resolver:
   patch:
     labels:
       - 'patch_bump'
-  default: patch_bump
+  default: patch
 template: |
   ## Changes
   $CHANGES
