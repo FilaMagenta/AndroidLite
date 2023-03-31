@@ -89,8 +89,8 @@
     <string name="error_policy">%s has not accepted the privacy policy on the website. Please, log in the web version as the given user and do so.</string>
     <string name="error_toast_notifications">Notifications won\'t be displayed</string>
 
-    <string name="events_confirmed_title">Confirmed Events</string>
-    <string name="events_available_title">Available Events</string>
+    <string name="events_confirmed_title">Confirmed</string>
+    <string name="events_available_title">Available</string>
     <string name="events_error_stock">No more places are available.</string>
     <string name="events_reservations_until">Accepts reservations until %s</string>
     <string name="events_event_date">Date: %s</string>
