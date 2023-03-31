@@ -95,6 +95,7 @@ fun EventsScreen(
                         EventItem(
                             event = event,
                             isConfirmed = true,
+                            isArchived = false,
                             onEventSelected = { onEventSelected(event, customerState!!) },
                         ) { _, _ -> }
                     }
@@ -102,7 +103,12 @@ fun EventsScreen(
                     items(
                         processEventsList(availableEvents)
                     ) { event ->
-                        EventItem(event, false, {}) { metadata, onComplete ->
+                        EventItem(
+                            event,
+                            isConfirmed = false,
+                            isArchived = false,
+                            onEventSelected = {},
+                        ) { metadata, onComplete ->
                             mainViewModel
                                 .signUpForEvent(
                                     customerState!!,
