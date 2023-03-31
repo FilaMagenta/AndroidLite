@@ -164,16 +164,22 @@ class AdminActivity : AppCompatActivity() {
             eventsOrdersLive(events)
         }
 
-        private fun eventsOrdersLive(events: List<Event>): LiveData<List<Pair<Event, List<Order>>>> =
-            MutableLiveData<List<Pair<Event, List<Order>>>>().apply {
+        /**
+         * Converts all the events in a list into a collection of orders related to each event.
+         */
+        private fun eventsOrdersLive(events: List<Event>): LiveData<Map<Event, List<Order>>> =
+            MutableLiveData<Map<Event, List<Order>>>().apply {
                 viewModelScope.launch(Dispatchers.IO) {
-                    val result = mutableListOf<Pair<Event, List<Order>>>()
-                    for (event in events) {
-                        val orders = event.getOrders(getApplication())
+                    val result: Map<Event, List<Order>> = events.associateWith { event ->
+                        // Get all the orders associated with the event
+                        // Since the user is an admin, synchronization fetches all of them, not
+                        // just the related with the logged in users
+                        event.getOrders(getApplication())
                             .map { order ->
+                                // Map all the orders, copying to the items list all the products
+                                // in the order that match the current event
                                 order.copy(items = order.items.filter { it.productId == event.id })
                             }
-                        result.add(event to orders)
                     }
                     postValue(result)
                 }

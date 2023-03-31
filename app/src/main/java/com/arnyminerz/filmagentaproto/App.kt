@@ -147,7 +147,6 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
         // Fetch the account's data
         val account = accountsLiveData.value?.getOrNull(selectedAccountIndex) ?: return
         val customerId = am.getUserData(account, "customer_id")
-        val dni = am.getPassword(account)
 
         // Update the tracking user
         val user = User().apply {
@@ -156,7 +155,7 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
         }
         Sentry.setUser(user)
 
-        Timber.i("Updated user reference to: ${account.name} ($dni, $customerId)")
+        Timber.i("Updated user reference to: ${account.name} ($customerId)")
     }
 
     /**
