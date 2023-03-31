@@ -55,8 +55,8 @@
     <string name="error_toast_wrong_credentials">Nombre o NIF incorrectos</string>
     <string name="error_policy">%s no ha aceptado la política de privacidad en la web. Por favor, inicia sesión en la versión web con el usuario en cuestión, y hazlo ahora</string>
     <string name="error_toast_notifications">No se mostrarán notificaciones</string>
-    <string name="events_confirmed_title">Eventos Confirmados</string>
-    <string name="events_available_title">Eventos Disponibles</string>
+    <string name="events_confirmed_title">Confirmados</string>
+    <string name="events_available_title">Disponibles</string>
     <string name="payments_make_title">Hacer un Pago</string>
     <string name="payments_make_message">Por favor, introduce la cantidad de dinero que quieres transferir. Cuando tu petición sea procesada, serás redirigidx a la página de pagos. También puedes introducir un concepto que represente el pago. Ten en cuenta que los pagos tardan en aparecer en la aplicación.</string>
     <string name="payments_make_amount">Cantidad</string>

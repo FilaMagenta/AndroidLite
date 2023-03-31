@@ -2,12 +2,9 @@ package com.arnyminerz.filmagentaproto.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.EventAvailable
-import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,13 +14,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.ui.components.EventItem
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
-import com.arnyminerz.filmagentaproto.ui.components.stickyHeaderWithIcon
+import com.arnyminerz.filmagentaproto.ui.components.TabsColumn
 import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.toast
 import com.arnyminerz.filmagentaproto.viewmodel.MainViewModel
@@ -81,46 +78,50 @@ fun EventsScreen(
     if (confirmedEvents == null)
         LoadingBox()
     else
-        LazyColumn(
-            Modifier
-                .fillMaxSize()
-                .padding(top = 8.dp),
-        ) {
-            stickyHeaderWithIcon(
-                textRes = R.string.events_confirmed_title,
-                icon = Icons.Outlined.EventAvailable,
+        TabsColumn(
+            modifier = Modifier.fillMaxSize(),
+            tabs = setOf(
+                stringResource(R.string.events_confirmed_title),
+                stringResource(R.string.events_available_title),
             )
-            items(
-                processEventsList(confirmedEvents)
-            ) { event ->
-                EventItem(
-                    event = event,
-                    isConfirmed = true,
-                    onEventSelected = { onEventSelected(event, customerState!!) },
-                ) { _, _ -> }
-            }
-            stickyHeaderWithIcon(
-                textRes = R.string.events_available_title,
-                icon = Icons.Outlined.EventNote,
-            )
-            items(
-                processEventsList(availableEvents)
-            ) { event ->
-                EventItem(event, false, {}) { metadata, onComplete ->
-                    mainViewModel
-                        .signUpForEvent(customerState!!, event, metadata) { paymentUrl ->
-                            if (event.price > 0.0) {
-                                Timber.i("Event is not free, redirecting to the payment gateway...")
-                                context.launchTabsUrl(paymentUrl)
-                            }
+        ) { page ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+            ) {
+                if (page == 0)
+                    items(processEventsList(confirmedEvents)) { event ->
+                        EventItem(
+                            event = event,
+                            isConfirmed = true,
+                            onEventSelected = { onEventSelected(event, customerState!!) },
+                        ) { _, _ -> }
+                    }
+                else if (page == 1)
+                    items(
+                        processEventsList(availableEvents)
+                    ) { event ->
+                        EventItem(event, false, {}) { metadata, onComplete ->
+                            mainViewModel
+                                .signUpForEvent(
+                                    customerState!!,
+                                    event,
+                                    metadata
+                                ) { paymentUrl ->
+                                    if (event.price > 0.0) {
+                                        Timber.i("Event is not free, redirecting to the payment gateway...")
+                                        context.launchTabsUrl(paymentUrl)
+                                    }
+                                }
+                                .invokeOnCompletion { error ->
+                                    if (error != null)
+                                        context.toast(error.message ?: error.localizedMessage)
+                                    else
+                                        onComplete()
+                                }
                         }
-                        .invokeOnCompletion { error ->
-                            if (error != null)
-                                context.toast(error.message ?: error.localizedMessage)
-                            else
-                                onComplete()
-                        }
-                }
+                    }
             }
         }
 }

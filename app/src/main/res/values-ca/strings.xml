@@ -54,8 +54,8 @@
     <string name="profile_trebuchet_expires">Caduca el</string>
     <string name="error_toast_wrong_credentials">Nom o NIF incorrectes</string>
     <string name="error_toast_notifications">No es mostraran notificacions</string>
-    <string name="events_confirmed_title">Esdeveniments Confirmats</string>
-    <string name="events_available_title">Esdeveniments Disponibles</string>
+    <string name="events_confirmed_title">Confirmats</string>
+    <string name="events_available_title">Disponibles</string>
     <string name="payments_make_title">Fer un Pagament</string>
     <string name="payments_make_message">Per favor, introdueix la quantitat de diners que vols transferir. Una vegada es processi la teua petició, seràs redirigit a la pàgina de pagament. També pots introduïr un concepte per a representar el pagament. Tingues en compte que els pagaments triguen en aparéixer a l\'app.</string>
     <string name="payments_make_amount">Quantitat</string>
