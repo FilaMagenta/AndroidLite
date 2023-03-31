@@ -1,0 +1,91 @@
+name: Releaser
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  update_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Set up JDK 15
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '15'
+          java-package: jdk
+          cache: 'gradle'
+
+      - name: Prepare Gradle secure file
+        run: |
+          echo 'SIGNING_KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
+          echo 'SIGNING_KEY_ALIAS=${{ secrets.KEYSTORE_USERNAME }}' >> local.properties
+          echo 'SIGNING_KEY_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
+          echo 'host=${{ secrets.HOST }}' >> local.properties
+          echo 'woo.consumer_key=${{ secrets.WOO_CONSUMER_KEY }}' >> local.properties
+          echo 'woo.consumer_secret=${{ secrets.WOO_CONSUMER_SECRET }}' >> local.properties
+          echo 'db.hostname=${{ secrets.DB_HOSTNAME }}' >> local.properties
+          echo 'db.port=${{ secrets.DB_PORT }}' >> local.properties
+          echo 'db.database=${{ secrets.DB_DATABASE }}' >> local.properties
+          echo 'db.username=${{ secrets.DB_USERNAME }}' >> local.properties
+          echo 'db.password=${{ secrets.DB_PASSWORD }}' >> local.properties
+          echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN }}' >> local.properties
+          echo 'AES_KEY=${{ secrets.AES_KEY }}' >> local.properties
+          echo 'AES_SALT=${{ secrets.AES_SALT }}' >> local.properties
+          echo 'AES_IV=${{ secrets.AES_IV }}' >> local.properties
+      - name: Prepare Gradle version file
+        run: |
+          truncate -s 0 app/version.gradle
+          echo "ext {" >> app/version.gradle
+          echo "VERSION_NAME=\"${{ steps.create_release.outputs.tag_name }}\"" >> app/version.gradle
+          echo "}" >> app/version.gradle
+          cat app/version.gradle
+      - name: Build APK
+        id: build_apk
+        run: |
+          echo "Building ${{ steps.create_release.outputs.tag_name }}..."
+          yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;33.0.2"
+          bash ./gradlew assembleRelease --stacktrace
+      - name: APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: APK Artifact
+          path: ./app/build/outputs/apk/release/app-release.apk
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: ":robot: Commit Changes"
+          file_pattern: "version.properties app/version.gradle"
+
+      - name: Build AAB
+        id: build_aab
+        run: |
+          echo "Building ${{ steps.create_release.outputs.tag_name }}..."
+          yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;32.1.0-rc1"
+          bash ./gradlew :app:bundleRelease --stacktrace
+      - name: AAB Artifact
+        id: aab_artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: AAB Artifact
+          path: ./app/build/outputs/bundle/release/app-release.aab
+
+      - name: Upload to Play Store
+        id: upload_play_store
+        uses: r0adkll/upload-google-play@v1.1.1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_GOOGLE_CLOUD_JSON }}
+          packageName: com.arnyminerz.filmagentaproto
+          releaseFiles: ./app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          inAppUpdatePriority: 2
+          # mappingFile: ./base/build/outputs/mapping/release/mapping.txt
+          # whatsNewDirectory: ./changelog
+          status: completed
