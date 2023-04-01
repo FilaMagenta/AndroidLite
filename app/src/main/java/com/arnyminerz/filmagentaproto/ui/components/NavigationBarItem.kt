@@ -6,8 +6,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 data class NavigationBarItem(
     val selectedIcon: ImageVector,
@@ -36,13 +39,14 @@ fun RowScope.NavigationBarItem(
 @Composable
 fun RowScope.NavigationBarItems(
     selectedIndex: Int,
-    onSelected: (index: Int) -> Unit,
+    onSelected: suspend CoroutineScope.(index: Int) -> Unit,
     items: List<NavigationBarItem>,
 ) {
+    val scope = rememberCoroutineScope()
     for ((index, item) in items.withIndex())
         NavigationBarItem(
             selected = selectedIndex == index,
-            onClick = { onSelected(index) },
+            onClick = { scope.launch { onSelected(index) } },
             selectedIcon = item.selectedIcon,
             unselectedIcon = item.unselectedIcon,
             label = item.label,

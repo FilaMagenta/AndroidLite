@@ -152,4 +152,7 @@
     <string name="events_error_reservations">Ja no s\'accepten més reserves.</string>
     <string name="admin_event_general_people">Reserves</string>
     <string name="admin_event_general_people_total">Total: %d</string>
+    <string name="navigation_users">Usuaris</string>
+    <string name="admin_users_title">Usuaris</string>
+    <string name="admin_users_message">Ací pots administrar tota la informació relacionada amb els usuaris. Açò pot ser veure totes les comandes que hagen fet, a més de verificar pagaments, entre altres coses.</string>
 </resources>

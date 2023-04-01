@@ -16,7 +16,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.ManageAccounts
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +50,7 @@ import com.arnyminerz.filmagentaproto.database.logic.getOrders
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItems
 import com.arnyminerz.filmagentaproto.ui.screens.admin.EventsAdminScreen
+import com.arnyminerz.filmagentaproto.ui.screens.admin.UsersAdminScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
@@ -122,21 +125,27 @@ class AdminActivity : AppCompatActivity() {
                     NavigationBar {
                         NavigationBarItems(
                             selectedIndex = pagerState.currentPage,
-                            onSelected = { scope.launch { pagerState.animateScrollToPage(it) } },
+                            onSelected = { pagerState.animateScrollToPage(it) },
                             items = listOf(
                                 NavigationBarItem(
                                     selectedIcon = Icons.Outlined.CalendarMonth,
                                     unselectedIcon = Icons.Filled.CalendarMonth,
                                     label = R.string.navigation_events,
-                                )
+                                ),
+                                NavigationBarItem(
+                                    selectedIcon = Icons.Outlined.ManageAccounts,
+                                    unselectedIcon = Icons.Filled.ManageAccounts,
+                                    label = R.string.navigation_users,
+                                ),
                             ),
                         )
                     }
                 },
             ) { paddingValues ->
                 val events by viewModel.events.observeAsState()
+                val customers by viewModel.customers.observeAsState()
 
-                HorizontalPager(pageCount = 1) { page ->
+                HorizontalPager(pageCount = 2, state = pagerState) { page ->
                     Column(
                         Modifier
                             .padding(paddingValues)
@@ -147,6 +156,7 @@ class AdminActivity : AppCompatActivity() {
                                 events,
                                 onEventRequested = { eventLauncher.launch(it) },
                             )
+                            1 -> UsersAdminScreen(customers)
                         }
                     }
                 }
@@ -159,6 +169,8 @@ class AdminActivity : AppCompatActivity() {
         private val wooCommerceDao = database.wooCommerceDao()
 
         val customer = (application as App).customer
+
+        val customers = wooCommerceDao.getAllCustomersLive()
 
         val events = wooCommerceDao.getAllEventsLive().switchMap { events ->
             eventsOrdersLive(events)
