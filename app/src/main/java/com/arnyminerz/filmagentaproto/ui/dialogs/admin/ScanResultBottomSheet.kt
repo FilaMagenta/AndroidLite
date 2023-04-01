@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,6 +26,8 @@ import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_LOADING
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_OK
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_REPEATED
+import com.arnyminerz.filmagentaproto.ui.theme.SuccessColor
+import com.arnyminerz.filmagentaproto.ui.theme.WarningColor
 
 private val BOTTOM_MARGIN = 72.dp
 private val HORIZONTAL_MARGIN = 12.dp
@@ -63,7 +64,7 @@ fun ScanResultBottomSheet(scanResult: Int, scanCustomer: String?, onDismissReque
                         .align(Alignment.CenterHorizontally)
                         .size(96.dp)
                         .padding(top = 32.dp),
-                    tint = Color(0xff66ff66),
+                    tint = SuccessColor,
                 )
                 Text(
                     text = stringResource(R.string.admin_scan_correct),
@@ -92,7 +93,7 @@ fun ScanResultBottomSheet(scanResult: Int, scanCustomer: String?, onDismissReque
                         .align(Alignment.CenterHorizontally)
                         .size(96.dp)
                         .padding(top = 32.dp),
-                    tint =  Color(0xffff9900),
+                    tint = WarningColor,
                 )
                 Text(
                     text = stringResource(R.string.admin_scan_repeated),
@@ -130,7 +131,7 @@ fun ScanResultBottomSheet(scanResult: Int, scanCustomer: String?, onDismissReque
                         .align(Alignment.CenterHorizontally)
                         .size(96.dp)
                         .padding(top = 32.dp),
-                    tint = Color(0xffff3333),
+                    tint = MaterialTheme.colorScheme.error,
                 )
                 Text(
                     text = stringResource(R.string.admin_scan_invalid),

@@ -100,7 +100,7 @@ fun AdminEventItem(
         )
         DoubleRow(
             icon1 = Icons.Outlined.Groups,
-            text1 = orders.size.toString(),
+            text1 = orders.sumOf { order -> order.items.sumOf { it.quantity } }.toString(),
             icon2 = Icons.Outlined.TableRestaurant,
             text2 = "¿?",
         )

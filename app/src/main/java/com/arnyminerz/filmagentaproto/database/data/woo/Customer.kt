@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
+import com.arnyminerz.filmagentaproto.utils.capitalizedWords
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
 import com.arnyminerz.filmagentaproto.utils.getStringOrNull
 import java.util.Date
@@ -102,5 +103,5 @@ data class Customer(
     }
 
     @Ignore
-    val fullName: String = "$firstName $lastName"
+    val fullName: String = "$firstName $lastName".lowercase().capitalizedWords()
 }

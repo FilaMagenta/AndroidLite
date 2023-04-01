@@ -24,7 +24,7 @@ import com.arnyminerz.filmagentaproto.worker.SyncWorker
         Transaction::class, Socio::class, Event::class, Order::class, Customer::class,
         AvailablePayment::class, CodeScanned::class
     ],
-    version = 7,
+    version = 8,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -33,6 +33,8 @@ import com.arnyminerz.filmagentaproto.worker.SyncWorker
         AutoMigration(from = 5, to = 6, spec = Migration5To6::class),
         // Updates ScannedCode storage and data.
         AutoMigration(from = 6, to = 7, spec = Migration6To7::class),
+        // Added payment information to order
+        AutoMigration(from = 7, to = 8),
     ]
 )
 @TypeConverters(Converters::class, WooConverters::class)

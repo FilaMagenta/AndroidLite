@@ -119,6 +119,8 @@
     <string name="shortcut_admin_label">Panel de Administrador</string>
     <string name="admin_events_sort_order">Ordena por Pedido</string>
     <string name="event_view_qr">Código de Acceso</string>
+    <string name="admin_events_sort_paid">Ordena por Pagado</string>
+    <string name="admin_events_scanned">Persona escaneada</string>
     <string name="admin_scan_loading">Verificando…</string>
     <string name="admin_scan_correct">Correcto!</string>
     <string name="admin_scan_invalid">Inválido!</string>
@@ -130,6 +132,8 @@
     <string name="first_load_failed_message">Algo ha fallado durante la carga inicial. Pulsa el botón de abajo para volverlo a intentar, comprueba la notificación de error si hay alguna, o contacta con un administrador.</string>
     <string name="admin_scan_repeated">Repetido!</string>
     <string name="admin_scan_repeated_msg">Este código ya ha sido escaneado</string>
+    <string name="admin_events_mark_paid_title">Marcar como pagada?</string>
+    <string name="admin_events_mark_paid_message">Quieres guardar que %s ha pagado por %s?</string>
     <string name="admin_event_general">Información General</string>
     <string name="admin_event_general_date">Fecha del Evento</string>
     <string name="admin_event_general_reservations">Acepta Reservas hasta el</string>
@@ -145,4 +149,6 @@
     <string name="dialog_account_migration_title">Migración de la cuenta</string>
     <string name="dialog_account_migration_message">El método de inicio de sesión de la aplicación ha sido actualitzado para hacerlo más seguro. Por favor, inicia sesión otra vez para seguir usando la aplicación.</string>
     <string name="events_error_reservations">Ya no se aceptan más reservas.</string>
+    <string name="admin_event_general_people">Reservas</string>
+    <string name="admin_event_general_people_total">Total: %d</string>
 </resources>
