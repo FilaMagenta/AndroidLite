@@ -1,0 +1,225 @@
+{
+  "id": 2080,
+  "parent_id": 0,
+  "status": "processing",
+  "currency": "EUR",
+  "version": "6.5.1",
+  "prices_include_tax": false,
+  "date_created": "2023-04-01T09:06:39",
+  "date_modified": "2023-04-01T09:07:43",
+  "discount_total": "0.00",
+  "discount_tax": "0.00",
+  "shipping_total": "0.00",
+  "shipping_tax": "0.00",
+  "cart_tax": "0.00",
+  "total": "58.00",
+  "total_tax": "0.00",
+  "customer_id": 997,
+  "order_key": "wc_order_guNHUyKA4ncIl",
+  "billing": {
+    "first_name": "Francisco",
+    "last_name": "Boronat Cortes",
+    "company": "",
+    "address_1": "mossen Vicente Albors",
+    "address_2": "4",
+    "city": "Alcoy",
+    "state": "A",
+    "postcode": "03804",
+    "country": "ES",
+    "email": "quicoboronatcortes@gmail.com",
+    "phone": "601359534"
+  },
+  "shipping": {
+    "first_name": "",
+    "last_name": "",
+    "company": "",
+    "address_1": "",
+    "address_2": "",
+    "city": "",
+    "state": "",
+    "postcode": "",
+    "country": "",
+    "phone": ""
+  },
+  "payment_method": "redsys",
+  "payment_method_title": "Pagar con Tarjeta",
+  "transaction_id": "",
+  "customer_ip_address": "79.116.201.166",
+  "customer_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+  "created_via": "checkout",
+  "customer_note": "",
+  "date_completed": null,
+  "date_paid": "2023-04-01T09:07:43",
+  "cart_hash": "af8e4e025a7086b3ebcd2295d02d9f10",
+  "number": "2080",
+  "meta_data": [
+    {
+      "id": 31322,
+      "key": "is_vat_exempt",
+      "value": "no"
+    },
+    {
+      "id": 31329,
+      "key": "_new_order_email_sent",
+      "value": "true"
+    }
+  ],
+  "line_items": [
+    {
+      "id": 1713,
+      "name": "08 MUSICOS, cena.",
+      "product_id": 1497,
+      "variation_id": 1498,
+      "quantity": 1,
+      "tax_class": "",
+      "subtotal": "0.00",
+      "subtotal_tax": "0.00",
+      "total": "0.00",
+      "total_tax": "0.00",
+      "taxes": [],
+      "meta_data": [
+        {
+          "id": 18707,
+          "key": "pa_categoria",
+          "value": "juvenil",
+          "display_key": "CATEGORIA",
+          "display_value": "JUVENIL"
+        },
+        {
+          "id": 18738,
+          "key": "_reduced_stock",
+          "value": "1",
+          "display_key": "_reduced_stock",
+          "display_value": "1"
+        }
+      ],
+      "sku": "",
+      "price": 0,
+      "parent_name": "08 MUSICOS, cena."
+    },
+    {
+      "id": 1714,
+      "name": "10 ENTRADA, comida. - JUVENIL",
+      "product_id": 1518,
+      "variation_id": 1589,
+      "quantity": 1,
+      "tax_class": "",
+      "subtotal": "26.00",
+      "subtotal_tax": "0.00",
+      "total": "26.00",
+      "total_tax": "0.00",
+      "taxes": [],
+      "meta_data": [
+        {
+          "id": 18717,
+          "key": "pa_categoria",
+          "value": "juvenil",
+          "display_key": "CATEGORIA",
+          "display_value": "JUVENIL"
+        },
+        {
+          "id": 18739,
+          "key": "_reduced_stock",
+          "value": "1",
+          "display_key": "_reduced_stock",
+          "display_value": "1"
+        }
+      ],
+      "sku": "",
+      "price": 26,
+      "parent_name": "10 ENTRADA, comida."
+    },
+    {
+      "id": 1715,
+      "name": "13 SAN JORGE, comida. - JUVENIL",
+      "product_id": 1532,
+      "variation_id": 1602,
+      "quantity": 1,
+      "tax_class": "",
+      "subtotal": "32.00",
+      "subtotal_tax": "0.00",
+      "total": "32.00",
+      "total_tax": "0.00",
+      "taxes": [],
+      "meta_data": [
+        {
+          "id": 18727,
+          "key": "pa_categoria",
+          "value": "juvenil",
+          "display_key": "CATEGORIA",
+          "display_value": "JUVENIL"
+        },
+        {
+          "id": 18740,
+          "key": "_reduced_stock",
+          "value": "1",
+          "display_key": "_reduced_stock",
+          "display_value": "1"
+        }
+      ],
+      "sku": "",
+      "price": 32,
+      "parent_name": "13 SAN JORGE, comida."
+    },
+    {
+      "id": 1716,
+      "name": "16 ALARDO, comida",
+      "product_id": 1500,
+      "variation_id": 1502,
+      "quantity": 1,
+      "tax_class": "",
+      "subtotal": "0.00",
+      "subtotal_tax": "0.00",
+      "total": "0.00",
+      "total_tax": "0.00",
+      "taxes": [],
+      "meta_data": [
+        {
+          "id": 18737,
+          "key": "pa_categoria",
+          "value": "juvenil",
+          "display_key": "CATEGORIA",
+          "display_value": "JUVENIL"
+        },
+        {
+          "id": 18741,
+          "key": "_reduced_stock",
+          "value": "1",
+          "display_key": "_reduced_stock",
+          "display_value": "1"
+        }
+      ],
+      "sku": "",
+      "price": 0,
+      "parent_name": "16 ALARDO, comida"
+    }
+  ],
+  "tax_lines": [],
+  "shipping_lines": [],
+  "fee_lines": [],
+  "coupon_lines": [],
+  "refunds": [],
+  "payment_url": "https://filamagenta.com/finalizar-compra/order-pay/2080/?pay_for_order=true&key=wc_order_guNHUyKA4ncIl",
+  "date_created_gmt": "2023-04-01T09:06:39",
+  "date_modified_gmt": "2023-04-01T09:07:43",
+  "date_completed_gmt": null,
+  "date_paid_gmt": "2023-04-01T09:07:43",
+  "currency_symbol": "€",
+  "_links": {
+    "self": [
+      {
+        "href": "https://filamagenta.com/wp-json/wc/v3/orders/2080"
+      }
+    ],
+    "collection": [
+      {
+        "href": "https://filamagenta.com/wp-json/wc/v3/orders"
+      }
+    ],
+    "customer": [
+      {
+        "href": "https://filamagenta.com/wp-json/wc/v3/customers/997"
+      }
+    ]
+  }
+}

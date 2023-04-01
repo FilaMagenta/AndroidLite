@@ -81,6 +81,7 @@ class TestQRGeneration {
         dateModified = Date(),
         total = 0.0,
         customerId = 123,
+        payment = null,
         items = listOf(),
     )
 
