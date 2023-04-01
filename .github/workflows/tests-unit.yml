@@ -1,4 +1,4 @@
-name: Perform tests
+name: Perform Unit tests
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   run_test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,15 +40,6 @@ jobs:
           echo 'AES_KEY=${{ secrets.AES_KEY }}' >> local.properties
           echo 'AES_SALT=${{ secrets.AES_SALT }}' >> local.properties
           echo 'AES_IV=${{ secrets.AES_IV }}' >> local.properties
-
-      - name: Instrumentation Tests
-        id: instrumentation_tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 33
-          target: google_apis
-          arch: x86_64
-          script: ./gradlew connectedCheck --stacktrace
 
       - name: Run unit tests
         id: unit_tests
