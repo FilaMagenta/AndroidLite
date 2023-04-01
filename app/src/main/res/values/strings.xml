@@ -18,6 +18,7 @@
     <string name="first_load_failed_message">Something has failed during the initial load. Press the button below to try again, check the error notification if any, or contact an administrator.</string>
 
     <string name="sync_run">Run Synchronization</string>
+    <string name="sync_run_no_cache">Running sync without cache</string>
 
     <string name="accounts_list">Accounts list</string>
     <string name="accounts_new">Add new Account</string>

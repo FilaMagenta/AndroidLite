@@ -86,6 +86,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
         private const val SYNC_SOCIOS = "sync_socios"
 
+        private const val IGNORE_CACHE = "ignore_cache"
+
         const val PROGRESS_STEP = "step"
 
         const val PROGRESS = "progress"
@@ -126,6 +128,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             syncOrders: Boolean = true,
             syncEvents: Boolean = true,
             syncPayments: Boolean = true,
+            ignoreCache: Boolean = false,
         ): UUID {
             val request: OneTimeWorkRequest = OneTimeWorkRequestBuilder<SyncWorker>()
                 .addTag(WORKER_TAG)
@@ -143,6 +146,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                         SYNC_ORDERS to syncOrders,
                         SYNC_EVENTS to syncEvents,
                         SYNC_PAYMENTS to syncPayments,
+                        IGNORE_CACHE to ignoreCache,
                     )
                 )
                 .build()
@@ -181,10 +185,15 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
     private var isFirstSynchronization = false
 
+    private var ignoreCache = false
+
     override suspend fun doWork(): Result {
         Timber.i("Running Synchronization...")
 
         transaction = Sentry.startTransaction("SyncWorker", "synchronization")
+
+        ignoreCache = inputData.getBoolean(IGNORE_CACHE, false)
+        transaction.setData(IGNORE_CACHE, ignoreCache)
 
         notificationManager = NotificationManagerCompat.from(applicationContext)
 
@@ -481,7 +490,10 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             SYNC_EVENTS,
             ProgressStep.SYNC_EVENTS,
             { cachedEvents ->
-                RemoteCommerce.eventList(cachedEvents) { progress ->
+                RemoteCommerce.eventList(
+                    // If ignoreCache is true, pass empty list
+                    cachedEvents.takeIf { !ignoreCache } ?: emptyList(),
+                ) { progress ->
                     setProgress(
                         ProgressStep.SYNC_EVENTS,
                         progress

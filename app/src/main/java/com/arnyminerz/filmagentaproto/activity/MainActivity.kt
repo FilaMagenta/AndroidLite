@@ -18,9 +18,11 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -367,11 +369,24 @@ class MainActivity : AppCompatActivity() {
                             },
                             actions = {
                                 // Run synchronization button
-                                IconButton(
-                                    onClick = { SyncWorker.run(this@MainActivity) },
-                                ) {
-                                    Icon(Icons.Rounded.Sync, stringResource(R.string.sync_run))
-                                }
+                                Icon(
+                                    Icons.Rounded.Sync,
+                                    stringResource(R.string.sync_run),
+                                    modifier = Modifier
+                                        .padding(end = 8.dp)
+                                        .size(24.dp)
+                                        .combinedClickable(
+                                            onClick = { SyncWorker.run(this@MainActivity) },
+                                            onLongClick = {
+                                                toast(R.string.sync_run_no_cache)
+                                                SyncWorker.run(
+                                                    this@MainActivity,
+                                                    ignoreCache = true,
+                                                )
+                                            },
+                                        )
+                                )
+
                                 // Account selection button
                                 account?.let {
                                     ProfileImage(
