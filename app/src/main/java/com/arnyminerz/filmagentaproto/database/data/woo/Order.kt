@@ -18,6 +18,7 @@ import com.arnyminerz.filmagentaproto.security.Hashing
 import com.arnyminerz.filmagentaproto.utils.getBooleanOrNull
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
 import com.arnyminerz.filmagentaproto.utils.getDateGmtOrNull
+import com.arnyminerz.filmagentaproto.utils.getJSONArrayOrNull
 import com.arnyminerz.filmagentaproto.utils.getObjectInlineOrNull
 import com.arnyminerz.filmagentaproto.utils.getObjectOrNull
 import com.arnyminerz.filmagentaproto.utils.getStringOrNull
@@ -87,6 +88,7 @@ data class Order(
         val variationId: Long,
         val quantity: Long,
         val price: Double,
+        val metadata: List<Metadata>?,
     ) : JsonSerializable {
         companion object : JsonSerializer<Product> {
             override fun fromJSON(json: JSONObject): Product = Product(
@@ -96,6 +98,7 @@ data class Order(
                 json.getLong("variation_id"),
                 json.getLong("quantity"),
                 json.getDouble("price"),
+                json.getJSONArrayOrNull("meta_data", Metadata.Companion)
             )
         }
 
@@ -113,9 +116,19 @@ data class Order(
         val id: Long,
         val key: String,
         val value: String,
-        val displayKey: String,
-        val displayValue: String,
+        val displayKey: String?,
+        val displayValue: String?,
     ) : JsonSerializable {
+        companion object: JsonSerializer<Metadata> {
+            override fun fromJSON(json: JSONObject): Metadata = Metadata(
+                json.getLong("id"),
+                json.getString("key"),
+                json.getString("value"),
+                null,
+                null,
+            )
+        }
+
         override fun toJSON(): JSONObject = JSONObject().apply {
             put("id", id)
             put("key", key)
