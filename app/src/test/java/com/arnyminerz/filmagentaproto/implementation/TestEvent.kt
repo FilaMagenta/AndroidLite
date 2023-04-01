@@ -1,8 +1,9 @@
-package com.arnyminerz.filmagentaproto.data
+package com.arnyminerz.filmagentaproto.implementation
 
 import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
 import com.arnyminerz.filamagenta.core.database.data.woo.InStock
 import com.arnyminerz.filamagenta.core.utils.now
+import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.verify
@@ -34,7 +35,7 @@ class TestEvent {
         verify { Calendar.getInstance() }
     }
 
-    private val datesEvent = EventProto(
+    private val datesEvent = Event(
         id = 1,
         name = "14 SAN JORGE, cena",
         slug = "san-jorge-cena",
