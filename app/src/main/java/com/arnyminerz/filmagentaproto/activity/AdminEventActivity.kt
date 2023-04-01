@@ -385,8 +385,7 @@ class AdminEventActivity : AppCompatActivity() {
                         .filter { it.productId == event.id }
                         .sumOf { it.quantity }
                 },
-            ) /* TODO: Show amount of people per variation
-                + '\n' + orders
+            ) + '\n' + orders
                 // Flatten all the orders for the current event
                 .flatMap { order -> order.items.filter { it.productId == event.id } }
                 // Group by variation
@@ -396,11 +395,13 @@ class AdminEventActivity : AppCompatActivity() {
                 // Convert to list of pairs
                 .toList()
                 .joinToString { (variationId, orders) ->
+                    val matchingOptions = event.attributes
+                        .map { attr -> attr.options.find { it.variationId == variationId } }
                     val amount = orders.sumOf { it.quantity }
                     // Since orders have been grouped by variationId, all of them have the same name
-                    val name = variationId
+                    val name = matchingOptions.firstOrNull()?.displayValue
                     "$name: $amount"
-                }*/,
+                },
             modifier = Modifier.padding(vertical = 4.dp),
         )
     }

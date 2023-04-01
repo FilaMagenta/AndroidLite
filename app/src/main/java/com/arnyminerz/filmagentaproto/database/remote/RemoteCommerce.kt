@@ -195,10 +195,6 @@ object RemoteCommerce {
             .appendQueryParameter("category", CATEGORY_EVENTOS.toString())
             .build()
 
-        val cachedAttributes = getList(AttributesEndpoint, Event.Attribute)
-            .associateBy { it.id }
-            .toMutableMap()
-
         return multiPageGet(endpoint, perPage = 100) { eventJson, progress ->
             progressCallback(progress)
 
@@ -227,10 +223,9 @@ object RemoteCommerce {
 
             Timber.d("Event parsing. Processing attributes...")
             val attributes = eventJson.getJSONArray("attributes").mapObjects { attributeJson ->
-                val id = attributeJson.getLong("id")
                 val options = attributeJson.getStringJSONArray("options")
 
-                val attribute = cachedAttributes.getValue(id)
+                val attribute = Event.Attribute.fromJSON(attributeJson)
                 Timber.d("Processing event attributes...")
                 val variation = variations.find { variation ->
                     variation.attributes.find { it.id == attribute.id } != null
@@ -240,7 +235,11 @@ object RemoteCommerce {
                         val optionVar = variations.find { variation ->
                             variation.attributes.find { it.option == optionName } != null
                         }
-                        Event.Attribute.Option(optionName, optionVar?.price ?: price)
+                        Event.Attribute.Option(
+                            optionVar?.id,
+                            optionName,
+                            optionVar?.price ?: price,
+                        )
                     },
                     variation = variation,
                 )

@@ -47,6 +47,15 @@ fun JSONObject.getBooleanOrNull(key: String): Boolean? = try {
     null
 }
 
+fun JSONObject.getLongOrNull(key: String): Long? = try {
+    if (has(key))
+        getLong(key)
+    else
+        null
+} catch (e: JSONException) {
+    null
+}
+
 fun <T : Any> JSONObject.getObjectOrNull(key: String, serializer: JsonSerializer<T>): T? = try {
     if (has(key))
         getJSONObject(key).let { serializer.fromJSON(it) }
@@ -91,6 +100,20 @@ fun JSONObject.getStringJSONArray(key: String): List<String> = getJSONArray(key)
 fun <T : Any> JSONObject.getJSONArray(key: String, mapper: (Any) -> T): List<T> =
     getJSONArray(key).let { array ->
         (0 until array.length()).map { mapper(array.get(it)) }
+    }
+
+fun JSONObject.getJSONArrayOrNull(key: String) = try {
+    if (has(key))
+        getJSONArray(key)
+    else
+        null
+} catch (e: JSONException) {
+    null
+}
+
+fun <T : Any> JSONObject.getJSONArrayOrNull(key: String, serializer: JsonSerializer<T>): List<T>? =
+    getJSONArrayOrNull(key)?.let { array ->
+        (0 until array.length()).map { serializer.fromJSON(array.getJSONObject(it)) }
     }
 
 fun <T : Any> JSONObject.toMap(converter: (Any) -> T): Map<String, T> =

@@ -13,6 +13,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.StockStatus.Companion.Ou
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
+import com.arnyminerz.filmagentaproto.utils.getLongOrNull
 import com.arnyminerz.filmagentaproto.utils.getObjectOrNull
 import com.arnyminerz.filmagentaproto.utils.mapObjects
 import com.arnyminerz.filmagentaproto.utils.now
@@ -136,7 +137,6 @@ data class Event(
     data class Attribute(
         val id: Long,
         val name: String,
-        val slug: String,
         val options: List<Option>,
         val variation: Variation?,
     ) : JsonSerializable {
@@ -149,7 +149,6 @@ data class Event(
             override fun fromJSON(json: JSONObject): Attribute = Attribute(
                 json.getLong("id"),
                 json.getString("name"),
-                json.getString("slug"),
                 if (json.has("options"))
                     json.getJSONArray("options")
                         .let { array ->
@@ -159,7 +158,7 @@ data class Event(
                                 // This is for compatibility with old versions
                                 (0 until array.length())
                                     .map { array.getString(it) }
-                                    .map { Option(it, 0.0) }
+                                    .map { Option(null, it, 0.0) }
                             }
                         }
                 else
@@ -168,17 +167,23 @@ data class Event(
             )
         }
 
-        data class Option(val displayValue: String, val price: Double) : JsonSerializable {
+        data class Option(
+            val variationId: Long?,
+            val displayValue: String,
+            val price: Double,
+        ) : JsonSerializable {
             val value = displayValue.toLowerCase(Locale.current).replace(' ', '-')
 
             companion object : JsonSerializer<Option> {
                 override fun fromJSON(json: JSONObject): Option = Option(
+                    json.getLongOrNull("variationId"),
                     json.getString("displayValue"),
                     json.getDouble("price"),
                 )
             }
 
             override fun toJSON(): JSONObject = JSONObject().apply {
+                put("variationId", variationId)
                 put("displayValue", displayValue)
                 put("price", price)
             }
@@ -187,14 +192,13 @@ data class Event(
         override fun toJSON(): JSONObject = JSONObject().apply {
             put("id", id)
             put("name", name)
-            put("slug", slug)
             put("options", options.toJSON())
             put("variation", variation?.toJSON())
         }
 
         fun toMetadata(option: Option = options[0]): Order.Metadata = Order.Metadata(
             id = id,
-            key = slug,
+            key = name.lowercase().replace(' ', '-'),
             displayKey = name,
             value = option.value,
             displayValue = option.displayValue,
