@@ -109,6 +109,7 @@ import com.redsys.tpvvinapplibrary.TPVV
 import com.redsys.tpvvinapplibrary.TPVVConstants
 import compose.icons.SimpleIcons
 import compose.icons.simpleicons.Facebook
+import compose.icons.simpleicons.Github
 import compose.icons.simpleicons.Googleplay
 import compose.icons.simpleicons.Instagram
 import compose.icons.simpleicons.Telegram
@@ -331,6 +332,9 @@ class MainActivity : AppCompatActivity() {
                 ModalDrawerSheetItem.Divider,
                 ModalDrawerSheetItem(SimpleIcons.Googleplay, R.string.google_play) {
                     launchUrl("market://details?id=${BuildConfig.APPLICATION_ID}")
+                },
+                ModalDrawerSheetItem(SimpleIcons.Github, R.string.github) {
+                    launchUrl("https://github.com/FilaMagenta/AndroidLite")
                 },
             ),
             drawerState = drawerState,
