@@ -3,10 +3,11 @@ package com.arnyminerz.filmagentaproto
 import android.content.Context
 import android.util.Base64
 import androidx.test.platform.app.InstrumentationRegistry
+import com.arnyminerz.filamagenta.core.database.data.woo.CustomerProto
+import com.arnyminerz.filamagenta.core.database.data.woo.PROCESSING
+import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SUBSCRIBER
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
-import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_SUBSCRIBER
-import com.arnyminerz.filmagentaproto.database.data.woo.Status
 import com.arnyminerz.filmagentaproto.database.logic.QR_VERSION
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.database.logic.verifyQRCode
@@ -44,7 +45,7 @@ class TestQRGeneration {
         lastName = "User",
         role = ROLE_SUBSCRIBER,
         username = "ExampleUser",
-        billing = Customer.DeliveryInformation(
+        billing = CustomerProto.DeliveryInformation(
             null,
             null,
             null,
@@ -57,7 +58,7 @@ class TestQRGeneration {
             null,
             null
         ),
-        shipping = Customer.DeliveryInformation(
+        shipping = CustomerProto.DeliveryInformation(
             null,
             null,
             null,
@@ -75,7 +76,7 @@ class TestQRGeneration {
     )
     private val order = Order(
         id = 1,
-        status = Status.PROCESSING,
+        status = PROCESSING,
         currency = "",
         dateCreated = Date(),
         dateModified = Date(),

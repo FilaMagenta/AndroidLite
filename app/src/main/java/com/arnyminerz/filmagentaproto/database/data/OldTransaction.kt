@@ -1,10 +1,12 @@
+@file:Suppress("DEPRECATION")
+
 package com.arnyminerz.filmagentaproto.database.data
 
 import androidx.room.Ignore
-import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
-import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
-import com.arnyminerz.filmagentaproto.utils.getBooleanOrNull
-import com.arnyminerz.filmagentaproto.utils.getDoubleOrNull
+import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable
+import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
+import com.arnyminerz.filamagenta.core.utils.getBooleanOrNull
+import com.arnyminerz.filamagenta.core.utils.getDoubleOrNull
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -20,7 +22,7 @@ data class OldTransaction(
     val notified: Boolean,
 ): JsonSerializable {
     companion object: JsonSerializer<OldTransaction> {
-        override fun fromJSON(json: JSONObject): OldTransaction = OldTransaction(
+        override fun fromJSON(json: JSONObject, vararg args: Any?): OldTransaction = OldTransaction(
             json.getString("date"),
             json.getString("description"),
             json.getLong("units"),

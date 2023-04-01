@@ -1,5 +1,6 @@
 package com.arnyminerz.filmagentaproto.processing
 
+import com.arnyminerz.filamagenta.core.utils.uri.buildUpon
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -13,7 +14,7 @@ import org.junit.Test
 class TestOrdersFetching {
     private val customerId = 1L
 
-    private val endpointOrders = RemoteCommerce.OrdersEndpoint.buildUpon()
+    private val endpointOrders = RemoteCommerce.ordersEndpoint.buildUpon()
         .appendQueryParameter("customer", customerId.toString())
         .appendQueryParameter("page", "1")
         .appendQueryParameter("per_page", "100")

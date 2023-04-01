@@ -40,11 +40,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.App
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
-import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.getOrders
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
@@ -55,8 +55,6 @@ import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-
-private const val TAG = "AdminActivity"
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 class AdminActivity : AppCompatActivity() {

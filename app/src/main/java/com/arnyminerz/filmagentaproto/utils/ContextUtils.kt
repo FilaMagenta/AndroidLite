@@ -9,6 +9,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.browser.customtabs.CustomTabsIntent
+import com.arnyminerz.filamagenta.core.utils.ui
 import kotlin.reflect.KClass
 
 @IntDef(Toast.LENGTH_SHORT, Toast.LENGTH_LONG)

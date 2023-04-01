@@ -1,9 +1,9 @@
 package com.arnyminerz.filmagentaproto.account
 
 import android.util.Base64
+import com.arnyminerz.filamagenta.core.security.Passwords
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
 import com.arnyminerz.filmagentaproto.exceptions.WrongCredentialsException
-import com.arnyminerz.filmagentaproto.security.Passwords
 import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException
 import timber.log.Timber

@@ -69,6 +69,8 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
+import com.arnyminerz.filamagenta.core.utils.doAsync
+import com.arnyminerz.filamagenta.core.utils.now
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
@@ -96,11 +98,9 @@ import com.arnyminerz.filmagentaproto.ui.screens.ProfilePage
 import com.arnyminerz.filmagentaproto.ui.screens.SettingsScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.LaunchedEffectFlow
-import com.arnyminerz.filmagentaproto.utils.doAsync
 import com.arnyminerz.filmagentaproto.utils.launch
 import com.arnyminerz.filmagentaproto.utils.launchTabsUrl
 import com.arnyminerz.filmagentaproto.utils.launchUrl
-import com.arnyminerz.filmagentaproto.utils.now
 import com.arnyminerz.filmagentaproto.utils.toast
 import com.arnyminerz.filmagentaproto.viewmodel.MainViewModel
 import com.arnyminerz.filmagentaproto.worker.SyncWorker

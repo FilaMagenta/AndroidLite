@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Filà Magenta Proto"
 include ':app'
+include ':core'
