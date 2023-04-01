@@ -52,5 +52,4 @@ jobs:
           api-level: 33
           target: default
           arch: x86_64
-          profile: Pixel 4
           script: ./gradlew connectedCheck --stacktrace
