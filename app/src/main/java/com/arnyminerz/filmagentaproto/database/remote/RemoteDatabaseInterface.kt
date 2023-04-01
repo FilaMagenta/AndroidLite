@@ -35,6 +35,18 @@ object RemoteDatabaseInterface {
     }
 
     /**
+     * Fetches all the transactions stored in the database.
+     */
+    @WorkerThread
+    fun fetchAllTransactions() = interact { database ->
+        database.query(
+            "tbApuntesSocios",
+            where = null,
+            parser = Transaction.Companion
+        )
+    }
+
+    /**
      * Fetches all the transactions made by the user with the given id.
      */
     @WorkerThread

@@ -59,14 +59,19 @@ class RemoteDatabase(
         predicate: (row: ResultSet) -> T
     ): List<T> {
         val predicateQuery = select?.joinToString(", ") ?: "*"
-        val whereQuery = where?.toList()?.joinToString(", ") { (key, value) ->
-            val quotedValue = if (value is Int || value is Long || value is Float || value is Double)
-                value
-            else
-                "'$value'"
-            "$key=$quotedValue"
+        val whereQuery = where?.let { whereMap ->
+            " WHERE " + whereMap
+                .toList()
+                .joinToString(", ") { (key, value) ->
+                val quotedValue =
+                    if (value is Int || value is Long || value is Float || value is Double)
+                        value
+                    else
+                        "'$value'"
+                "$key=$quotedValue"
+            }
         } ?: ""
-        return query("SELECT $predicateQuery FROM $table WHERE $whereQuery", predicate)
+        return query("SELECT $predicateQuery FROM $table$whereQuery", predicate)
     }
 
     fun <T : Any> query(

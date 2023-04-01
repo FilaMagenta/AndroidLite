@@ -266,9 +266,22 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
                 continue
             }
 
+            // Fetch the data from woo
+            fetchAndUpdateWooData(account)
+
+            // After fetchAndUpdateWooData, USER_DATA_CUSTOMER_ADMIN must be defined
+            val isAdmin = am.getUserData(account, USER_DATA_CUSTOMER_ADMIN).toBoolean()
+
+            // Synchronize transactions
             if (syncTransactions) {
                 // Fetch the data and update the database
                 setProgress(ProgressStep.SYNC_TRANSACTIONS)
+
+                if (isAdmin) {
+                    // If user is admin, synchronize transactions for all users
+                    Timber.d("User is admin. Synchronizing all the transactions in database...")
+                    synchronizeSocio(null)
+                }
 
                 val idSocio = RemoteDatabaseInterface.fetchIdSocioFromDni(dni)
                 if (idSocio == null) {
@@ -280,9 +293,6 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
                 setProgress(ProgressStep.INTERMEDIATE)
             }
-
-            // Fetch the data from woo
-            fetchAndUpdateWooData(account)
         }
 
         // Fetch all the data from users in database
@@ -331,14 +341,22 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     /**
      * Synchronizes all the data for the socio with the given id.
      */
-    private suspend fun synchronizeSocio(idSocio: Long) {
-        val transactions = RemoteDatabaseInterface.fetchTransactions(idSocio)
-        val name = RemoteDatabaseInterface.fetchSocio(idSocio) {
-            it.getString("Nombre") + " " + it.getString("Apellidos")
-        }.first()
+    private suspend fun synchronizeSocio(idSocio: Long?) {
+        // If idSocio is not null, fetch only transactions with that id
+        val transactions = idSocio?.let { RemoteDatabaseInterface.fetchTransactions(it) }
+        // If idSocio is null, fetch all transactions
+            ?: RemoteDatabaseInterface.fetchAllTransactions()
+        // Name is used for notifications, notifications will only be sent for the user holding the
+        // device's account. If idSocio is null, no notifications will be shown.
+        val name = idSocio?.let { id ->
+            RemoteDatabaseInterface.fetchSocio(id) {
+                it.getString("Nombre") + " " + it.getString("Apellidos")
+            }.first()
+        }
 
         // Get all the transactions currently stored
-        val oldTransactions = transactionsDao.getByIdSocio(idSocio)
+        val oldTransactions = idSocio?.let { transactionsDao.getByIdSocio(it) }
+            ?: transactionsDao.getAll()
         // Iterate all the new transactions
         for (transaction in transactions) {
             val oldTransaction = oldTransactions.find { transaction.id == it.id }
@@ -357,16 +375,17 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         }
 
         // Show notifications for new transactions
-        val allTransactions = transactionsDao.getByIdSocio(idSocio)
-        for (transaction in allTransactions)
-            if (!transaction.notified) {
-                // No notifications should be shown during the first synchronization
-                if (!isFirstSynchronization)
-                    notifyTransaction(name, transaction)
-                transactionsDao.update(
-                    transaction.copy(notified = true)
-                )
-            }
+        idSocio?.let { transactionsDao.getByIdSocio(it) }?.let {allTransactions ->
+            for (transaction in allTransactions)
+                if (!transaction.notified) {
+                    // No notifications should be shown during the first synchronization
+                    if (!isFirstSynchronization)
+                        notifyTransaction(name!!, transaction)
+                    transactionsDao.update(
+                        transaction.copy(notified = true)
+                    )
+                }
+        }
     }
 
     /**
