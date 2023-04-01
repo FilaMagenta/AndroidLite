@@ -29,11 +29,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.arnyminerz.filmagentaproto.R
+import com.arnyminerz.filamagenta.core.data.tb.Socio.Companion.EXAMPLE
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.ui.components.PersonalDataCard
-import com.arnyminerz.filmagentaproto.ui.components.ReadField
 import com.arnyminerz.filmagentaproto.ui.components.TrebuchetCard
 import com.arnyminerz.filmagentaproto.ui.components.WheelNumberCard
 import com.arnyminerz.filmagentaproto.ui.theme.AppTheme
@@ -116,7 +115,7 @@ fun ProfilePage(
 fun ProfilePagePreview() {
     AppTheme {
         ProfilePage(
-            Socio.EXAMPLE,
+            EXAMPLE as Socio,
             listOf(Account("Testing", Authenticator.AuthTokenType)),
         ) { _, _ -> }
     }

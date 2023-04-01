@@ -1,6 +1,7 @@
 package com.arnyminerz.filmagentaproto.database.local
 
 import androidx.room.TypeConverter
+import com.arnyminerz.filamagenta.core.data.TransactionProto
 import com.arnyminerz.filamagenta.core.utils.toJSON
 import com.arnyminerz.filmagentaproto.database.data.Transaction
 import java.sql.Date
@@ -18,7 +19,7 @@ class Converters {
             ?.let { array ->
                 (0 until array.length())
                     .map { array.getJSONObject(it) }
-                    .map { Transaction.fromJSON(it) }
+                    .map { TransactionProto.fromJSON(it) as Transaction }
             }
 
     @TypeConverter

@@ -43,6 +43,7 @@ import com.arnyminerz.filmagentaproto.database.local.TransactionsDao
 import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
+import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.utils.PermissionsUtils
 import io.sentry.ITransaction
 import io.sentry.Sentry
@@ -302,9 +303,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             for ((index, socio) in socios.withIndex()) {
                 setProgress(ProgressStep.SYNC_SOCIOS, index to socios.size)
                 try {
-                    remoteDatabaseDao.insert(socio)
+                    remoteDatabaseDao.insert(socio as Socio)
                 } catch (e: SQLiteConstraintException) {
-                    remoteDatabaseDao.update(socio)
+                    remoteDatabaseDao.update(socio as Socio)
                 }
             }
             setProgress(ProgressStep.INTERMEDIATE)
@@ -343,7 +344,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
      */
     private suspend fun synchronizeSocio(idSocio: Long?) {
         // If idSocio is not null, fetch only transactions with that id
-        val transactions = idSocio?.let { RemoteDatabaseInterface.fetchTransactions(it) }
+        val transactions = idSocio?.let {
+            RemoteDatabaseInterface.fetchTransactions(it).map { t -> t as Transaction }
+        }
         // If idSocio is null, fetch all transactions
             ?: RemoteDatabaseInterface.fetchAllTransactions()
         // Name is used for notifications, notifications will only be sent for the user holding the
@@ -362,15 +365,11 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             val oldTransaction = oldTransactions.find { transaction.id == it.id }
             if (oldTransaction != null) {
                 // If the transaction already exists, update it
-                transactionsDao.update(
-                    transaction.copy(
-                        // Make sure to not modify the notified field
-                        notified = oldTransaction.notified,
-                    )
-                )
+                transaction.notified = oldTransaction.notified
+                transactionsDao.update(transaction as Transaction)
             } else {
                 // Otherwise, simply insert the new one
-                transactionsDao.insert(transaction)
+                transactionsDao.insert(transaction as Transaction)
             }
         }
 
