@@ -7,8 +7,6 @@ plugins {
     id 'kotlin-parcelize'
 }
 
-apply from: './version.gradle'
-
 android {
     namespace 'com.arnyminerz.filmagentaproto'
     compileSdk 33
@@ -22,12 +20,16 @@ android {
         Properties versionProps = new Properties()
         versionProps.load(new FileInputStream(versionPropsFile))
         def runTasks = gradle.startParameter.taskNames
-        def code = versionProps['VERSION_CODE'].toInteger() + ('assembleRelease' in runTasks || 'bundleRelease' in runTasks ? 1 : 0)
-        versionProps['VERSION_CODE'] = code.toString()
-        versionProps.store(versionPropsFile.newWriter(), null)
+        def isRelease = 'assembleRelease' in runTasks || 'bundleRelease' in runTasks
+        def code = versionProps['VERSION_CODE'].toInteger() + (isRelease ? 1 : 0)
+        def name = versionProps['VERSION_NAME']
+        if (isRelease) {
+            versionProps['VERSION_CODE'] = code.toString()
+            versionProps.store(versionPropsFile.newWriter(), null)
+        }
 
         versionCode code
-        versionName VERSION_NAME
+        versionName name
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
