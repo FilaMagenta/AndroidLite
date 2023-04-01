@@ -93,7 +93,7 @@ fun ColumnScope.EventsAdminScreen(
                     else
                         true
                 }
-                ?.sortedByDescending { (event, _) -> event.eventDate }
+                ?.sortedBy { (event, _) -> event.eventDate }
                 ?: emptyList()
         ) { (event, orders) ->
             AdminEventItem(

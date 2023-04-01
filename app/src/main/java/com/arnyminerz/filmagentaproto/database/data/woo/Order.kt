@@ -1,6 +1,7 @@
 package com.arnyminerz.filmagentaproto.database.data.woo
 
 import androidx.annotation.StringDef
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.arnyminerz.filmagentaproto.database.data.woo.Status.Companion.CANCELLED
@@ -14,8 +15,14 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Status.Companion.TRASH
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.security.Hashing
+import com.arnyminerz.filmagentaproto.utils.getBooleanOrNull
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
+import com.arnyminerz.filmagentaproto.utils.getDateGmtOrNull
+import com.arnyminerz.filmagentaproto.utils.getObjectInlineOrNull
+import com.arnyminerz.filmagentaproto.utils.getObjectOrNull
+import com.arnyminerz.filmagentaproto.utils.getStringOrNull
 import com.arnyminerz.filmagentaproto.utils.mapObjects
+import com.arnyminerz.filmagentaproto.utils.putDateGmt
 import com.arnyminerz.filmagentaproto.utils.toJSON
 import java.util.Date
 import org.json.JSONObject
@@ -43,6 +50,7 @@ data class Order(
     val dateModified: Date,
     val total: Double,
     val customerId: Long,
+    @ColumnInfo(defaultValue = "null") val payment: Payment?,
     val items: List<Product>,
 ) : JsonSerializable, WooClass(id) {
     companion object : JsonSerializer<Order> {
@@ -54,6 +62,8 @@ data class Order(
             json.getDateGmt("date_modified"),
             json.getDouble("total"),
             json.getLong("customer_id"),
+            json.getObjectInlineOrNull(Payment.Companion)
+                ?: json.getObjectOrNull("payment", Payment.Companion),
             json.getJSONArray("line_items").mapObjects { Product.fromJSON(it) },
         )
     }
@@ -66,6 +76,7 @@ data class Order(
         put("date_modified", dateModified)
         put("total", total)
         put("customer_id", customerId)
+        put("payment", payment?.toJSON())
         put("line_items", items.toJSON())
     }
 
@@ -114,9 +125,40 @@ data class Order(
         }
     }
 
+    data class Payment(
+        val paid: Boolean?,
+        val paymentMethod: String?,
+        val paymentMethodTitle: String?,
+        val transactionId: String?,
+        val date: Date?,
+    ) : JsonSerializable {
+        companion object : JsonSerializer<Payment> {
+            override fun fromJSON(json: JSONObject): Payment = Payment(
+                json.getBooleanOrNull("paid"),
+                json.getStringOrNull("payment_method"),
+                json.getStringOrNull("payment_method_title"),
+                json.getStringOrNull("transaction_id"),
+                json.getDateGmtOrNull("date_paid_gmt"),
+            )
+        }
+
+        override fun toJSON(): JSONObject = JSONObject()
+            .put("paid", paid)
+            .put("payment_method", paymentMethod)
+            .put("payment_method_title", paymentMethodTitle)
+            .put("transaction_id", transactionId)
+            .putDateGmt("date_paid_gmt", date)
+
+        /** `true` if any of the fields is not null. */
+        val any: Boolean = paid == true ||
+                listOf(paid, paymentMethod, paymentMethodTitle, transactionId, date)
+                    .any { it != null }
+    }
+
     /** Provides a hash that uniquely identifies the Order. */
     val hash: String by lazy {
-        val str = "$id;$status;$currency;${dateCreated.time};${dateModified.time};$total;$customerId;${items.map { "${it.id}:${it.productId}:${it.variationId}:${it.quantity}" }}"
+        val str =
+            "$id;$status;$currency;${dateCreated.time};${dateModified.time};$total;$customerId;${items.map { "${it.id}:${it.productId}:${it.variationId}:${it.quantity}" }}"
         Hashing.sha256(str)
     }
 }

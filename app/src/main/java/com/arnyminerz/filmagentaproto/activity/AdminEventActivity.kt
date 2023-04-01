@@ -17,7 +17,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,12 +27,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.rounded.ChevronLeft
+import androidx.compose.material.icons.rounded.EuroSymbol
 import androidx.compose.material.icons.rounded.FontDownload
 import androidx.compose.material.icons.rounded.Numbers
 import androidx.compose.material.icons.rounded.QrCode2
+import androidx.compose.material.icons.rounded.RadioButtonChecked
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,6 +53,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -66,7 +73,9 @@ import com.arnyminerz.filmagentaproto.ui.components.ButtonWithIcon
 import com.arnyminerz.filmagentaproto.ui.components.InformationCard
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.dialogs.admin.GeneratingTicketsDialog
+import com.arnyminerz.filmagentaproto.ui.dialogs.admin.MarkPaidDialog
 import com.arnyminerz.filmagentaproto.ui.dialogs.admin.ScanResultBottomSheet
+import com.arnyminerz.filmagentaproto.ui.theme.SuccessColor
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.await
@@ -94,6 +103,7 @@ class AdminEventActivity : AppCompatActivity() {
         private const val SORT_BY_NAME = 0
         private const val SORT_BY_ORDER = 1
         private const val SORT_BY_SCANNED = 2
+        private const val SORT_BY_PAID = 3
 
         private fun errorIntent(throwable: Throwable) = Intent().apply {
             putExtra(RESULT_ERROR, throwable)
@@ -177,6 +187,16 @@ class AdminEventActivity : AppCompatActivity() {
         val eventState by viewModel.event.observeAsState()
 
         eventState?.let { event ->
+            var confirmingMarkPaid by remember { mutableStateOf<String?>(null) }
+            confirmingMarkPaid?.let { customerName ->
+                MarkPaidDialog(
+                    customerName = customerName,
+                    eventName = event.name,
+                    onConfirmRequest = { /*TODO*/ },
+                    onDismissRequest = { confirmingMarkPaid = null },
+                )
+            }
+
             Scaffold(
                 topBar = {
                     CenterAlignedTopAppBar(
@@ -192,7 +212,8 @@ class AdminEventActivity : AppCompatActivity() {
                     )
                 }
             ) { paddingValues ->
-                val orders by viewModel.ordersCustomer.observeAsState(initial = emptyMap())
+                val orders by viewModel.orders.observeAsState(initial = emptyList())
+                val ordersCustomerMap by viewModel.ordersCustomer.observeAsState(initial = emptyMap())
                 var sortBy by remember { mutableStateOf(SORT_BY_NAME) }
                 val codes by viewModel.adminDao.getAllScannedCodesLive().observeAsState()
 
@@ -202,7 +223,7 @@ class AdminEventActivity : AppCompatActivity() {
                         .padding(horizontal = 8.dp),
                 ) {
                     // Event Information
-                    item { GeneralInformation(event) }
+                    item { GeneralInformation(event, orders) }
 
                     // Action Buttons
                     item { Actions(event) }
@@ -247,35 +268,83 @@ class AdminEventActivity : AppCompatActivity() {
                                     leadingIcon = { Icon(Icons.Rounded.QrCode2, null) },
                                     modifier = Modifier.padding(horizontal = 4.dp),
                                 )
+                                FilterChip(
+                                    selected = sortBy == SORT_BY_PAID,
+                                    onClick = { sortBy = SORT_BY_PAID },
+                                    label = { Text(stringResource(R.string.admin_events_sort_paid)) },
+                                    leadingIcon = { Icon(Icons.Rounded.EuroSymbol, null) },
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                )
                             }
                         }
                     }
 
                     // All the people signed up
                     items(
-                        orders.toList()
-                            .sortedBy { (order, customer) ->
+                        ordersCustomerMap.toList()
+                            .let { list ->
                                 when (sortBy) {
-                                    SORT_BY_NAME -> customer.firstName
-                                    SORT_BY_ORDER -> "${order.id}"
-                                    SORT_BY_SCANNED -> (codes?.find { it.hash == order.hash } != null).toString()
-                                    else -> "#${order.id}"
+                                    SORT_BY_NAME -> list.sortedBy { (_, customer) ->
+                                        customer.firstName
+                                    }
+                                    SORT_BY_ORDER -> list.sortedBy { (order, _) ->
+                                        order.id
+                                    }
+                                    SORT_BY_SCANNED -> list.sortedByDescending { (order, _) ->
+                                        codes?.find { it.hash == order.hash } != null
+                                    }
+                                    SORT_BY_PAID -> list.sortedBy { (order, _) ->
+                                        order.payment?.any
+                                    }
+                                    else -> list.sortedBy { (order, _) -> "#${order.id}" }
                                 }
                             }
                     ) { (order, customer) ->
-                        val scannedCode by viewModel.adminDao.getFromHashLive(order.hash).observeAsState()
+                        val scannedCode by viewModel.adminDao.getFromHashLive(order.hash)
+                            .observeAsState()
 
                         OutlinedCard(
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
-                                text = customer.fullName,
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (scannedCode != null)
+                                    Icon(
+                                        Icons.Rounded.RadioButtonChecked,
+                                        stringResource(R.string.admin_events_scanned),
+                                        tint = SuccessColor,
+                                        modifier = Modifier.padding(start = 4.dp),
+                                    )
+                                Text(
+                                    text = customer.fullName,
+                                    modifier = Modifier
+                                        .padding(top = 12.dp)
+                                        .padding(start = 8.dp)
+                                        .weight(1f),
+                                )
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                    .padding(12.dp)
-                            )
-                            Text("Hash: ${order.hash}")
-                            if (scannedCode != null)
-                                Text("Scanned!")
+                                    .fillMaxWidth()
+                                    .horizontalScroll(rememberScrollState()),
+                            ) {
+                                if (order.payment?.any == true) {
+                                    AssistChip(
+                                        onClick = { /*TODO*/ },
+                                        label = { Text("Paid") },
+                                        modifier = Modifier
+                                            .padding(horizontal = 4.dp),
+                                    )
+                                } else {
+                                    AssistChip(
+                                        onClick = { confirmingMarkPaid = customer.fullName },
+                                        label = { Text("Not Paid") },
+                                        modifier = Modifier
+                                            .padding(horizontal = 4.dp),
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(12.dp))
                         }
                     }
                 }
@@ -284,7 +353,7 @@ class AdminEventActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun GeneralInformation(event: Event) {
+    fun GeneralInformation(event: Event, orders: List<Order>) {
         Text(
             text = stringResource(R.string.admin_event_general),
             style = MaterialTheme.typography.titleMedium,
@@ -304,6 +373,34 @@ class AdminEventActivity : AppCompatActivity() {
             title = stringResource(R.string.admin_event_general_reservations),
             message = event.acceptsReservationsUntil?.let { dateFormatter.format(it) }
                 ?: stringResource(R.string.none),
+            modifier = Modifier.padding(vertical = 4.dp),
+        )
+        InformationCard(
+            icon = Icons.Outlined.People,
+            title = stringResource(R.string.admin_event_general_people),
+            message = stringResource(
+                R.string.admin_event_general_people_total,
+                orders.sumOf { order ->
+                    order.items
+                        .filter { it.productId == event.id }
+                        .sumOf { it.quantity }
+                },
+            ) /* TODO: Show amount of people per variation
+                + '\n' + orders
+                // Flatten all the orders for the current event
+                .flatMap { order -> order.items.filter { it.productId == event.id } }
+                // Group by variation
+                .groupBy { it.variationId }
+                // Take only non-empty lists
+                .filter { (_, orders) -> orders.isNotEmpty() }
+                // Convert to list of pairs
+                .toList()
+                .joinToString { (variationId, orders) ->
+                    val amount = orders.sumOf { it.quantity }
+                    // Since orders have been grouped by variationId, all of them have the same name
+                    val name = variationId
+                    "$name: $amount"
+                }*/,
             modifier = Modifier.padding(vertical = 4.dp),
         )
     }
@@ -366,7 +463,8 @@ class AdminEventActivity : AppCompatActivity() {
             orders.postValue(ordersList)
 
             Timber.d("Loading order customers...")
-            val ordersCustomerList = ordersList.associateWith { wooCommerceDao.getCustomer(it.customerId)!! }
+            val ordersCustomerList =
+                ordersList.associateWith { wooCommerceDao.getCustomer(it.customerId)!! }
             ordersCustomer.postValue(ordersCustomerList)
         }
 

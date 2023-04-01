@@ -2,11 +2,14 @@ package com.arnyminerz.filmagentaproto.utils
 
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.text.SimpleDateFormat
-import java.util.*
 
 fun JSONObject.getDoubleOrNull(key: String): Double? = try {
     if (has(key))
@@ -44,11 +47,17 @@ fun JSONObject.getBooleanOrNull(key: String): Boolean? = try {
     null
 }
 
-fun <T: Any> JSONObject.getObjectOrNull(key: String, serializer: JsonSerializer<T>): T? = try {
+fun <T : Any> JSONObject.getObjectOrNull(key: String, serializer: JsonSerializer<T>): T? = try {
     if (has(key))
         getJSONObject(key).let { serializer.fromJSON(it) }
     else
         null
+} catch (e: JSONException) {
+    null
+}
+
+fun <T : Any> JSONObject.getObjectInlineOrNull(serializer: JsonSerializer<T>): T? = try {
+    serializer.fromJSON(this)
 } catch (e: JSONException) {
     null
 }
@@ -79,11 +88,12 @@ fun JSONObject.getStringJSONArray(key: String): List<String> = getJSONArray(key)
     (0 until array.length()).map { array.getString(it) }
 }
 
-fun <T: Any> JSONObject.getJSONArray(key: String, mapper: (Any) -> T): List<T> = getJSONArray(key).let { array ->
-    (0 until array.length()).map { mapper(array.get(it)) }
-}
+fun <T : Any> JSONObject.getJSONArray(key: String, mapper: (Any) -> T): List<T> =
+    getJSONArray(key).let { array ->
+        (0 until array.length()).map { mapper(array.get(it)) }
+    }
 
-fun <T: Any> JSONObject.toMap(converter: (Any) -> T): Map<String, T> =
+fun <T : Any> JSONObject.toMap(converter: (Any) -> T): Map<String, T> =
     keys().asSequence().associateWith { converter(get(it)) }
 
 private val dateFormatter: SimpleDateFormat
@@ -93,12 +103,29 @@ private val dateFormatter: SimpleDateFormat
  * Gets the value date of the given field in the GMT timezone.
  * @throws NullPointerException If the date is not valid.
  * @throws JSONException If `this` doesn't contain the key [key] or it's not a String.
+ * @throws ParseException If the value at [key] cannot be parsed to a date.
  * @see dateFormatter
  */
 fun JSONObject.getDateGmt(key: String): Date = getString(key)
     .let {
         dateFormatter.timeZone = TimeZone.getTimeZone("GMT")
         dateFormatter.parse(it)!!
+    }
+
+/**
+ * Gets the value date of the given field in the GMT timezone, or null if the field is not present,
+ * or cannot be parsed into a date.
+ * @see dateFormatter
+ */
+fun JSONObject.getDateGmtOrNull(key: String): Date? =
+    try {
+        getDateGmt(key)
+    } catch (_: NullPointerException) {
+        null
+    } catch (_: JSONException) {
+        null
+    } catch (_: ParseException) {
+        null
     }
 
 /**
@@ -109,3 +136,10 @@ fun JSONObject.getDateGmt(key: String): Date = getString(key)
  */
 fun JSONObject.getDate(key: String): Date = getString(key)
     .let { dateFormatter.parse(it)!! }
+
+/**
+ * Puts the given date into the given [key] using the GMT timezone to be extracted later with
+ * [getDateGmt] and [getDateGmtOrNull].
+ */
+fun JSONObject.putDateGmt(key: String, date: Date?): JSONObject =
+    put(key, date?.let { dateFormatter.format(it) })
