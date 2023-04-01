@@ -119,6 +119,8 @@
     <string name="shortcut_admin_label">Panell d\'Administrador</string>
     <string name="admin_events_sort_order">Ordena per Comanda</string>
     <string name="event_view_qr">Codi d\'Accés</string>
+    <string name="admin_events_sort_paid">Ordena per Pagat</string>
+    <string name="admin_events_scanned">Persona escanejada</string>
     <string name="admin_scan_loading">Verificant…</string>
     <string name="admin_scan_correct">Correcte!</string>
     <string name="admin_scan_invalid">Invàlid!</string>
@@ -130,6 +132,8 @@
     <string name="first_load_failed_message">Alguna cosa ha fallat durant la càrrega inicial. Prem el botó de sota per a tornar-ho a provar, comprova la notificació d\'error si hi ha alguna, o contacta a un adminsitrador.</string>
     <string name="admin_scan_repeated">Repetit!</string>
     <string name="admin_scan_repeated_msg">Aquest codi ja s\'ha escanejat abans</string>
+    <string name="admin_events_mark_paid_title">Marcar com a pagada?</string>
+    <string name="admin_events_mark_paid_message">Vols desar que %s ha pagat per %s?</string>
     <string name="admin_event_general">Informació General</string>
     <string name="admin_event_general_date">Data de l\'Esdeveniment</string>
     <string name="admin_event_general_reservations">Accepta Reserves fins a</string>
@@ -145,4 +149,6 @@
     <string name="dialog_account_migration_title">Migració del compte</string>
     <string name="dialog_account_migration_message">El mètode d\'inici de sessió de l\'app ha sigut actualitzat per a fer-lo més segur. Per favor, torna a iniciar sessió per a seguir fent servir l\'aplicació.</string>
     <string name="events_error_reservations">Ja no s\'accepten més reserves.</string>
+    <string name="admin_event_general_people">Reserves</string>
+    <string name="admin_event_general_people_total">Total: %d</string>
 </resources>

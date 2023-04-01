@@ -30,6 +30,7 @@
     <string name="twitter" translatable="false">Twitter</string>
     <string name="tiktok" translatable="false">TikTok</string>
     <string name="google_play" translatable="false">Google Play</string>
+    <string name="github" translatable="false">GitHub</string>
 
     <string name="login_title">Login</string>
     <string name="login_nif">NIF</string>
@@ -159,6 +160,8 @@
     <string name="admin_events_sort_name">Sort by Name</string>
     <string name="admin_events_sort_order">Sort by Order</string>
     <string name="admin_events_sort_scanned">Sort by Scanned</string>
+    <string name="admin_events_sort_paid">Sort by Paid</string>
+    <string name="admin_events_scanned">Person scanned</string>
     <string name="admin_scan_loading">Verifying…</string>
     <string name="admin_scan_correct">Correct!</string>
     <string name="admin_scan_invalid">Invalid!</string>
@@ -166,10 +169,14 @@
     <string name="admin_scan_repeated_msg">This code has already been scanned</string>
     <string name="admin_tickets_ready">Tickets Ready!</string>
     <string name="admin_tickets_generating">Generating tickets…</string>
+    <string name="admin_events_mark_paid_title">Mark as paid?</string>
+    <string name="admin_events_mark_paid_message">Do you want to store that %s has paid for %s?</string>
 
     <string name="admin_event_general">General Information</string>
     <string name="admin_event_general_date">Event Date</string>
     <string name="admin_event_general_reservations">Accepts Reservations Until</string>
+    <string name="admin_event_general_people">Reservations</string>
+    <string name="admin_event_general_people_total">Total: %d</string>
     <string name="admin_event_actions">Actions</string>
     <string name="admin_event_actions_scan">Scan QR</string>
     <string name="admin_event_people">People</string>
