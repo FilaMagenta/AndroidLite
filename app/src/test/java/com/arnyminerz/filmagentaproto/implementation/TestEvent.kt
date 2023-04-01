@@ -1,7 +1,7 @@
 package com.arnyminerz.filmagentaproto.implementation
 
-import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
 import com.arnyminerz.filamagenta.core.database.data.woo.InStock
+import com.arnyminerz.filamagenta.core.database.data.woo.event.EventType
 import com.arnyminerz.filamagenta.core.utils.now
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import io.mockk.every
@@ -52,7 +52,7 @@ class TestEvent {
 
     @Test
     fun test_event() {
-        assertEquals(EventProto.Type.Dinner, datesEvent.type)
+        assertEquals(EventType.Dinner, datesEvent.type)
         assertEquals("SAN JORGE, cena", datesEvent.title)
         assertEquals(14, datesEvent.index)
     }
