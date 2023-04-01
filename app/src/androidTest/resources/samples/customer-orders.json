@@ -1,0 +1,612 @@
+[
+  {
+    "id": 2061,
+    "parent_id": 0,
+    "status": "processing",
+    "currency": "EUR",
+    "version": "6.5.1",
+    "prices_include_tax": false,
+    "date_created": "2023-03-30T11:05:01",
+    "date_modified": "2023-03-30T11:06:52",
+    "discount_total": "0.00",
+    "discount_tax": "0.00",
+    "shipping_total": "0.00",
+    "shipping_tax": "0.00",
+    "cart_tax": "0.00",
+    "total": "188.00",
+    "total_tax": "0.00",
+    "customer_id": 800,
+    "order_key": "wc_order_ma9shLt6NQdzB",
+    "billing": {
+      "first_name": "JORDI",
+      "last_name": "XXX XXX",
+      "company": "",
+      "address_1": "",
+      "address_2": "",
+      "city": "ALCOY",
+      "state": "A",
+      "postcode": "03804",
+      "country": "ES",
+      "email": "***@mail.com",
+      "phone": "xxx"
+    },
+    "shipping": {
+      "first_name": "",
+      "last_name": "",
+      "company": "",
+      "address_1": "",
+      "address_2": "",
+      "city": "",
+      "state": "",
+      "postcode": "",
+      "country": "",
+      "phone": "xxx"
+    },
+    "payment_method": "redsys",
+    "payment_method_title": "Pagar con Tarjeta",
+    "transaction_id": "",
+    "customer_ip_address": "90.166.59.38",
+    "customer_user_agent": "Mozilla/5.0 (Linux; Android 12; Redmi Note 9 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Mobile Safari/537.36",
+    "created_via": "checkout",
+    "customer_note": "",
+    "date_completed": null,
+    "date_paid": "2023-03-30T11:06:52",
+    "cart_hash": "997cb7e673dda57fb1fe9ff44cc63f4a",
+    "number": "2061",
+    "meta_data": [
+      {
+        "id": 30633,
+        "key": "is_vat_exempt",
+        "value": "no"
+      },
+      {
+        "id": 30640,
+        "key": "_new_order_email_sent",
+        "value": "true"
+      }
+    ],
+    "line_items": [
+      {
+        "id": 1631,
+        "name": "04 ENTRAETA oficial",
+        "product_id": 1504,
+        "variation_id": 1524,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "24.00",
+        "subtotal_tax": "0.00",
+        "total": "24.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17803,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 17904,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 24,
+        "parent_name": "04 ENTRAETA oficial"
+      },
+      {
+        "id": 1632,
+        "name": "08 MUSICOS, cena.",
+        "product_id": 1497,
+        "variation_id": 1498,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "0.00",
+        "subtotal_tax": "0.00",
+        "total": "0.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17813,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 17905,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 0,
+        "parent_name": "08 MUSICOS, cena."
+      },
+      {
+        "id": 1633,
+        "name": "09 ENTRADA, desayuno.",
+        "product_id": 1485,
+        "variation_id": 1486,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "0.00",
+        "subtotal_tax": "0.00",
+        "total": "0.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17823,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 17906,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 0,
+        "parent_name": "09 ENTRADA, desayuno."
+      },
+      {
+        "id": 1634,
+        "name": "11 ENTRADA, cena. - FESTER",
+        "product_id": 1528,
+        "variation_id": 1596,
+        "quantity": 2,
+        "tax_class": "",
+        "subtotal": "50.00",
+        "subtotal_tax": "0.00",
+        "total": "50.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17833,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 17907,
+            "key": "_reduced_stock",
+            "value": "2",
+            "display_key": "_reduced_stock",
+            "display_value": "2"
+          }
+        ],
+        "sku": "",
+        "price": 25,
+        "parent_name": "11 ENTRADA, cena."
+      },
+      {
+        "id": 1635,
+        "name": "12 SAN JORGE, desayuno.",
+        "product_id": 1488,
+        "variation_id": 1489,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "0.00",
+        "subtotal_tax": "0.00",
+        "total": "0.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17843,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 17908,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 0,
+        "parent_name": "12 SAN JORGE, desayuno."
+      },
+      {
+        "id": 1636,
+        "name": "13 SAN JORGE, comida. - FESTER",
+        "product_id": 1532,
+        "variation_id": 1600,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "32.00",
+        "subtotal_tax": "0.00",
+        "total": "32.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17853,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 17909,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 32,
+        "parent_name": "13 SAN JORGE, comida."
+      },
+      {
+        "id": 1637,
+        "name": "13 SAN JORGE, comida. - ACOMPAÑANTE",
+        "product_id": 1532,
+        "variation_id": 1533,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "32.00",
+        "subtotal_tax": "0.00",
+        "total": "32.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17863,
+            "key": "pa_categoria",
+            "value": "acompanante",
+            "display_key": "CATEGORIA",
+            "display_value": "ACOMPAÑANTE"
+          },
+          {
+            "id": 17910,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 32,
+        "parent_name": "13 SAN JORGE, comida."
+      },
+      {
+        "id": 1638,
+        "name": "14 SAN JORGE, cena - FESTER",
+        "product_id": 1537,
+        "variation_id": 1608,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "25.00",
+        "subtotal_tax": "0.00",
+        "total": "25.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17873,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 17911,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 25,
+        "parent_name": "14 SAN JORGE, cena"
+      },
+      {
+        "id": 1639,
+        "name": "14 SAN JORGE, cena - ACOMPAÑANTE",
+        "product_id": 1537,
+        "variation_id": 1541,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "25.00",
+        "subtotal_tax": "0.00",
+        "total": "25.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17883,
+            "key": "pa_categoria",
+            "value": "acompanante",
+            "display_key": "CATEGORIA",
+            "display_value": "ACOMPAÑANTE"
+          },
+          {
+            "id": 17912,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 25,
+        "parent_name": "14 SAN JORGE, cena"
+      },
+      {
+        "id": 1640,
+        "name": "15 ALARDO, desayuno.",
+        "product_id": 1491,
+        "variation_id": 1492,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "0.00",
+        "subtotal_tax": "0.00",
+        "total": "0.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17893,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 17913,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 0,
+        "parent_name": "15 ALARDO, desayuno."
+      },
+      {
+        "id": 1641,
+        "name": "16 ALARDO, comida",
+        "product_id": 1500,
+        "variation_id": 1502,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "0.00",
+        "subtotal_tax": "0.00",
+        "total": "0.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 17903,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 17914,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 0,
+        "parent_name": "16 ALARDO, comida"
+      }
+    ],
+    "tax_lines": [],
+    "shipping_lines": [],
+    "fee_lines": [],
+    "coupon_lines": [],
+    "refunds": [],
+    "payment_url": "https://filamagenta.com/finalizar-compra/order-pay/2061/?pay_for_order=true&key=wc_order_ma9shLt6NQdzB",
+    "date_created_gmt": "2023-03-30T11:05:01",
+    "date_modified_gmt": "2023-03-30T11:06:52",
+    "date_completed_gmt": null,
+    "date_paid_gmt": "2023-03-30T11:06:52",
+    "currency_symbol": "€",
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/orders/2061"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/orders"
+        }
+      ],
+      "customer": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/customers/800"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1838,
+    "parent_id": 0,
+    "status": "processing",
+    "currency": "EUR",
+    "version": "6.5.1",
+    "prices_include_tax": false,
+    "date_created": "2023-03-20T22:12:01",
+    "date_modified": "2023-03-20T22:12:02",
+    "discount_total": "0.00",
+    "discount_tax": "0.00",
+    "shipping_total": "0.00",
+    "shipping_tax": "0.00",
+    "cart_tax": "0.00",
+    "total": "28.00",
+    "total_tax": "0.00",
+    "customer_id": 800,
+    "order_key": "wc_order_eGTP0BX4gzXyL",
+    "billing": {
+      "first_name": "JORDI",
+      "last_name": "XXX XXX",
+      "company": "",
+      "address_1": "SAN ELOY 4",
+      "address_2": "",
+      "city": "ALCOY",
+      "state": "A",
+      "postcode": "03804",
+      "country": "ES",
+      "email": "***@mail.com",
+      "phone": "xxx"
+    },
+    "shipping": {
+      "first_name": "",
+      "last_name": "",
+      "company": "",
+      "address_1": "",
+      "address_2": "",
+      "city": "",
+      "state": "",
+      "postcode": "",
+      "country": "",
+      "phone": "xxx"
+    },
+    "payment_method": "cod",
+    "payment_method_title": "Contra reembolso",
+    "transaction_id": "",
+    "customer_ip_address": "90.166.58.99",
+    "customer_user_agent": "Mozilla/5.0 (Linux; Android 12; Redmi Note 9 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Mobile Safari/537.36",
+    "created_via": "checkout",
+    "customer_note": "",
+    "date_completed": null,
+    "date_paid": null,
+    "cart_hash": "ff18c58612de9a8a62a3557d1fdbc1bd",
+    "number": "1838",
+    "meta_data": [
+      {
+        "id": 23569,
+        "key": "is_vat_exempt",
+        "value": "no"
+      },
+      {
+        "id": 23574,
+        "key": "_new_order_email_sent",
+        "value": "true"
+      }
+    ],
+    "line_items": [
+      {
+        "id": 805,
+        "name": "02 Gloria MAYOR, desayuno.",
+        "product_id": 1478,
+        "variation_id": 1480,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "0.00",
+        "subtotal_tax": "0.00",
+        "total": "0.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 8733,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 8744,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 0,
+        "parent_name": "02 Gloria MAYOR, desayuno."
+      },
+      {
+        "id": 806,
+        "name": "03 Gloria MAYOR, comida. - FESTER",
+        "product_id": 1508,
+        "variation_id": 1512,
+        "quantity": 1,
+        "tax_class": "",
+        "subtotal": "28.00",
+        "subtotal_tax": "0.00",
+        "total": "28.00",
+        "total_tax": "0.00",
+        "taxes": [],
+        "meta_data": [
+          {
+            "id": 8743,
+            "key": "pa_categoria",
+            "value": "fester",
+            "display_key": "CATEGORIA",
+            "display_value": "FESTER"
+          },
+          {
+            "id": 8745,
+            "key": "_reduced_stock",
+            "value": "1",
+            "display_key": "_reduced_stock",
+            "display_value": "1"
+          }
+        ],
+        "sku": "",
+        "price": 28,
+        "parent_name": "03 Gloria MAYOR, comida."
+      }
+    ],
+    "tax_lines": [],
+    "shipping_lines": [],
+    "fee_lines": [],
+    "coupon_lines": [],
+    "refunds": [],
+    "payment_url": "https://filamagenta.com/finalizar-compra/order-pay/1838/?pay_for_order=true&key=wc_order_eGTP0BX4gzXyL",
+    "date_created_gmt": "2023-03-20T22:12:01",
+    "date_modified_gmt": "2023-03-20T22:12:02",
+    "date_completed_gmt": null,
+    "date_paid_gmt": null,
+    "currency_symbol": "€",
+    "_links": {
+      "self": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/orders/1838"
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/orders"
+        }
+      ],
+      "customer": [
+        {
+          "href": "https://filamagenta.com/wp-json/wc/v3/customers/800"
+        }
+      ]
+    }
+  }
+]

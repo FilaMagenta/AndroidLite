@@ -2,6 +2,7 @@ package com.arnyminerz.filmagentaproto.database.remote
 
 import android.net.Uri
 import android.util.Base64
+import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.database.data.woo.AvailablePayment
@@ -42,7 +43,8 @@ object RemoteCommerce {
         .appendPath("attributes")
         .build()
 
-    private val OrdersEndpoint = BaseEndpoint.buildUpon()
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val OrdersEndpoint: Uri = BaseEndpoint.buildUpon()
         .appendPath("orders")
         .build()
 
@@ -87,8 +89,9 @@ object RemoteCommerce {
     }
 
     @WorkerThread
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun get(endpoint: Uri): String = io {
+    suspend fun get(endpoint: Uri): String = io {
         endpoint.openConnection("GET") { connection ->
             when (connection.responseCode) {
                 in 200 until 300 -> connection.inputStream.bufferedReader().readText()
@@ -96,10 +99,6 @@ object RemoteCommerce {
             }
         }
     }
-
-    @WorkerThread
-    private suspend fun <T : Any> get(endpoint: Uri, serializer: JsonSerializer<T>): T =
-        JSONObject(get(endpoint)).let { serializer.fromJSON(it) }
 
     @WorkerThread
     private suspend fun <T : Any> getList(endpoint: Uri, serializer: JsonSerializer<T>): List<T> =
