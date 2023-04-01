@@ -193,12 +193,12 @@ dependencies {
 
     // Unit test implementations
     testImplementation 'junit:junit:4.13.2'
-    testImplementation "io.mockk:mockk-android:${mockkVersion}"
-    testImplementation "io.mockk:mockk-agent:${mockkVersion}"
+    testImplementation "io.mockk:mockk-android:${mockk_version}"
+    testImplementation "io.mockk:mockk-agent:${mockk_version}"
 
     // Android test implementations
-    androidTestImplementation "io.mockk:mockk-android:${mockkVersion}"
-    androidTestImplementation "io.mockk:mockk-agent:${mockkVersion}"
+    androidTestImplementation "io.mockk:mockk-android:${mockk_version}"
+    androidTestImplementation "io.mockk:mockk-agent:${mockk_version}"
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4"
