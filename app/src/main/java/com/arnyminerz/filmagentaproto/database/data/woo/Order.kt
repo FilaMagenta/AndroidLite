@@ -13,6 +13,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Status.Companion.REFUNDE
 import com.arnyminerz.filmagentaproto.database.data.woo.Status.Companion.TRASH
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
+import com.arnyminerz.filmagentaproto.security.Hashing
 import com.arnyminerz.filmagentaproto.utils.getDateGmt
 import com.arnyminerz.filmagentaproto.utils.mapObjects
 import com.arnyminerz.filmagentaproto.utils.toJSON
@@ -111,5 +112,11 @@ data class Order(
             put("display_key", displayKey)
             put("display_value", displayValue)
         }
+    }
+
+    /** Provides a hash that uniquely identifies the Order. */
+    val hash: String by lazy {
+        val str = "$id;$status;$currency;${dateCreated.time};${dateModified.time};$total;$customerId;${items.map { "${it.id}:${it.productId}:${it.variationId}:${it.quantity}" }}"
+        Hashing.sha256(str)
     }
 }

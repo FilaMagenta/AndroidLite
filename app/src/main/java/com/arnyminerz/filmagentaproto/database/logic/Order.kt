@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.Base64
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.applyCanvas
 import androidx.core.graphics.drawable.toBitmap
@@ -15,6 +16,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.documents.RectD
 import com.arnyminerz.filmagentaproto.security.AESEncryption
+import com.arnyminerz.filmagentaproto.utils.getIntOrNull
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import org.json.JSONObject
@@ -22,8 +24,12 @@ import timber.log.Timber
 
 data class QRVerification(
     val customerName: String,
-    val hashCode: Long,
+    val hash: String,
+    val version: Int,
 )
+
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+const val QR_VERSION = 1
 
 /**
  * Verifies the contents of a scanned QR code.
@@ -31,27 +37,29 @@ data class QRVerification(
  * @return `null` if the code is not valid, the customer's name otherwise.
  */
 fun Order.Companion.verifyQRCode(contents: String): QRVerification? {
-    Timber.d("Encoded QR code: $contents")
     val decoded = Base64.decode(contents, Base64.NO_WRAP).decodeToString()
-    Timber.d("Decoded QR code: $decoded")
     val json = JSONObject(decoded)
     if (!json.has("customer") || !json.has("confirmation_code") || !json.has("confirmation_hash")) {
         Timber.d("JSON missing keys.")
         return null
     }
+
     val code = json.getString("confirmation_code")
-    val decodedCode = Base64.decode(code, Base64.NO_WRAP).decodeToString()
-    Timber.d("Decoded code: $decodedCode")
     val hash = json.getString("confirmation_hash")
-    val decryptedHash = AESEncryption.decrypt(hash)
-    Timber.d("Decrypted Hash: $decryptedHash")
-    if (decodedCode != decryptedHash)
-        return null
-
+    val version = json.getIntOrNull("version")
     val customer = json.getString("customer")
-    val hashCode = decodedCode.toLong()
 
-    return QRVerification(customer, hashCode)
+    // Decode de hash code
+    val decodedCode = Base64.decode(code, Base64.NO_WRAP).decodeToString()
+    // And decrypt the confirmation hash
+    val decryptedHash = AESEncryption.decrypt(hash)
+
+    // If they are not equal, return null
+    if (decodedCode != decryptedHash) return null
+
+    if (version != QR_VERSION) throw SecurityException("Scanned a QR code from an older version.")
+
+    return QRVerification(customer, decodedCode, version)
 }
 
 /**
@@ -66,11 +74,12 @@ context(Context)
 fun Order.getQRCode(customer: Customer, size: Int = 400, logoSize: Int = 80): Bitmap {
     val barcodeEncoder = BarcodeEncoder()
     val content = JSONObject().apply {
+        val encodedCode = Base64.encodeToString(hash.toByteArray(), Base64.NO_WRAP)
+
         put("customer", customer.fullName)
-        val encodedCode =
-            Base64.encodeToString(hashCode().toString().toByteArray(), Base64.NO_WRAP)
+        put("version", QR_VERSION)
         put("confirmation_code", encodedCode)
-        put("confirmation_hash", AESEncryption.encrypt(hashCode().toString()))
+        put("confirmation_hash", AESEncryption.encrypt(hash))
     }
     val encodedContents = Base64.encodeToString(content.toString().toByteArray(), Base64.NO_WRAP)
     // Create the QR code

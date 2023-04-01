@@ -40,13 +40,6 @@ jobs:
           echo 'AES_KEY=${{ secrets.AES_KEY }}' >> local.properties
           echo 'AES_SALT=${{ secrets.AES_SALT }}' >> local.properties
           echo 'AES_IV=${{ secrets.AES_IV }}' >> local.properties
-      - name: Prepare Gradle version file
-        run: |
-          truncate -s 0 app/version.gradle
-          echo "ext {" >> app/version.gradle
-          echo "VERSION_NAME=\"${{ steps.create_release.outputs.tag_name }}\"" >> app/version.gradle
-          echo "}" >> app/version.gradle
-          cat app/version.gradle
       - name: Build APK
         id: build_apk
         run: |
@@ -62,7 +55,7 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: ":robot: Commit Changes"
-          file_pattern: "version.properties app/version.gradle"
+          file_pattern: "version.properties"
 
       - name: Build AAB
         id: build_aab

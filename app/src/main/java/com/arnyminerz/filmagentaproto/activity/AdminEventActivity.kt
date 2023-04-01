@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.admin.ScannedCode
+import com.arnyminerz.filmagentaproto.database.data.admin.CodeScanned
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
@@ -258,22 +258,22 @@ class AdminEventActivity : AppCompatActivity() {
                                 when (sortBy) {
                                     SORT_BY_NAME -> customer.firstName
                                     SORT_BY_ORDER -> "${order.id}"
-                                    SORT_BY_SCANNED -> (codes?.find { it.hashCode == order.hashCode().toLong() } != null).toString()
+                                    SORT_BY_SCANNED -> (codes?.find { it.hash == order.hash } != null).toString()
                                     else -> "#${order.id}"
                                 }
                             }
                     ) { (order, customer) ->
-                        val hashCode = order.hashCode().toLong()
-                        val scannedCode by viewModel.adminDao.getFromHashCodeLive(hashCode).observeAsState()
+                        val scannedCode by viewModel.adminDao.getFromHashLive(order.hash).observeAsState()
 
                         OutlinedCard(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = customer.let { it.firstName + " " + it.lastName },
+                                text = customer.fullName,
                                 modifier = Modifier
                                     .padding(12.dp)
                             )
+                            Text("Hash: ${order.hash}")
                             if (scannedCode != null)
                                 Text("Scanned!")
                         }
@@ -382,13 +382,13 @@ class AdminEventActivity : AppCompatActivity() {
                 if (verification == null)
                     scanResult.postValue(SCAN_RESULT_INVALID)
                 else {
-                    if (adminDao.getFromHashCode(verification.hashCode) != null) {
+                    if (adminDao.getFromHash(verification.hash) != null) {
                         // Notify about a repeated code
                         scanResult.postValue(SCAN_RESULT_REPEATED)
                     } else {
                         // Insert the scanned code
-                        val scannedCode = ScannedCode(verification.hashCode)
-                        adminDao.insert(scannedCode)
+                        val codeScanned = CodeScanned(0, verification.hash)
+                        adminDao.insert(codeScanned)
 
                         scanResult.postValue(SCAN_RESULT_OK)
                     }

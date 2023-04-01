@@ -8,7 +8,7 @@ on:
 
 jobs:
   run_test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -41,16 +41,15 @@ jobs:
           echo 'AES_SALT=${{ secrets.AES_SALT }}' >> local.properties
           echo 'AES_IV=${{ secrets.AES_IV }}' >> local.properties
 
-      - name: Run unit tests
-        id: unit_tests
-        run: ./gradlew test --stacktrace
-
       - name: Instrumentation Tests
         id: instrumentation_tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 33
-          target: default
-          arch: x64
-          profile: Pixel 4
+          target: google_apis
+          arch: x86_64
           script: ./gradlew connectedCheck --stacktrace
+
+      - name: Run unit tests
+        id: unit_tests
+        run: ./gradlew test --stacktrace

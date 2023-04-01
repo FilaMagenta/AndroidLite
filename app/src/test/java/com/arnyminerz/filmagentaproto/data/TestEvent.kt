@@ -6,7 +6,10 @@ import com.arnyminerz.filmagentaproto.utils.now
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.verify
+import java.util.Calendar
 import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -23,7 +26,15 @@ class TestEvent {
         verify { now() }
     }
 
-    val datesEvent = Event(
+    @Before
+    fun mock_calendar() {
+        mockkStatic(Calendar::class)
+        every { Calendar.getInstance() } returns Calendar.getInstance(TimeZone.getTimeZone("Europe/Madrid"), Locale.ENGLISH)
+        assertEquals("Europe/Madrid", Calendar.getInstance().timeZone.id)
+        verify { Calendar.getInstance() }
+    }
+
+    private val datesEvent = Event(
         id = 1,
         name = "14 SAN JORGE, cena",
         slug = "san-jorge-cena",
