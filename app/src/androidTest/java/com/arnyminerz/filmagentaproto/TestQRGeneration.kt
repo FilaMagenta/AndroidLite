@@ -7,6 +7,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_SUBSCRIBER
 import com.arnyminerz.filmagentaproto.database.data.woo.Status
+import com.arnyminerz.filmagentaproto.database.logic.QR_VERSION
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.database.logic.verifyQRCode
 import com.arnyminerz.filmagentaproto.security.AESEncryption
@@ -120,6 +121,8 @@ class TestQRGeneration {
         val verification = Order.verifyQRCode(contents)
         assertNotNull(verification)
         assertEquals(customer.fullName, verification?.customerName)
+        assertEquals(QR_VERSION, verification?.version)
+        assertEquals(order.hash, verification?.hash)
     }
 
     /** Tests QRs generated with different keys. */

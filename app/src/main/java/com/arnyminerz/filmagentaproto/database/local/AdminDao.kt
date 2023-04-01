@@ -6,28 +6,28 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.arnyminerz.filmagentaproto.database.data.admin.ScannedCode
+import com.arnyminerz.filmagentaproto.database.data.admin.CodeScanned
 
 @Dao
 interface AdminDao {
-    @Query("SELECT * FROM scanned_codes")
-    suspend fun getAllScannedCodes(): List<ScannedCode>
+    @Query("SELECT * FROM codes_scanned")
+    suspend fun getAllScannedCodes(): List<CodeScanned>
 
-    @Query("SELECT * FROM scanned_codes")
-    fun getAllScannedCodesLive(): LiveData<List<ScannedCode>>
+    @Query("SELECT * FROM codes_scanned")
+    fun getAllScannedCodesLive(): LiveData<List<CodeScanned>>
 
-    @Query("SELECT * FROM scanned_codes WHERE hashCode=:hashCode")
-    suspend fun getFromHashCode(hashCode: Long): ScannedCode?
+    @Query("SELECT * FROM codes_scanned WHERE hash=:hash")
+    suspend fun getFromHash(hash: String): CodeScanned?
 
-    @Query("SELECT * FROM scanned_codes WHERE hashCode=:hashCode")
-    fun getFromHashCodeLive(hashCode: Long): LiveData<ScannedCode?>
+    @Query("SELECT * FROM codes_scanned WHERE hash=:hash")
+    fun getFromHashLive(hash: String): LiveData<CodeScanned?>
 
     @Insert
-    suspend fun insert(vararg data: ScannedCode)
+    suspend fun insert(vararg data: CodeScanned)
 
     @Delete
-    suspend fun delete(vararg data: ScannedCode)
+    suspend fun delete(vararg data: CodeScanned)
 
     @Update
-    suspend fun update(vararg data: ScannedCode)
+    suspend fun update(vararg data: CodeScanned)
 }
