@@ -29,7 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
-import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
+import com.arnyminerz.filamagenta.core.database.data.woo.order.OrderMetadata
 import com.arnyminerz.filmagentaproto.R
 import timber.log.Timber
 
@@ -38,7 +38,7 @@ import timber.log.Timber
 fun EventBottomSheet(
     event: EventProto,
     onDismissRequest: () -> Unit,
-    onSubmit: (metadata: List<OrderProto.Metadata>, onComplete: () -> Unit) -> Unit,
+    onSubmit: (metadata: List<OrderMetadata>, onComplete: () -> Unit) -> Unit,
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -58,7 +58,7 @@ fun EventBottomSheet(
             fontWeight = FontWeight.SemiBold,
         )
 
-        val selectedAttributesOption = remember { mutableStateMapOf<Long, OrderProto.Metadata>() }
+        val selectedAttributesOption = remember { mutableStateMapOf<Long, OrderMetadata>() }
 
         // Only first attribute will be taken
         event.attributes

@@ -8,6 +8,7 @@ import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
 import com.arnyminerz.filamagenta.core.database.data.woo.InStock
 import com.arnyminerz.filamagenta.core.database.data.woo.OnBackOrder
 import com.arnyminerz.filamagenta.core.database.data.woo.OutOfStock
+import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
 import java.util.Date

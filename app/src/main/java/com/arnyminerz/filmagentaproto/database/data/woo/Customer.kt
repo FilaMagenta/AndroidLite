@@ -11,6 +11,7 @@ import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_CUSTOMER
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_EDITOR
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SHOP_MANAGER
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SUBSCRIBER
+import com.arnyminerz.filamagenta.core.database.data.woo.customer.DeliveryInformation
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
 import java.util.Date

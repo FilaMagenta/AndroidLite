@@ -8,7 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
-import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
+import com.arnyminerz.filamagenta.core.database.data.woo.order.OrderMetadata
 import com.arnyminerz.filamagenta.core.utils.io
 import com.arnyminerz.filamagenta.core.utils.ui
 import com.arnyminerz.filmagentaproto.App
@@ -138,7 +138,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun signUpForEvent(
         customer: Customer,
         event: Event,
-        metadata: List<OrderProto.Metadata>,
+        metadata: List<OrderMetadata>,
         @UiThread onComplete: (paymentUrl: String) -> Unit
     ) = async {
         Timber.i("Signing up for event (price=${event.price}). Metadata: $metadata")

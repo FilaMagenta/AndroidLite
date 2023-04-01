@@ -13,6 +13,8 @@ import com.arnyminerz.filamagenta.core.database.data.woo.PENDING
 import com.arnyminerz.filamagenta.core.database.data.woo.PROCESSING
 import com.arnyminerz.filamagenta.core.database.data.woo.REFUNDED
 import com.arnyminerz.filamagenta.core.database.data.woo.TRASH
+import com.arnyminerz.filamagenta.core.database.data.woo.order.Payment
+import com.arnyminerz.filamagenta.core.database.data.woo.order.Product
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
 import com.arnyminerz.filamagenta.core.utils.getObjectInlineOrNull

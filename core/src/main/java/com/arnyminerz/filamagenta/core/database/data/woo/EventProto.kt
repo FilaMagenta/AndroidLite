@@ -1,17 +1,13 @@
 package com.arnyminerz.filamagenta.core.database.data.woo
 
 import com.arnyminerz.filamagenta.core.Logger
-import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable
+import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
+import com.arnyminerz.filamagenta.core.database.data.woo.event.EventType
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
-import com.arnyminerz.filamagenta.core.utils.getLongOrNull
-import com.arnyminerz.filamagenta.core.utils.getObjectOrNull
-import com.arnyminerz.filamagenta.core.utils.mapObjects
 import com.arnyminerz.filamagenta.core.utils.now
-import com.arnyminerz.filamagenta.core.utils.toJSON
 import java.util.Calendar
 import java.util.Date
-import org.json.JSONException
 import org.json.JSONObject
 
 const val InStock = "instock"
@@ -109,124 +105,6 @@ open class EventProto(
             json.getString("stock_status"),
             json.getInt("stock_quantity"),
         )
-    }
-
-    data class Attribute(
-        val id: Long,
-        val name: String,
-        val options: List<Option>,
-        val variation: Variation?,
-    ) : JsonSerializable {
-        companion object : JsonSerializer<Attribute> {
-            /**
-             * Initializes the attribute from a JSONObject.
-             *
-             * **Note: [options] are set empty; [variation] is set to `null`**
-             */
-            override fun fromJSON(json: JSONObject, vararg args: Any?): Attribute = Attribute(
-                json.getLong("id"),
-                json.getString("name"),
-                if (json.has("options"))
-                    json.getJSONArray("options")
-                        .let { array ->
-                            try {
-                                array.mapObjects { Option.fromJSON(it) }
-                            } catch (e: JSONException) {
-                                // This is for compatibility with old versions
-                                (0 until array.length())
-                                    .map { array.getString(it) }
-                                    .map { Option(null, it, 0.0) }
-                            }
-                        }
-                else
-                    emptyList(),
-                json.getObjectOrNull("variation", Variation),
-            )
-        }
-
-        data class Option(
-            val variationId: Long?,
-            val displayValue: String,
-            val price: Double,
-        ) : JsonSerializable {
-            val value = displayValue.lowercase().replace(' ', '-')
-
-            companion object : JsonSerializer<Option> {
-                override fun fromJSON(json: JSONObject, vararg args: Any?): Option = Option(
-                    json.getLongOrNull("variationId"),
-                    json.getString("displayValue"),
-                    json.getDouble("price"),
-                )
-            }
-
-            override fun toJSON(): JSONObject = JSONObject().apply {
-                put("variationId", variationId)
-                put("displayValue", displayValue)
-                put("price", price)
-            }
-        }
-
-        override fun toJSON(): JSONObject = JSONObject().apply {
-            put("id", id)
-            put("name", name)
-            put("options", options.toJSON())
-            put("variation", variation?.toJSON())
-        }
-
-        fun toMetadata(option: Option = options[0]): OrderProto.Metadata = OrderProto.Metadata(
-            id = id,
-            key = name.lowercase().replace(' ', '-'),
-            displayKey = name,
-            value = option.value,
-            displayValue = option.displayValue,
-        )
-    }
-
-    data class Variation(
-        val id: Long,
-        val price: Double,
-        val attributes: List<ShortAttribute>,
-    ) : JsonSerializable {
-        companion object : JsonSerializer<Variation> {
-            override fun fromJSON(json: JSONObject, vararg args: Any?): Variation = Variation(
-                json.getLong("id"),
-                json.getString("price").toDoubleOrNull() ?: 0.0,
-                json.getJSONArray("attributes").mapObjects { ShortAttribute.fromJSON(it) },
-            )
-        }
-
-        data class ShortAttribute(
-            val id: Long,
-            val name: String,
-            val option: String,
-        ) : JsonSerializable {
-            companion object : JsonSerializer<ShortAttribute> {
-                override fun fromJSON(json: JSONObject, vararg args: Any?): ShortAttribute =
-                    ShortAttribute(
-                        json.getLong("id"),
-                        json.getString("name"),
-                        json.getString("option")
-                    )
-            }
-
-            override fun toJSON(): JSONObject = JSONObject().apply {
-                put("id", id)
-                put("name", name)
-                put("option", option)
-            }
-        }
-
-        override fun toJSON(): JSONObject = JSONObject().apply {
-            put("id", id)
-            put("price", price)
-            put("attributes", attributes.toJSON())
-        }
-    }
-
-    enum class Type(val keywords: Set<String>) {
-        Breakfast(setOf("esmorzar", "almuerzo", "desayuno")),
-        Lunch(setOf("comida", "dinar")),
-        Dinner(setOf("cena", "sopar")),
     }
 
     override fun toString(): String = id.toString()
@@ -392,8 +270,8 @@ open class EventProto(
             ?.toIntOrNull() ?: Int.MAX_VALUE
     }
 
-    val type: Type? by lazy {
-        Type.values().find { type ->
+    val type: EventType? by lazy {
+        EventType.values().find { type ->
             type.keywords.find { name.contains(it, true) } != null
         }
     }

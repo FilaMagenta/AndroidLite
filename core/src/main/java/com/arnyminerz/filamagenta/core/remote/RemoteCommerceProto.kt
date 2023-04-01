@@ -5,6 +5,10 @@ import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePaymentProto
 import com.arnyminerz.filamagenta.core.database.data.woo.CustomerProto
 import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
 import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
+import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
+import com.arnyminerz.filamagenta.core.database.data.woo.event.Option
+import com.arnyminerz.filamagenta.core.database.data.woo.event.Variation
+import com.arnyminerz.filamagenta.core.database.data.woo.order.OrderMetadata
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.divideMoney
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
@@ -240,14 +244,14 @@ abstract class RemoteCommerceProto<
                 .appendPath(eventId.toString())
                 .appendPath("variations")
                 .build()
-            val variations = getList(variationEndpoint, EventProto.Variation.Companion)
+            val variations = getList(variationEndpoint, Variation.Companion)
             Logger.d("Got ${variations.size} variations for event #$eventId: $variations")
 
             Logger.d("Event parsing. Processing attributes...")
             val attributes = eventJson.getJSONArray("attributes").mapObjects { attributeJson ->
                 val options = attributeJson.getStringJSONArray("options")
 
-                val attribute = EventProto.Attribute.fromJSON(attributeJson)
+                val attribute = Attribute.fromJSON(attributeJson)
                 Logger.d("Processing event attributes...")
                 val variation = variations.find { variation ->
                     variation.attributes.find { it.id == attribute.id } != null
@@ -257,7 +261,7 @@ abstract class RemoteCommerceProto<
                         val optionVar = variations.find { variation ->
                             variation.attributes.find { it.option == optionName } != null
                         }
-                        EventProto.Attribute.Option(
+                        Option(
                             optionVar?.id,
                             optionName,
                             optionVar?.price ?: price,
@@ -366,7 +370,7 @@ abstract class RemoteCommerceProto<
         customer: Customer,
         notes: String,
         event: Event,
-        metadata: List<OrderProto.Metadata>
+        metadata: List<OrderMetadata>
     ): Pair<String, Order> {
         Logger.d("Creating item for event...")
         val item = JSONObject().apply {

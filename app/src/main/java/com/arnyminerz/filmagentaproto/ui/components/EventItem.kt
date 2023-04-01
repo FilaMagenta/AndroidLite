@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
 import com.arnyminerz.filamagenta.core.database.data.woo.InStock
-import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
+import com.arnyminerz.filamagenta.core.database.data.woo.order.OrderMetadata
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.ui.dialogs.EventBottomSheet
 import com.arnyminerz.filmagentaproto.utils.launchCalendarInsert
@@ -45,7 +45,7 @@ fun EventItem(
     isConfirmed: Boolean,
     isArchived: Boolean,
     onEventSelected: () -> Unit,
-    onSignUp: (metadata: List<OrderProto.Metadata>, onComplete: () -> Unit) -> Unit,
+    onSignUp: (metadata: List<OrderMetadata>, onComplete: () -> Unit) -> Unit,
 ) {
     val context = LocalContext.current
 

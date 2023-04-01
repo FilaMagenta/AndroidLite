@@ -3,7 +3,7 @@ package com.arnyminerz.filmagentaproto.database.logic
 import android.content.Context
 import androidx.annotation.WorkerThread
 import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
-import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
+import com.arnyminerz.filamagenta.core.database.data.woo.order.Product
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
@@ -13,17 +13,17 @@ suspend fun EventProto.isConfirmed(context: Context, customer: Customer): Boolea
     getProductOrNull(context, customer) != null
 
 /**
- * Tries to get the [EventProto]'s matching [OrderProto.Product]. If null, it means that the given [customer]
+ * Tries to get the [EventProto]'s matching [Product]. If null, it means that the given [customer]
  * has not signed up for this event. Otherwise the returned product is the reservation made.
  */
 @WorkerThread
-suspend fun EventProto.getProductOrNull(context: Context, customer: Customer): OrderProto.Product? {
+suspend fun EventProto.getProductOrNull(context: Context, customer: Customer): Product? {
     val entries = getOrderOrNull(context, customer)?.items
     return entries?.firstOrNull()
 }
 
 /**
- * Tries to get the [EventProto]'s matching [OrderProto.Product]. If null, it means that the given [customer]
+ * Tries to get the [EventProto]'s matching [Product]. If null, it means that the given [customer]
  * has not signed up for this event. Otherwise the returned product is the reservation made.
  */
 @WorkerThread

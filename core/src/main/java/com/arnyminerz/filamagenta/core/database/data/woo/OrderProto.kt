@@ -1,17 +1,14 @@
 package com.arnyminerz.filamagenta.core.database.data.woo
 
+import com.arnyminerz.filamagenta.core.database.data.woo.order.Payment
+import com.arnyminerz.filamagenta.core.database.data.woo.order.Product
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.security.Hashing
-import com.arnyminerz.filamagenta.core.utils.getBooleanOrNull
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
-import com.arnyminerz.filamagenta.core.utils.getDateGmtOrNull
-import com.arnyminerz.filamagenta.core.utils.getJSONArrayOrNull
 import com.arnyminerz.filamagenta.core.utils.getObjectInlineOrNull
 import com.arnyminerz.filamagenta.core.utils.getObjectOrNull
-import com.arnyminerz.filamagenta.core.utils.getStringOrNull
 import com.arnyminerz.filamagenta.core.utils.mapObjects
-import com.arnyminerz.filamagenta.core.utils.putDateGmt
 import com.arnyminerz.filamagenta.core.utils.toJSON
 import java.util.Date
 import org.json.JSONObject
@@ -61,94 +58,6 @@ open class OrderProto(
         put("customer_id", customerId)
         put("payment", payment?.toJSON())
         put("line_items", items.toJSON())
-    }
-
-    data class Product(
-        val id: Long,
-        val name: String,
-        val productId: Long,
-        val variationId: Long,
-        val quantity: Long,
-        val price: Double,
-        val metadata: List<Metadata>?,
-    ) : JsonSerializable {
-        companion object :
-            JsonSerializer<Product> {
-            override fun fromJSON(json: JSONObject, vararg args: Any?): Product = Product(
-                json.getLong("id"),
-                json.getString("name"),
-                json.getLong("product_id"),
-                json.getLong("variation_id"),
-                json.getLong("quantity"),
-                json.getDouble("price"),
-                json.getJSONArrayOrNull("meta_data", Metadata)
-            )
-        }
-
-        override fun toJSON(): JSONObject = JSONObject().apply {
-            put("id", id)
-            put("name", name)
-            put("product_id", productId)
-            put("variation_id", variationId)
-            put("quantity", quantity)
-            put("price", price)
-        }
-    }
-
-    data class Metadata(
-        val id: Long,
-        val key: String,
-        val value: String,
-        val displayKey: String?,
-        val displayValue: String?,
-    ) : JsonSerializable {
-        companion object : JsonSerializer<Metadata> {
-            override fun fromJSON(json: JSONObject, vararg args: Any?): Metadata = Metadata(
-                json.getLong("id"),
-                json.getString("key"),
-                json.getString("value"),
-                null,
-                null,
-            )
-        }
-
-        override fun toJSON(): JSONObject = JSONObject().apply {
-            put("id", id)
-            put("key", key)
-            put("value", value)
-            put("display_key", displayKey)
-            put("display_value", displayValue)
-        }
-    }
-
-    data class Payment(
-        val paid: Boolean?,
-        val paymentMethod: String?,
-        val paymentMethodTitle: String?,
-        val transactionId: String?,
-        val date: Date?,
-    ) : JsonSerializable {
-        companion object : JsonSerializer<Payment> {
-            override fun fromJSON(json: JSONObject, vararg args: Any?): Payment = Payment(
-                json.getBooleanOrNull("paid"),
-                json.getStringOrNull("payment_method")?.takeIf { it.isNotEmpty() },
-                json.getStringOrNull("payment_method_title")?.takeIf { it.isNotEmpty() },
-                json.getStringOrNull("transaction_id")?.takeIf { it.isNotEmpty() },
-                json.getDateGmtOrNull("date_paid_gmt"),
-            )
-        }
-
-        override fun toJSON(): JSONObject = JSONObject()
-            .put("paid", paid)
-            .put("payment_method", paymentMethod)
-            .put("payment_method_title", paymentMethodTitle)
-            .put("transaction_id", transactionId)
-            .putDateGmt("date_paid_gmt", date)
-
-        /** `true` if any of the fields is not null. date is not considered */
-        val any: Boolean = paid == true ||
-                listOf(paid, paymentMethod, paymentMethodTitle, transactionId)
-                    .any { it != null }
     }
 
     /** Provides a hash that uniquely identifies the Order. */
