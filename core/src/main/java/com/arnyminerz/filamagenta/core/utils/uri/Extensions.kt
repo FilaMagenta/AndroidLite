@@ -7,8 +7,8 @@ fun URI.buildUpon(): UriBuilder =
         scheme,
         host,
         rawPath.split('/').filter { it.isNotBlank() },
-        query.split('&')
-            .associate { pair ->
+        query?.split('&')
+            ?.associate { pair ->
                 pair.split('=').let { it[0] to it.subList(1, it.size).joinToString("=") }
-            }
+            } ?: emptyMap()
     )
