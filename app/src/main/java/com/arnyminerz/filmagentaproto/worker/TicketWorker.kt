@@ -19,13 +19,14 @@ import androidx.work.Operation
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable
+import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
+import com.arnyminerz.filamagenta.core.utils.getStringOrNull
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
-import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
-import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.documents.DocumentUtils
 import com.arnyminerz.filmagentaproto.documents.Millimeter
 import com.arnyminerz.filmagentaproto.documents.drawBitmap
@@ -34,7 +35,6 @@ import com.arnyminerz.filmagentaproto.documents.drawText
 import com.arnyminerz.filmagentaproto.documents.mm
 import com.arnyminerz.filmagentaproto.utils.decodeBitmapBase64
 import com.arnyminerz.filmagentaproto.utils.encodeBase64
-import com.arnyminerz.filmagentaproto.utils.getStringOrNull
 import java.io.FileOutputStream
 import java.util.Locale
 import kotlin.math.min
@@ -111,7 +111,7 @@ class TicketWorker(context: Context, params: WorkerParameters) :
                 get() = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
             context(Context)
-            suspend fun fromOrders(
+                    suspend fun fromOrders(
                 wooCommerceDao: WooCommerceDao,
                 event: Event,
                 orders: List<Order>,

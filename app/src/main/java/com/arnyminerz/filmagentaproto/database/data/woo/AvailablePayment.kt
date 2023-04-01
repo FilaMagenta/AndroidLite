@@ -1,19 +1,13 @@
 package com.arnyminerz.filmagentaproto.database.data.woo
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
-import org.json.JSONObject
+import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePaymentProto
 
-@Entity(tableName = "available_payments")
+@Entity(
+    tableName = "available_payments",
+    primaryKeys = ["id"]
+)
 data class AvailablePayment(
-    @PrimaryKey override val id: Long,
-    val price: Double,
-): WooClass(id) {
-    companion object: JsonSerializer<AvailablePayment> {
-        override fun fromJSON(json: JSONObject): AvailablePayment = AvailablePayment(
-            json.getLong("id"),
-            json.getDouble("price"),
-        )
-    }
-}
+    override val id: Long,
+    override val price: Double,
+): AvailablePaymentProto(id, price)

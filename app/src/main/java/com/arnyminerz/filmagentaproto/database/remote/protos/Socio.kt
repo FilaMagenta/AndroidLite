@@ -6,7 +6,6 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import com.arnyminerz.filmagentaproto.database.prototype.RemoteDataParser
 import java.sql.Date
 import java.sql.ResultSet
 
@@ -74,7 +73,7 @@ data class Socio(
     val RodaBlancaBloqueada: Boolean?,
     val CtaContable: Int?,
 ) {
-    companion object : RemoteDataParser<Socio> {
+    companion object : com.arnyminerz.filamagenta.core.database.prototype.RemoteDataParser<Socio> {
         val EXAMPLE = Socio(
             6,
             "EXAMPLE",

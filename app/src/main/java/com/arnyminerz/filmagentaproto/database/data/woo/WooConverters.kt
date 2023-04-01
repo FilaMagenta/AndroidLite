@@ -1,8 +1,11 @@
 package com.arnyminerz.filmagentaproto.database.data.woo
 
 import androidx.room.TypeConverter
-import com.arnyminerz.filmagentaproto.utils.mapObjects
-import com.arnyminerz.filmagentaproto.utils.toJSON
+import com.arnyminerz.filamagenta.core.database.data.woo.CustomerProto
+import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
+import com.arnyminerz.filamagenta.core.utils.mapObjects
+import com.arnyminerz.filamagenta.core.utils.toJSON
 import java.util.Date
 import org.json.JSONArray
 import org.json.JSONObject
@@ -25,35 +28,35 @@ class WooConverters {
 
 
     @TypeConverter
-    fun fromAttributeList(value: List<Event.Attribute>?): String? = value?.toJSON()?.toString()
+    fun fromAttributeList(value: List<EventProto.Attribute>?): String? = value?.toJSON()?.toString()
 
     @TypeConverter
-    fun toAttributeList(value: String?): List<Event.Attribute>? =
-        value?.let { JSONArray(it).mapObjects { obj -> Event.Attribute.fromJSON(obj) } }
-
-
-    @TypeConverter
-    fun fromProductList(value: List<Order.Product>?): String? = value?.toJSON()?.toString()
-
-    @TypeConverter
-    fun toProductList(value: String?): List<Order.Product>? =
-        value?.let { JSONArray(it).mapObjects { obj -> Order.Product.fromJSON(obj) } }
+    fun toAttributeList(value: String?): List<EventProto.Attribute>? =
+        value?.let { JSONArray(it).mapObjects { obj -> EventProto.Attribute.fromJSON(obj) } }
 
 
     @TypeConverter
-    fun fromDeliveryInformation(value: Customer.DeliveryInformation?): String? =
+    fun fromProductList(value: List<OrderProto.Product>?): String? = value?.toJSON()?.toString()
+
+    @TypeConverter
+    fun toProductList(value: String?): List<OrderProto.Product>? =
+        value?.let { JSONArray(it).mapObjects { obj -> OrderProto.Product.fromJSON(obj) } }
+
+
+    @TypeConverter
+    fun fromDeliveryInformation(value: CustomerProto.DeliveryInformation?): String? =
         value?.toJSON()?.toString()
 
     @TypeConverter
-    fun toDeliveryInformation(value: String?): Customer.DeliveryInformation? =
-        value?.let { Customer.DeliveryInformation.fromJSON(JSONObject(it)) }
+    fun toDeliveryInformation(value: String?): CustomerProto.DeliveryInformation? =
+        value?.let { CustomerProto.DeliveryInformation.fromJSON(JSONObject(it)) }
 
 
     @TypeConverter
-    fun fromOrderPayment(value: Order.Payment?): String? =
+    fun fromOrderPayment(value: OrderProto.Payment?): String? =
         value?.toJSON()?.toString()
 
     @TypeConverter
-    fun toOrderPayment(value: String?): Order.Payment? =
-        value?.let { Order.Payment.fromJSON(JSONObject(it)) }
+    fun toOrderPayment(value: String?): OrderProto.Payment? =
+        value?.let { OrderProto.Payment.fromJSON(JSONObject(it)) }
 }

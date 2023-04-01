@@ -1,10 +1,8 @@
-package com.arnyminerz.filmagentaproto.security
+package com.arnyminerz.filamagenta.core.security
 
-import androidx.annotation.StringRes
-import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.utils.allLowerCase
-import com.arnyminerz.filmagentaproto.utils.allUpperCase
-import com.arnyminerz.filmagentaproto.utils.isNumber
+import com.arnyminerz.filamagenta.core.utils.allLowerCase
+import com.arnyminerz.filamagenta.core.utils.allUpperCase
+import com.arnyminerz.filamagenta.core.utils.isNumber
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.security.spec.InvalidKeySpecException
@@ -12,19 +10,19 @@ import java.util.Arrays
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
-enum class PasswordSafety(@StringRes val labelRes: Int?) {
+enum class PasswordSafety {
     /** The password given is safe */
-    Safe(null),
+    Safe,
     /** The password given is not safe because it contains things related to the Filà Magenta */
-    Magenta(R.string.register_password_unsafe_magenta),
+    Magenta,
     /** The password given is not safe because it's too short */
-    Short(R.string.register_password_unsafe_short),
+    Short,
     /** The password given is not safe because it contains only capital letters */
-    AllCaps(R.string.register_password_unsafe_all_caps),
+    AllCaps,
     /** The password given is not safe because it contains only lower case letters */
-    AllLowercase(R.string.register_password_unsafe_all_lowe),
+    AllLowercase,
     /** The password given is not safe because it only contains numbers. */
-    AllNumbers(R.string.register_password_unsafe_all_numb),
+    AllNumbers,
 }
 
 /**

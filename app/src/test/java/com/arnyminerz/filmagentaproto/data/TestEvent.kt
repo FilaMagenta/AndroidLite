@@ -1,8 +1,8 @@
 package com.arnyminerz.filmagentaproto.data
 
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.StockStatus
-import com.arnyminerz.filmagentaproto.utils.now
+import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
+import com.arnyminerz.filamagenta.core.database.data.woo.InStock
+import com.arnyminerz.filamagenta.core.utils.now
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.verify
@@ -34,7 +34,7 @@ class TestEvent {
         verify { Calendar.getInstance() }
     }
 
-    private val datesEvent = Event(
+    private val datesEvent = EventProto(
         id = 1,
         name = "14 SAN JORGE, cena",
         slug = "san-jorge-cena",
@@ -45,13 +45,13 @@ class TestEvent {
         shortDescription = "",
         price = 0.0,
         attributes = emptyList(),
-        stockStatus = StockStatus.InStock,
+        stockStatus = InStock,
         stockQuantity = 128,
     )
 
     @Test
     fun test_event() {
-        assertEquals(Event.Type.Dinner, datesEvent.type)
+        assertEquals(EventProto.Type.Dinner, datesEvent.type)
         assertEquals("SAN JORGE, cena", datesEvent.title)
         assertEquals(14, datesEvent.index)
     }

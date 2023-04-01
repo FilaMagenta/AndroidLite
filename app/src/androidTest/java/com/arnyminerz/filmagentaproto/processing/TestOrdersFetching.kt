@@ -13,7 +13,7 @@ import org.junit.Test
 class TestOrdersFetching {
     private val customerId = 1L
 
-    private val endpointOrders = RemoteCommerce.OrdersEndpoint.buildUpon()
+    private val endpointOrders = RemoteCommerce.ordersEndpoint.buildUpon()
         .appendQueryParameter("customer", customerId.toString())
         .appendQueryParameter("page", "1")
         .appendQueryParameter("per_page", "100")

@@ -1,11 +1,9 @@
-package com.arnyminerz.filmagentaproto.database.remote
+package com.arnyminerz.filamagenta.core.remote
 
-import android.os.StrictMode
-import com.arnyminerz.filmagentaproto.database.prototype.RemoteDataParser
+import com.arnyminerz.filamagenta.core.Logger
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.ResultSet
-import timber.log.Timber
 
 class RemoteDatabase(
     ip: String,
@@ -25,12 +23,7 @@ class RemoteDatabase(
     init {
         Class.forName(Classes)
 
-        val policy = StrictMode.ThreadPolicy.Builder()
-            .permitAll()
-            .build()
-        StrictMode.setThreadPolicy(policy)
-
-        Timber.d("Performing connection with $ip:$port...")
+        Logger.d("Performing connection with $ip:$port...")
         connection = DriverManager.getConnection(url, username, password)
     }
 
@@ -40,7 +33,7 @@ class RemoteDatabase(
     fun close() = connection.close()
 
     fun <T : Any> query(sql: String, predicate: (row: ResultSet) -> T): List<T> {
-        Timber.d("SQL > $sql")
+        Logger.d("SQL > $sql")
         val statement = connection.createStatement()
         val result = statement.executeQuery(sql)
         val list = arrayListOf<T>()
@@ -49,7 +42,7 @@ class RemoteDatabase(
         return list
     }
 
-    fun <T : Any> query(sql: String, parser: RemoteDataParser<T>): List<T> =
+    fun <T : Any> query(sql: String, parser: com.arnyminerz.filamagenta.core.database.prototype.RemoteDataParser<T>): List<T> =
         query(sql) { parser.parse(it) }
 
     fun <T : Any> query(
@@ -78,7 +71,7 @@ class RemoteDatabase(
         table: String,
         select: Set<String>? = null,
         where: Map<String, Any>? = null,
-        parser: RemoteDataParser<T>
+        parser: com.arnyminerz.filamagenta.core.database.prototype.RemoteDataParser<T>
     ): List<T> = query(table, select, where) { parser.parse(it) }
 
     /**

@@ -1,4 +1,4 @@
-package com.arnyminerz.filmagentaproto.database.prototype
+package com.arnyminerz.filamagenta.core.database.prototype
 
 import java.sql.ResultSet
 

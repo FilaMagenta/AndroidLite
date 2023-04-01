@@ -1,8 +1,8 @@
 package com.arnyminerz.filmagentaproto.database.local
 
 import androidx.room.TypeConverter
+import com.arnyminerz.filamagenta.core.utils.toJSON
 import com.arnyminerz.filmagentaproto.database.data.Transaction
-import com.arnyminerz.filmagentaproto.utils.toJSON
 import java.sql.Date
 import org.json.JSONArray
 

@@ -26,10 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
+import com.arnyminerz.filamagenta.core.database.data.woo.InStock
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
-import com.arnyminerz.filmagentaproto.database.data.woo.StockStatus
 import com.arnyminerz.filmagentaproto.ui.dialogs.EventBottomSheet
 import com.arnyminerz.filmagentaproto.utils.launchCalendarInsert
 import java.text.SimpleDateFormat
@@ -41,15 +41,15 @@ private val dateFormat: SimpleDateFormat
 @Composable
 @ExperimentalMaterial3Api
 fun EventItem(
-    event: Event,
+    event: EventProto,
     isConfirmed: Boolean,
     isArchived: Boolean,
     onEventSelected: () -> Unit,
-    onSignUp: (metadata: List<Order.Metadata>, onComplete: () -> Unit) -> Unit,
+    onSignUp: (metadata: List<OrderProto.Metadata>, onComplete: () -> Unit) -> Unit,
 ) {
     val context = LocalContext.current
 
-    val inStock = event.stockStatus == StockStatus.InStock && event.stockQuantity > 0
+    val inStock = event.stockStatus == InStock && event.stockQuantity > 0
     val hasPassed = event.hasPassed
 
     var showingCard by remember { mutableStateOf(false) }

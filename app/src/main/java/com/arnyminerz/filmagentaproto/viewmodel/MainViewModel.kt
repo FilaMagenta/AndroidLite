@@ -8,12 +8,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
+import com.arnyminerz.filamagenta.core.utils.io
+import com.arnyminerz.filamagenta.core.utils.ui
 import com.arnyminerz.filmagentaproto.App
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
@@ -21,8 +23,6 @@ import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
 import com.arnyminerz.filmagentaproto.utils.async
-import com.arnyminerz.filmagentaproto.utils.io
-import com.arnyminerz.filmagentaproto.utils.ui
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -138,7 +138,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun signUpForEvent(
         customer: Customer,
         event: Event,
-        metadata: List<Order.Metadata>,
+        metadata: List<OrderProto.Metadata>,
         @UiThread onComplete: (paymentUrl: String) -> Unit
     ) = async {
         Timber.i("Signing up for event (price=${event.price}). Metadata: $metadata")

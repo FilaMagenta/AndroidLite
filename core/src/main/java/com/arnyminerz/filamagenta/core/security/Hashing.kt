@@ -1,4 +1,4 @@
-package com.arnyminerz.filmagentaproto.security
+package com.arnyminerz.filamagenta.core.security
 
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException

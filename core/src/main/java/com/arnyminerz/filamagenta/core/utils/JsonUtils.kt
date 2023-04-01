@@ -1,7 +1,5 @@
-package com.arnyminerz.filmagentaproto.utils
+package com.arnyminerz.filamagenta.core.utils
 
-import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializable
-import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -56,7 +54,7 @@ fun JSONObject.getLongOrNull(key: String): Long? = try {
     null
 }
 
-fun <T : Any> JSONObject.getObjectOrNull(key: String, serializer: JsonSerializer<T>): T? = try {
+fun <T : Any> JSONObject.getObjectOrNull(key: String, serializer: com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer<T>): T? = try {
     if (has(key))
         getJSONObject(key).let { serializer.fromJSON(it) }
     else
@@ -65,13 +63,13 @@ fun <T : Any> JSONObject.getObjectOrNull(key: String, serializer: JsonSerializer
     null
 }
 
-fun <T : Any> JSONObject.getObjectInlineOrNull(serializer: JsonSerializer<T>): T? = try {
+fun <T : Any> JSONObject.getObjectInlineOrNull(serializer: com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer<T>): T? = try {
     serializer.fromJSON(this)
 } catch (e: JSONException) {
     null
 }
 
-fun Iterable<JsonSerializable>.toJSON(): JSONArray = JSONArray().apply {
+fun Iterable<com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable>.toJSON(): JSONArray = JSONArray().apply {
     for (serializable in this@toJSON)
         put(serializable.toJSON())
 }
@@ -111,7 +109,7 @@ fun JSONObject.getJSONArrayOrNull(key: String) = try {
     null
 }
 
-fun <T : Any> JSONObject.getJSONArrayOrNull(key: String, serializer: JsonSerializer<T>): List<T>? =
+fun <T : Any> JSONObject.getJSONArrayOrNull(key: String, serializer: com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer<T>): List<T>? =
     getJSONArrayOrNull(key)?.let { array ->
         (0 until array.length()).map { serializer.fromJSON(array.getJSONObject(it)) }
     }

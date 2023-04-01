@@ -1,6 +1,7 @@
 package com.arnyminerz.filmagentaproto.database.remote
 
 import androidx.annotation.WorkerThread
+import com.arnyminerz.filamagenta.core.remote.RemoteDatabase
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio

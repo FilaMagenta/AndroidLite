@@ -28,17 +28,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import timber.log.Timber
 
 @Composable
 @ExperimentalMaterial3Api
 fun EventBottomSheet(
-    event: Event,
+    event: EventProto,
     onDismissRequest: () -> Unit,
-    onSubmit: (metadata: List<Order.Metadata>, onComplete: () -> Unit) -> Unit,
+    onSubmit: (metadata: List<OrderProto.Metadata>, onComplete: () -> Unit) -> Unit,
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -58,7 +58,7 @@ fun EventBottomSheet(
             fontWeight = FontWeight.SemiBold,
         )
 
-        val selectedAttributesOption = remember { mutableStateMapOf<Long, Order.Metadata>() }
+        val selectedAttributesOption = remember { mutableStateMapOf<Long, OrderProto.Metadata>() }
 
         // Only first attribute will be taken
         event.attributes

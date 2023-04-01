@@ -3,9 +3,9 @@ package com.arnyminerz.filmagentaproto
 import android.content.Context
 import android.util.Base64
 import androidx.test.platform.app.InstrumentationRegistry
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
-import com.arnyminerz.filmagentaproto.database.data.woo.ROLE_SUBSCRIBER
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
+import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SUBSCRIBER
 import com.arnyminerz.filmagentaproto.database.data.woo.Status
 import com.arnyminerz.filmagentaproto.database.logic.QR_VERSION
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode

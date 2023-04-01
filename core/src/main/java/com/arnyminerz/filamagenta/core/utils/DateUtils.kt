@@ -1,4 +1,4 @@
-package com.arnyminerz.filmagentaproto.utils
+package com.arnyminerz.filamagenta.core.utils
 
 import java.util.Calendar
 import java.util.Date
