@@ -8,7 +8,10 @@ import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
 import com.arnyminerz.filamagenta.core.database.data.woo.InStock
 import com.arnyminerz.filamagenta.core.database.data.woo.OnBackOrder
 import com.arnyminerz.filamagenta.core.database.data.woo.OutOfStock
+import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
+import com.arnyminerz.filamagenta.core.utils.getDateGmt
 import java.util.Date
+import org.json.JSONObject
 
 @StringDef(InStock, OutOfStock, OnBackOrder)
 annotation class StockStatus
@@ -17,7 +20,7 @@ annotation class StockStatus
     tableName = "events",
     ignoredColumns = ["cutDescription"],
 )
-class Event(
+data class Event(
     @PrimaryKey override val id: Long,
     override val name: String,
     override val slug: String,
@@ -44,7 +47,22 @@ class Event(
     stockStatus,
     stockQuantity
 ) {
-    companion object {
+    companion object: JsonSerializer<Event> {
+        override fun fromJSON(json: JSONObject, vararg args: Any?): Event = Event(
+            json.getLong("id"),
+            json.getString("name"),
+            json.getString("slug"),
+            json.getString("permalink"),
+            json.getDateGmt("date_created_gmt"),
+            json.getDateGmt("date_modified_gmt"),
+            json.getString("description"),
+            json.getString("short_description"),
+            json.getDouble("price"),
+            (args[0] as? List<*>)?.map { it as Attribute } ?: emptyList(),
+            json.getString("stock_status"),
+            json.getInt("stock_quantity"),
+        )
+
         val EXAMPLE = Event(
             1, "Example Event", "example-event", "https://example.com",
             Date(1), Date(2), "This is the description of the event",

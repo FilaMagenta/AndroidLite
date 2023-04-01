@@ -95,7 +95,7 @@ open class EventProto(
          *
          * **Note: [attributes] are set empty.**
          */
-        override fun fromJSON(json: JSONObject): EventProto = EventProto(
+        override fun fromJSON(json: JSONObject, vararg args: Any?): EventProto = EventProto(
             json.getLong("id"),
             json.getString("name"),
             json.getString("slug"),
@@ -123,7 +123,7 @@ open class EventProto(
              *
              * **Note: [options] are set empty; [variation] is set to `null`**
              */
-            override fun fromJSON(json: JSONObject): Attribute = Attribute(
+            override fun fromJSON(json: JSONObject, vararg args: Any?): Attribute = Attribute(
                 json.getLong("id"),
                 json.getString("name"),
                 if (json.has("options"))
@@ -152,7 +152,7 @@ open class EventProto(
             val value = displayValue.lowercase().replace(' ', '-')
 
             companion object : JsonSerializer<Option> {
-                override fun fromJSON(json: JSONObject): Option = Option(
+                override fun fromJSON(json: JSONObject, vararg args: Any?): Option = Option(
                     json.getLongOrNull("variationId"),
                     json.getString("displayValue"),
                     json.getDouble("price"),
@@ -188,7 +188,7 @@ open class EventProto(
         val attributes: List<ShortAttribute>,
     ) : JsonSerializable {
         companion object : JsonSerializer<Variation> {
-            override fun fromJSON(json: JSONObject): Variation = Variation(
+            override fun fromJSON(json: JSONObject, vararg args: Any?): Variation = Variation(
                 json.getLong("id"),
                 json.getString("price").toDoubleOrNull() ?: 0.0,
                 json.getJSONArray("attributes").mapObjects { ShortAttribute.fromJSON(it) },
@@ -201,11 +201,12 @@ open class EventProto(
             val option: String,
         ) : JsonSerializable {
             companion object : JsonSerializer<ShortAttribute> {
-                override fun fromJSON(json: JSONObject): ShortAttribute = ShortAttribute(
-                    json.getLong("id"),
-                    json.getString("name"),
-                    json.getString("option")
-                )
+                override fun fromJSON(json: JSONObject, vararg args: Any?): ShortAttribute =
+                    ShortAttribute(
+                        json.getLong("id"),
+                        json.getString("name"),
+                        json.getString("option")
+                    )
             }
 
             override fun toJSON(): JSONObject = JSONObject().apply {
@@ -229,34 +230,6 @@ open class EventProto(
     }
 
     override fun toString(): String = id.toString()
-
-    fun copy(
-        id: Long = this.id,
-        name: String = this.name,
-        slug: String = this.slug,
-        permalink: String = this.permalink,
-        dateCreated: Date = this.dateCreated,
-        dateModified: Date = this.dateModified,
-        description: String = this.description,
-        shortDescription: String = this.shortDescription,
-        price: Double = this.price,
-        attributes: List<Attribute> = this.attributes,
-        stockStatus: String = this.stockStatus,
-        stockQuantity: Int = this.stockQuantity,
-    ) = EventProto(
-        id,
-        name,
-        slug,
-        permalink,
-        dateCreated,
-        dateModified,
-        description,
-        shortDescription,
-        price,
-        attributes,
-        stockStatus,
-        stockQuantity
-    )
 
     val acceptsReservationsUntil: Date? by lazy {
         shortDescription.let { desc ->
@@ -345,71 +318,72 @@ open class EventProto(
         }
     }
 
-    var cutDescription: String = shortDescription
-        .replace(untilKeywordLine, "")
-        .trim('\n', '\r', ' ')
+    var cutDescription: String = ""
         private set
 
     val eventDate: Date? by lazy {
-        cutDescription.let { desc ->
-            val find = dateRegex.find(desc) ?: return@let null
-            val found = find.value
+        shortDescription
+            .replace(untilKeywordLine, "")
+            .trim('\n', '\r', ' ')
+            .let { desc ->
+                val find = dateRegex.find(desc) ?: return@let null
+                val found = find.value
 
-            val calendar = Calendar.getInstance()
+                val calendar = Calendar.getInstance()
 
-            // Reset seconds and millis
-            calendar.set(Calendar.SECOND, 0)
-            calendar.set(Calendar.MILLISECOND, 0)
+                // Reset seconds and millis
+                calendar.set(Calendar.SECOND, 0)
+                calendar.set(Calendar.MILLISECOND, 0)
 
-            // Update time
-            var timeUpdated = false
-            val timeFind = timeRegex.find(found)
-            if (timeFind != null) {
-                val timeString = timeFind.value
-                val timeParts = timeString.split(':')
-                val hours = timeParts.getOrNull(0)?.toIntOrNull()
-                val minutes = timeParts.getOrNull(1)?.toIntOrNull()
-                if (hours != null && minutes != null) {
-                    calendar.set(Calendar.HOUR_OF_DAY, hours)
-                    calendar.set(Calendar.MINUTE, minutes)
-                    timeUpdated = true
+                // Update time
+                var timeUpdated = false
+                val timeFind = timeRegex.find(found)
+                if (timeFind != null) {
+                    val timeString = timeFind.value
+                    val timeParts = timeString.split(':')
+                    val hours = timeParts.getOrNull(0)?.toIntOrNull()
+                    val minutes = timeParts.getOrNull(1)?.toIntOrNull()
+                    if (hours != null && minutes != null) {
+                        calendar.set(Calendar.HOUR_OF_DAY, hours)
+                        calendar.set(Calendar.MINUTE, minutes)
+                        timeUpdated = true
+                    }
                 }
-            }
-            if (!timeUpdated) {
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-            }
-
-            // Update day
-            val day = found.split(" ")
-                .find { it.toIntOrNull() != null }
-                ?.toInt() ?: return@let null
-            calendar.set(Calendar.DAY_OF_MONTH, day)
-
-            // Update month
-            val monthIndex = months.indexOfFirst { found.contains(it, ignoreCase = true) }
-                .takeIf { it >= 0 } ?: return@let null
-            calendar.set(Calendar.MONTH, monthIndex)
-
-            // Update year
-            val yearFind = yearRegex.find(found)
-            if (yearFind != null) {
-                val yearString = yearFind.value
-                yearString.toIntOrNull()?.let { year ->
-                    calendar.set(Calendar.YEAR, year)
+                if (!timeUpdated) {
+                    calendar.set(Calendar.HOUR_OF_DAY, 0)
+                    calendar.set(Calendar.MINUTE, 0)
                 }
-            } else {
-                // If current month is greater than the month specified in event, increase year
-                val currentMonth = calendar.get(Calendar.MONTH)
-                if (currentMonth > monthIndex) {
-                    val year = calendar.get(Calendar.YEAR)
-                    calendar.set(Calendar.YEAR, year + 1)
-                }
-            }
 
-            cutDescription = cutDescription.replace(found, "")
-            calendar.time
-        }
+                // Update day
+                val day = found.split(" ")
+                    .find { it.toIntOrNull() != null }
+                    ?.toInt() ?: return@let null
+                calendar.set(Calendar.DAY_OF_MONTH, day)
+
+                // Update month
+                val monthIndex = months.indexOfFirst { found.contains(it, ignoreCase = true) }
+                    .takeIf { it >= 0 } ?: return@let null
+                calendar.set(Calendar.MONTH, monthIndex)
+
+                // Update year
+                val yearFind = yearRegex.find(found)
+                if (yearFind != null) {
+                    val yearString = yearFind.value
+                    yearString.toIntOrNull()?.let { year ->
+                        calendar.set(Calendar.YEAR, year)
+                    }
+                } else {
+                    // If current month is greater than the month specified in event, increase year
+                    val currentMonth = calendar.get(Calendar.MONTH)
+                    if (currentMonth > monthIndex) {
+                        val year = calendar.get(Calendar.YEAR)
+                        calendar.set(Calendar.YEAR, year + 1)
+                    }
+                }
+
+                cutDescription = desc.replace(found, "")
+                calendar.time
+            }
     }
 
     val index: Int by lazy {

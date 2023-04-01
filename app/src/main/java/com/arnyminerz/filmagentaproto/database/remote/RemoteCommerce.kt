@@ -8,7 +8,16 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 
-object RemoteCommerce: RemoteCommerceProto<Order, Customer, Event, AvailablePayment>() {
+object RemoteCommerce : RemoteCommerceProto<
+        Order,
+        Order.Companion,
+        Customer,
+        Customer.Companion,
+        Event,
+        Event.Companion,
+        AvailablePayment,
+        AvailablePayment.Companion
+        >(Order.Companion, Customer.Companion, Event.Companion, AvailablePayment.Companion) {
     override val host: String = BuildConfig.HOST
 
     override val wooConsumerKey: String = BuildConfig.WOO_CONSUMER_KEY

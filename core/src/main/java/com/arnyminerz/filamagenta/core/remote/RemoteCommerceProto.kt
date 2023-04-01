@@ -23,7 +23,21 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-abstract class RemoteCommerceProto <Order: OrderProto, Customer: CustomerProto, Event: EventProto, AvailablePayment: AvailablePaymentProto> {
+abstract class RemoteCommerceProto<
+        Order : OrderProto,
+        OrderParser : JsonSerializer<Order>,
+        Customer : CustomerProto,
+        CustomerParser : JsonSerializer<Customer>,
+        Event : EventProto,
+        EventParser : JsonSerializer<Event>,
+        AvailablePayment : AvailablePaymentProto,
+        AvailablePaymentParser : JsonSerializer<AvailablePayment>,
+        >(
+    private val orderParser: OrderParser,
+    private val customerParser: CustomerParser,
+    private val eventParser: EventParser,
+    private val availablePaymentParser: AvailablePaymentParser,
+) {
     companion object {
         private const val CATEGORY_EVENTOS = 21
 
@@ -253,7 +267,7 @@ abstract class RemoteCommerceProto <Order: OrderProto, Customer: CustomerProto, 
                 )
             }
             Logger.d("Converting JSON to Event...")
-            EventProto.fromJSON(eventJson).copy(attributes = attributes) as Event
+            eventParser.fromJSON(eventJson, attributes)
         }
     }
 
@@ -271,7 +285,7 @@ abstract class RemoteCommerceProto <Order: OrderProto, Customer: CustomerProto, 
                     builder
             }
             .build()
-        return multiPageGet(endpoint, OrderProto.Companion, perPage = 100) as List<Order>
+        return multiPageGet(endpoint, orderParser, perPage = 100)
     }
 
     suspend fun customersList(page: Int = 1): List<Customer> {
@@ -280,7 +294,7 @@ abstract class RemoteCommerceProto <Order: OrderProto, Customer: CustomerProto, 
             .appendQueryParameter("context", "view")
             .appendQueryParameter("role", "all")
             .build()
-        return multiPageGet(endpoint, CustomerProto.Companion, perPage = 100) as List<Customer>
+        return multiPageGet(endpoint, customerParser, perPage = 100)
     }
 
 
@@ -295,7 +309,11 @@ abstract class RemoteCommerceProto <Order: OrderProto, Customer: CustomerProto, 
             .appendQueryParameter("status", "publish")
             .appendQueryParameter("category", CATEGORY_PAGO_FULLA.toString())
             .build()
-        return multiPageGet(endpoint, AvailablePaymentProto.Companion, perPage = 100) as List<AvailablePayment>
+        return multiPageGet(
+            endpoint,
+            availablePaymentParser,
+            perPage = 100
+        )
     }
 
     /**
@@ -369,8 +387,8 @@ abstract class RemoteCommerceProto <Order: OrderProto, Customer: CustomerProto, 
         Logger.d("Making POST request to $ordersEndpoint with: $body")
         val response = post(ordersEndpoint, body)
         val json = JSONObject(response)
-        val responseOrderProto = OrderProto.fromJSON(json)
-        return json.getString("payment_url") to responseOrderProto as Order
+        val responseOrderProto = orderParser.fromJSON(json)
+        return json.getString("payment_url") to responseOrderProto
     }
 
     /**

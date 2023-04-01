@@ -13,7 +13,13 @@ import com.arnyminerz.filamagenta.core.database.data.woo.PENDING
 import com.arnyminerz.filamagenta.core.database.data.woo.PROCESSING
 import com.arnyminerz.filamagenta.core.database.data.woo.REFUNDED
 import com.arnyminerz.filamagenta.core.database.data.woo.TRASH
+import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
+import com.arnyminerz.filamagenta.core.utils.getDateGmt
+import com.arnyminerz.filamagenta.core.utils.getObjectInlineOrNull
+import com.arnyminerz.filamagenta.core.utils.getObjectOrNull
+import com.arnyminerz.filamagenta.core.utils.mapObjects
 import java.util.Date
+import org.json.JSONObject
 
 @StringDef(PENDING, PROCESSING, ON_HOLD, COMPLETED, CANCELLED, REFUNDED, FAILED, TRASH)
 annotation class Status
@@ -21,7 +27,7 @@ annotation class Status
 @Entity(tableName = "orders")
 data class Order(
     @PrimaryKey override val id: Long,
-    override val status: String,
+    @Status override val status: String,
     override val currency: String,
     override val dateCreated: Date,
     override val dateModified: Date,
@@ -30,5 +36,18 @@ data class Order(
     @ColumnInfo(defaultValue = "null") override val payment: Payment?,
     override val items: List<Product>,
 ) : OrderProto(id, status, currency, dateCreated, dateModified, total, customerId, payment, items) {
-    companion object
+    companion object: JsonSerializer<Order> {
+        override fun fromJSON(json: JSONObject, vararg args: Any?): Order = Order(
+            json.getLong("id"),
+            json.getString("status"),
+            json.getString("currency"),
+            json.getDateGmt("date_created"),
+            json.getDateGmt("date_modified"),
+            json.getDouble("total"),
+            json.getLong("customer_id"),
+            json.getObjectInlineOrNull(Payment)
+                ?: json.getObjectOrNull("payment", Payment),
+            json.getJSONArray("line_items").mapObjects { Product.fromJSON(it) },
+        )
+    }
 }

@@ -2,6 +2,8 @@ package com.arnyminerz.filmagentaproto.database.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
+import com.arnyminerz.filamagenta.core.database.prototype.RemoteDataParser
 import com.arnyminerz.filamagenta.core.utils.getBooleanOrNull
 import java.sql.ResultSet
 import java.util.Date
@@ -24,9 +26,8 @@ data class Transaction(
     /** Used for notifying about new transactions */
     val notified: Boolean,
 ): com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable {
-    companion object: com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer<Transaction>,
-        com.arnyminerz.filamagenta.core.database.prototype.RemoteDataParser<Transaction> {
-        override fun fromJSON(json: JSONObject): Transaction = Transaction(
+    companion object: JsonSerializer<Transaction>, RemoteDataParser<Transaction> {
+        override fun fromJSON(json: JSONObject, vararg args: Any?): Transaction = Transaction(
             json.getLong("id"),
             json.getLong("id_socio"),
             Date(json.getLong("date")),

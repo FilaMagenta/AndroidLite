@@ -37,7 +37,7 @@ open class OrderProto(
     open val items: List<Product>,
 ) : JsonSerializable, WooClass(id) {
     companion object : JsonSerializer<OrderProto> {
-        override fun fromJSON(json: JSONObject): OrderProto = OrderProto(
+        override fun fromJSON(json: JSONObject, vararg args: Any?): OrderProto = OrderProto(
             json.getLong("id"),
             json.getString("status"),
             json.getString("currency"),
@@ -74,7 +74,7 @@ open class OrderProto(
     ) : JsonSerializable {
         companion object :
             JsonSerializer<Product> {
-            override fun fromJSON(json: JSONObject): Product = Product(
+            override fun fromJSON(json: JSONObject, vararg args: Any?): Product = Product(
                 json.getLong("id"),
                 json.getString("name"),
                 json.getLong("product_id"),
@@ -103,7 +103,7 @@ open class OrderProto(
         val displayValue: String?,
     ) : JsonSerializable {
         companion object : JsonSerializer<Metadata> {
-            override fun fromJSON(json: JSONObject): Metadata = Metadata(
+            override fun fromJSON(json: JSONObject, vararg args: Any?): Metadata = Metadata(
                 json.getLong("id"),
                 json.getString("key"),
                 json.getString("value"),
@@ -129,7 +129,7 @@ open class OrderProto(
         val date: Date?,
     ) : JsonSerializable {
         companion object : JsonSerializer<Payment> {
-            override fun fromJSON(json: JSONObject): Payment = Payment(
+            override fun fromJSON(json: JSONObject, vararg args: Any?): Payment = Payment(
                 json.getBooleanOrNull("paid"),
                 json.getStringOrNull("payment_method")?.takeIf { it.isNotEmpty() },
                 json.getStringOrNull("payment_method_title")?.takeIf { it.isNotEmpty() },

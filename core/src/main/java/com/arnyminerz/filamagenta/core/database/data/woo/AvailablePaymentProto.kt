@@ -8,7 +8,7 @@ open class AvailablePaymentProto(
     open val price: Double,
 ) : WooClass(id) {
     companion object : JsonSerializer<AvailablePaymentProto> {
-        override fun fromJSON(json: JSONObject): AvailablePaymentProto = AvailablePaymentProto(
+        override fun fromJSON(json: JSONObject, vararg args: Any?): AvailablePaymentProto = AvailablePaymentProto(
             json.getLong("id"),
             json.getDouble("price"),
         )

@@ -22,7 +22,7 @@ data class OldTransaction(
     val notified: Boolean,
 ): JsonSerializable {
     companion object: JsonSerializer<OldTransaction> {
-        override fun fromJSON(json: JSONObject): OldTransaction = OldTransaction(
+        override fun fromJSON(json: JSONObject, vararg args: Any?): OldTransaction = OldTransaction(
             json.getString("date"),
             json.getString("description"),
             json.getLong("units"),

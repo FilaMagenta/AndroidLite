@@ -33,6 +33,14 @@ class TestUriBuilder {
     }
 
     @Test
+    fun test_buildUpon_empty() {
+        val srcUri = URI.create("https://example.com")
+        val uriBuilder = srcUri.buildUpon()
+        assertEquals(0, uriBuilder.path.size)
+        assertEquals(0, uriBuilder.query.size)
+    }
+
+    @Test
     fun test_buildUpon_query() {
         val srcUri = URI.create("https://example.com/test?key=value&another==complex=")
         val uriBuilder = srcUri.buildUpon()

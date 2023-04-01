@@ -31,7 +31,7 @@ open class CustomerProto(
     open val avatarUrl: String,
 ) : WooClass(id) {
     companion object : JsonSerializer<CustomerProto> {
-        override fun fromJSON(json: JSONObject): CustomerProto = CustomerProto(
+        override fun fromJSON(json: JSONObject, vararg args: Any?): CustomerProto = CustomerProto(
             json.getLong("id"),
             json.getDateGmt("date_created_gmt"),
             json.getDateGmt("date_modified_gmt"),
@@ -61,7 +61,7 @@ open class CustomerProto(
         val phone: String?,
     ) : JsonSerializable {
         companion object : JsonSerializer<DeliveryInformation> {
-            override fun fromJSON(json: JSONObject): DeliveryInformation = DeliveryInformation(
+            override fun fromJSON(json: JSONObject, vararg args: Any?): DeliveryInformation = DeliveryInformation(
                 json.getStringOrNull("first_name"),
                 json.getStringOrNull("last_name"),
                 json.getStringOrNull("company"),

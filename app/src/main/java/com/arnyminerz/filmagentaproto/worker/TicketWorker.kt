@@ -130,7 +130,7 @@ class TicketWorker(context: Context, params: WorkerParameters) :
                     TicketData(qr, customerName, eventName, eventDate)
                 }
 
-            override fun fromJSON(json: JSONObject): TicketData = TicketData(
+            override fun fromJSON(json: JSONObject, vararg args: Any?): TicketData = TicketData(
                 json.getString("qr").decodeBitmapBase64(),
                 json.getString("customer_name"),
                 json.getString("event_name"),
