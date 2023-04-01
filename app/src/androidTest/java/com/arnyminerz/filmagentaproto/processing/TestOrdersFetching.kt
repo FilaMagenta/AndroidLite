@@ -1,5 +1,6 @@
 package com.arnyminerz.filmagentaproto.processing
 
+import com.arnyminerz.filamagenta.core.utils.uri.buildUpon
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import io.mockk.coEvery
 import io.mockk.coVerify
