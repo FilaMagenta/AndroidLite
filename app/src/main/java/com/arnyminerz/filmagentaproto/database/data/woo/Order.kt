@@ -148,9 +148,9 @@ data class Order(
         companion object : JsonSerializer<Payment> {
             override fun fromJSON(json: JSONObject): Payment = Payment(
                 json.getBooleanOrNull("paid"),
-                json.getStringOrNull("payment_method"),
-                json.getStringOrNull("payment_method_title"),
-                json.getStringOrNull("transaction_id"),
+                json.getStringOrNull("payment_method")?.takeIf { it.isNotEmpty() },
+                json.getStringOrNull("payment_method_title")?.takeIf { it.isNotEmpty() },
+                json.getStringOrNull("transaction_id")?.takeIf { it.isNotEmpty() },
                 json.getDateGmtOrNull("date_paid_gmt"),
             )
         }
@@ -162,9 +162,9 @@ data class Order(
             .put("transaction_id", transactionId)
             .putDateGmt("date_paid_gmt", date)
 
-        /** `true` if any of the fields is not null. */
+        /** `true` if any of the fields is not null. date is not considered */
         val any: Boolean = paid == true ||
-                listOf(paid, paymentMethod, paymentMethodTitle, transactionId, date)
+                listOf(paid, paymentMethod, paymentMethodTitle, transactionId)
                     .any { it != null }
     }
 
