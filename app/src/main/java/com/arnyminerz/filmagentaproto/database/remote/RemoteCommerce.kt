@@ -10,6 +10,7 @@ import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.prototype.JsonSerializer
 import com.arnyminerz.filmagentaproto.utils.divideMoney
+import com.arnyminerz.filmagentaproto.utils.getDateGmt
 import com.arnyminerz.filmagentaproto.utils.getStringJSONArray
 import com.arnyminerz.filmagentaproto.utils.io
 import com.arnyminerz.filmagentaproto.utils.mapObjects
@@ -185,7 +186,10 @@ object RemoteCommerce {
      * @throws NullPointerException If there's an invalid field in the response.
      */
     @WorkerThread
-    suspend fun eventList(progressCallback: suspend (progress: Pair<Int, Int>) -> Unit): List<Event> {
+    suspend fun eventList(
+        cachedEvents: List<Event>,
+        progressCallback: suspend (progress: Pair<Int, Int>) -> Unit,
+    ): List<Event> {
         val endpoint = ProductsEndpoint.buildUpon()
             .appendQueryParameter("status", "publish")
             .appendQueryParameter("category", CATEGORY_EVENTOS.toString())
@@ -201,6 +205,17 @@ object RemoteCommerce {
             Timber.d("Parsing event.")
             val eventId = eventJson.getLong("id")
             val price = eventJson.getDouble("price")
+
+            // Check if the event is cached
+            cachedEvents.find { it.id == eventId }?.let { event ->
+                // If it has been cached, compare the modification dates
+                val newModificationDate = eventJson.getDateGmt("date_modified_gmt")
+                if (newModificationDate <= event.dateModified) {
+                    // If the event has not been updated, return the cached one
+                    Timber.d("Event #$eventId has not been updated ($newModificationDate). Taking cache.")
+                    return@multiPageGet event
+                }
+            }
 
             Timber.d("Getting variations...")
             val variationEndpoint = ProductsEndpoint.buildUpon()

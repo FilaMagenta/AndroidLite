@@ -380,7 +380,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     private suspend inline fun <T : WooClass> fetchAndUpdateDatabase(
         shouldSyncInputKey: String,
         progressStep: ProgressStep,
-        remoteFetcher: () -> List<T>,
+        remoteFetcher: (cache: List<T>) -> List<T>,
         databaseFetcher: () -> List<T>,
         insertMethod: (item: T) -> Unit,
         updateMethod: (item: T) -> Unit,
@@ -392,7 +392,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         if (shouldSync) {
             setProgress(progressStep)
             Timber.d("Getting list from remote...")
-            val list = remoteFetcher()
+            val list = remoteFetcher(databaseFetcher())
 
             listExtraProcessing(list)
 
@@ -480,8 +480,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         fetchAndUpdateDatabase(
             SYNC_EVENTS,
             ProgressStep.SYNC_EVENTS,
-            {
-                RemoteCommerce.eventList { progress ->
+            { cachedEvents ->
+                RemoteCommerce.eventList(cachedEvents) { progress ->
                     setProgress(
                         ProgressStep.SYNC_EVENTS,
                         progress
