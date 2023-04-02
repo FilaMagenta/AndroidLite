@@ -3,20 +3,16 @@ package com.arnyminerz.filmagentaproto
 import android.content.Context
 import android.util.Base64
 import androidx.test.platform.app.InstrumentationRegistry
-import com.arnyminerz.filamagenta.core.database.data.woo.CustomerProto
 import com.arnyminerz.filamagenta.core.database.data.woo.PROCESSING
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SUBSCRIBER
+import com.arnyminerz.filamagenta.core.database.data.woo.customer.DeliveryInformation
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.logic.QR_VERSION
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.database.logic.verifyQRCode
 import com.arnyminerz.filmagentaproto.security.AESEncryption
-import com.google.zxing.BinaryBitmap
-import com.google.zxing.RGBLuminanceSource
-import com.google.zxing.Result
-import com.google.zxing.common.HybridBinarizer
-import com.google.zxing.qrcode.QRCodeReader
+import com.arnyminerz.filmagentaproto.utils.createQRAndDecode
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
@@ -45,7 +41,7 @@ class TestQRGeneration {
         lastName = "User",
         role = ROLE_SUBSCRIBER,
         username = "ExampleUser",
-        billing = CustomerProto.DeliveryInformation(
+        billing = DeliveryInformation(
             null,
             null,
             null,
@@ -58,7 +54,7 @@ class TestQRGeneration {
             null,
             null
         ),
-        shipping = CustomerProto.DeliveryInformation(
+        shipping = DeliveryInformation(
             null,
             null,
             null,
@@ -96,26 +92,10 @@ class TestQRGeneration {
         assertEquals(qrSize, qr.height)
     }
 
-    /** Creates a new QR code from [order], and runs [QRCodeReader.decode] on it */
-    private fun createQRAndDecode(): Result? {
-        val qr = with(context) {
-            order.getQRCode(customer, size = qrSize)
-        }
-
-        val intArray = IntArray(qr.width * qr.height)
-        qr.getPixels(intArray, 0, qr.width, 0, 0, qr.width, qr.height)
-
-        val source = RGBLuminanceSource(qr.width, qr.height, intArray)
-        val bitmap = BinaryBitmap(HybridBinarizer(source))
-
-        val reader = QRCodeReader()
-        return reader.decode(bitmap)
-    }
-
     /** Checks that the created QR can be read and verified. */
     @Test
     fun test_QRValid() {
-        val result = createQRAndDecode()
+        val result = createQRAndDecode(context, order, customer, qrSize)
         assertNotNull(result)
 
         val contents = result!!.text
@@ -133,7 +113,7 @@ class TestQRGeneration {
         mockkObject(AESEncryption)
         every { AESEncryption.getSecretKey() } returns Base64.encodeToString("this-is-an-invalid-key".toByteArray(), Base64.NO_WRAP)
 
-        val result = createQRAndDecode()
+        val result = createQRAndDecode(context, order, customer, qrSize)
         assertNotNull(result)
 
         verify { AESEncryption.getSecretKey() }

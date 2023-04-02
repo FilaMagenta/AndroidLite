@@ -1,6 +1,7 @@
 package com.arnyminerz.filmagentaproto.database.local
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
@@ -42,6 +43,11 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
+
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+        fun setInstance(database: AppDatabase) = synchronized(AppDatabase) {
+            INSTANCE = database
+        }
 
         fun getInstance(context: Context) = INSTANCE ?: synchronized(AppDatabase) {
             INSTANCE ?: Room
