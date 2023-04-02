@@ -11,6 +11,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -55,6 +56,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -93,6 +95,7 @@ class AdminEventActivity : AppCompatActivity() {
         const val EXTRA_EVENT = "event"
 
         const val RESULT_ERROR = "error"
+        const val RESULT_ERROR_MESSAGE = "error_message"
 
         const val SCAN_RESULT_OK = 0
         const val SCAN_RESULT_LOADING = 1
@@ -105,9 +108,18 @@ class AdminEventActivity : AppCompatActivity() {
         private const val SORT_BY_SCANNED = 2
         private const val SORT_BY_PAID = 3
 
-        private fun errorIntent(throwable: Throwable) = Intent().apply {
-            putExtra(RESULT_ERROR, throwable)
-        }
+        const val ERROR_MISSING_EVENT = "missing-event"
+        const val ERROR_EVENT_NOT_FOUND = "event-not-found"
+        const val ERROR_BACK_PRESSED = "back-pressed"
+
+        const val TEST_TAG_TITLE = "title"
+        const val TEST_TAG_BACK = "back"
+
+        private fun errorIntent(throwable: Throwable? = null, message: String? = null) =
+            Intent().apply {
+                putExtra(RESULT_ERROR, throwable)
+                putExtra(RESULT_ERROR_MESSAGE, message)
+            }
     }
 
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -141,21 +153,22 @@ class AdminEventActivity : AppCompatActivity() {
         val eventId = intent.getLongExtra(EXTRA_EVENT, -1)
         if (eventId < 0) {
             Timber.w("Launched AdminEventActivity without passing an event.")
-            setResult(Activity.RESULT_CANCELED)
+            setResult(Activity.RESULT_CANCELED, errorIntent(message = ERROR_MISSING_EVENT))
             finish()
             return
         }
 
-        viewModel.load(eventId).invokeOnCompletion { error ->
-            if (error != null) {
-                setResult(Activity.RESULT_CANCELED, errorIntent(error))
+        viewModel.load(eventId).invokeOnCompletion {
+            if (viewModel.event.value == null) {
+                Timber.w("Launched AdminEventActivity with an event that doesn't exist ($eventId).")
+                setResult(Activity.RESULT_CANCELED, errorIntent(it, ERROR_EVENT_NOT_FOUND))
                 finish()
             }
         }
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                setResult(Activity.RESULT_CANCELED)
+                setResult(Activity.RESULT_CANCELED, errorIntent(message = ERROR_BACK_PRESSED))
                 finish()
             }
         })
@@ -200,13 +213,17 @@ class AdminEventActivity : AppCompatActivity() {
             Scaffold(
                 topBar = {
                     CenterAlignedTopAppBar(
-                        title = { Text(event.title) },
+                        title = { Text(event.title, modifier = Modifier.testTag(TEST_TAG_TITLE)) },
                         navigationIcon = {
                             IconButton(
                                 onClick = {
-                                    setResult(Activity.RESULT_CANCELED)
+                                    setResult(
+                                        Activity.RESULT_CANCELED,
+                                        errorIntent(message = ERROR_BACK_PRESSED),
+                                    )
                                     finish()
                                 },
+                                modifier = Modifier.testTag(TEST_TAG_BACK),
                             ) { Icon(Icons.Rounded.ChevronLeft, stringResource(R.string.back)) }
                         },
                     )
@@ -436,7 +453,9 @@ class AdminEventActivity : AppCompatActivity() {
 
     class ViewModel(application: Application) : AndroidViewModel(application) {
         private val database = AppDatabase.getInstance(application)
-        private val wooCommerceDao = database.wooCommerceDao()
+
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        val wooCommerceDao = database.wooCommerceDao()
         val adminDao = database.adminDao()
 
         val event = MutableLiveData<Event>()
@@ -456,17 +475,18 @@ class AdminEventActivity : AppCompatActivity() {
          */
         fun load(eventId: Long) = async {
             Timber.d("Loading event #$eventId")
-            val loadedEvent = wooCommerceDao.getEvent(eventId)!!
-            event.postValue(loadedEvent)
+            wooCommerceDao.getEvent(eventId)?.let { loadedEvent ->
+                event.postValue(loadedEvent)
 
-            Timber.d("Loading event orders...")
-            val ordersList = loadedEvent.getOrders(getApplication())
-            orders.postValue(ordersList)
+                Timber.d("Loading event orders...")
+                val ordersList = loadedEvent.getOrders(getApplication())
+                orders.postValue(ordersList)
 
-            Timber.d("Loading order customers...")
-            val ordersCustomerList =
-                ordersList.associateWith { wooCommerceDao.getCustomer(it.customerId)!! }
-            ordersCustomer.postValue(ordersCustomerList)
+                Timber.d("Loading order customers...")
+                val ordersCustomerList =
+                    ordersList.associateWith { wooCommerceDao.getCustomer(it.customerId)!! }
+                ordersCustomer.postValue(ordersCustomerList)
+            }
         }
 
         /**
