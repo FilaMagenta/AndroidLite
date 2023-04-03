@@ -17,10 +17,7 @@ import org.json.JSONObject
 @StringDef(InStock, OutOfStock, OnBackOrder)
 annotation class StockStatus
 
-@Entity(
-    tableName = "events",
-    ignoredColumns = ["cutDescription"],
-)
+@Entity(tableName = "events")
 data class Event(
     @PrimaryKey override val id: Long,
     override val name: String,
