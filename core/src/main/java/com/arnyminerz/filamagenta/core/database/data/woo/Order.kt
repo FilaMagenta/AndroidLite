@@ -3,14 +3,14 @@ package com.arnyminerz.filamagenta.core.database.data.woo
 import androidx.annotation.StringDef
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.CANCELLED
-import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.COMPLETED
-import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.FAILED
-import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.ON_HOLD
-import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.PENDING
-import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.PROCESSING
-import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.REFUNDED
-import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.TRASH
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus.Companion.CANCELLED
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus.Companion.COMPLETED
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus.Companion.FAILED
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus.Companion.ON_HOLD
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus.Companion.PENDING
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus.Companion.PROCESSING
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus.Companion.REFUNDED
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus.Companion.TRASH
 import com.arnyminerz.filamagenta.core.database.data.woo.order.Payment
 import com.arnyminerz.filamagenta.core.database.data.woo.order.Product
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable
@@ -25,7 +25,7 @@ import java.util.Date
 import org.json.JSONObject
 
 @StringDef(PENDING, PROCESSING, ON_HOLD, COMPLETED, CANCELLED, REFUNDED, FAILED, TRASH)
-annotation class Status {
+annotation class OrderStatus {
     companion object {
         const val PENDING = "pending"
         const val PROCESSING = "processing"
@@ -41,7 +41,7 @@ annotation class Status {
 @Entity(tableName = "orders", primaryKeys = ["id"])
 data class Order(
     override val id: Long,
-    @Status val status: String,
+    @OrderStatus val status: String,
     val currency: String,
     val dateCreated: Date,
     val dateModified: Date,

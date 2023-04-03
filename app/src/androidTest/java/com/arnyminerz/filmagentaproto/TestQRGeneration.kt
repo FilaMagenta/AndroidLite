@@ -3,11 +3,11 @@ package com.arnyminerz.filmagentaproto
 import android.content.Context
 import android.util.Base64
 import androidx.test.platform.app.InstrumentationRegistry
-import com.arnyminerz.filamagenta.core.database.data.woo.PROCESSING
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SUBSCRIBER
 import com.arnyminerz.filamagenta.core.database.data.woo.customer.DeliveryInformation
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.logic.QR_VERSION
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.database.logic.verifyQRCode
@@ -72,7 +72,7 @@ class TestQRGeneration {
     )
     private val order = Order(
         id = 1,
-        status = PROCESSING,
+        status = OrderStatus.PROCESSING,
         currency = "",
         dateCreated = Date(),
         dateModified = Date(),

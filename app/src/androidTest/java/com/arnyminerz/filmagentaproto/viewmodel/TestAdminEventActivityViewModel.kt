@@ -2,12 +2,13 @@ package com.arnyminerz.filmagentaproto.viewmodel
 
 import android.app.Application
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.arnyminerz.filamagenta.core.database.data.woo.PROCESSING
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
+import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SUBSCRIBER
 import com.arnyminerz.filamagenta.core.database.data.woo.customer.DeliveryInformation
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.utils.DatabaseTest
 import com.arnyminerz.filmagentaproto.utils.await
 import com.arnyminerz.filmagentaproto.utils.createQRAndDecode
@@ -66,7 +67,7 @@ class TestAdminEventActivityViewModel: DatabaseTest() {
 
         private val order = Order(
             id = 1,
-            status = PROCESSING,
+            status = OrderStatus.PROCESSING,
             currency = "",
             dateCreated = Date(),
             dateModified = Date(),

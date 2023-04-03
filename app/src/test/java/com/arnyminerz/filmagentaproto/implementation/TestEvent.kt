@@ -1,6 +1,7 @@
 package com.arnyminerz.filmagentaproto.implementation
 
-import com.arnyminerz.filamagenta.core.database.data.woo.InStock
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.StockStatus
 import com.arnyminerz.filamagenta.core.database.data.woo.event.EventType
 import com.arnyminerz.filamagenta.core.utils.now
 import io.mockk.every
@@ -45,7 +46,7 @@ class TestEvent {
         shortDescription = "",
         price = 0.0,
         attributes = emptyList(),
-        stockStatus = InStock,
+        stockStatus = StockStatus.InStock,
         stockQuantity = 128,
     )
 

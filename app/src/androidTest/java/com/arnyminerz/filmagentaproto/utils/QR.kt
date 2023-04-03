@@ -1,8 +1,8 @@
 package com.arnyminerz.filmagentaproto.utils
 
 import android.content.Context
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.RGBLuminanceSource
