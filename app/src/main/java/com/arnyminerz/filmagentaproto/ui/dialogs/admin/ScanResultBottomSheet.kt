@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.filmagentaproto.R
+import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_FAIL
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_INVALID
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_LOADING
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_OK
@@ -109,6 +111,11 @@ fun ColumnScope.ResponseView(
 @Composable
 @ExperimentalMaterial3Api
 fun ScanResultBottomSheet(scanResult: Int, scanCustomer: String?, onDismissRequest: () -> Unit) {
+    LaunchedEffect(scanResult) {
+        // Dismiss bottom sheet if result is SCAN_RESULT_FAIL
+        if (scanResult == SCAN_RESULT_FAIL) onDismissRequest()
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
     ) {
