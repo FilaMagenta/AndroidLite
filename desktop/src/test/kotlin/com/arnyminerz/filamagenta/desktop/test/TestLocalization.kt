@@ -30,11 +30,14 @@ class TestLocalization {
 
     @Test
     fun test_load_correct() {
-        Translations.load("en")
-        assertEquals(1, Translations.loadedLocales)
+        Translations.load("en", "es")
+        assertEquals(2, Translations.loadedLocales)
 
-        val test = Translations.get("test")
-        assertEquals("Hello world!", test)
+        assertEquals("Hello world!", Translations.get("test"))
+
+        // Update the locale
+        Locale.setDefault(Locale.forLanguageTag("es"))
+        assertEquals("Hola mundo!", Translations.get("test"))
     }
 
     @Test
@@ -62,6 +65,22 @@ class TestLocalization {
             Translations.get("missing")
             false
         } catch (e: NullPointerException) {
+            true
+        }
+        assertTrue(correct)
+    }
+
+    @Test
+    fun test_load_invalidFallback() {
+        Translations.load("en")
+        assertEquals(1, Translations.loadedLocales)
+
+        Translations.setFallback(Locale.CHINESE)
+
+        val correct = try {
+            Translations.get("any")
+            false
+        } catch (e: IllegalStateException) {
             true
         }
         assertTrue(correct)
