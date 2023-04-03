@@ -91,7 +91,7 @@ class ScannerActivity : AppCompatActivity() {
                                 .padding(horizontal = 8.dp),
                         )
                         Text(
-                            text = stringResource(R.string.permission_required_title),
+                            text = stringResource(R.string.permission_required_camera),
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier
                                 .fillMaxWidth()
