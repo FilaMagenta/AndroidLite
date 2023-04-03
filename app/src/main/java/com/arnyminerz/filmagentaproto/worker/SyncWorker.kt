@@ -43,7 +43,6 @@ import com.arnyminerz.filmagentaproto.database.local.TransactionsDao
 import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
-import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.utils.PermissionsUtils
 import io.sentry.ITransaction
 import io.sentry.Sentry
@@ -303,9 +302,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             for ((index, socio) in socios.withIndex()) {
                 setProgress(ProgressStep.SYNC_SOCIOS, index to socios.size)
                 try {
-                    remoteDatabaseDao.insert(socio as Socio)
+                    remoteDatabaseDao.insert(socio)
                 } catch (e: SQLiteConstraintException) {
-                    remoteDatabaseDao.update(socio as Socio)
+                    remoteDatabaseDao.update(socio)
                 }
             }
             setProgress(ProgressStep.INTERMEDIATE)

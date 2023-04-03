@@ -9,6 +9,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.arnyminerz.filamagenta.core.data.Transaction
+import com.arnyminerz.filamagenta.core.data.tb.Socio
 import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePayment
 import com.arnyminerz.filamagenta.core.database.data.woo.Customer
 import com.arnyminerz.filamagenta.core.database.data.woo.Event
@@ -17,7 +18,6 @@ import com.arnyminerz.filmagentaproto.database.data.admin.CodeScanned
 import com.arnyminerz.filmagentaproto.database.data.woo.WooConverters
 import com.arnyminerz.filmagentaproto.database.local.migration.Migration5To6
 import com.arnyminerz.filmagentaproto.database.local.migration.Migration6To7
-import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
 import timber.log.Timber
 

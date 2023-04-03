@@ -69,6 +69,7 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
+import com.arnyminerz.filamagenta.core.data.tb.Socio
 import com.arnyminerz.filamagenta.core.utils.doAsync
 import com.arnyminerz.filamagenta.core.utils.now
 import com.arnyminerz.filmagentaproto.BuildConfig
@@ -76,7 +77,6 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.AuthTokenType
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_VERSION
-import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.exceptions.PaymentException
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore

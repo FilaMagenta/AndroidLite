@@ -1,10 +1,12 @@
 package com.arnyminerz.filamagenta.core.data.tb
 
+import androidx.room.Entity
 import com.arnyminerz.filamagenta.core.utils.capitalized
 import java.sql.Date
 import java.sql.ResultSet
 
-open class Socio(
+@Entity(tableName = "socios", primaryKeys = ["idSocio"])
+data class Socio(
     val idSocio: Long,
     val Nombre: String,
     val Apellidos: String,

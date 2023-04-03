@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import com.arnyminerz.filamagenta.core.data.Transaction
+import com.arnyminerz.filamagenta.core.data.tb.Socio
 import com.arnyminerz.filamagenta.core.database.data.woo.Customer
 import com.arnyminerz.filamagenta.core.database.data.woo.Event
 import com.arnyminerz.filamagenta.core.database.data.woo.order.OrderMetadata
@@ -19,7 +20,6 @@ import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
-import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
 import com.arnyminerz.filmagentaproto.storage.dataStore
 import com.arnyminerz.filmagentaproto.utils.async
