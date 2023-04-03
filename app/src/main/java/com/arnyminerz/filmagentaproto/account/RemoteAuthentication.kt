@@ -34,7 +34,7 @@ object RemoteAuthentication {
                 throw WrongCredentialsException("The introduced password is not correct.")
             }
         }
-        Timber.e("DNI not found in the hashes database.")
+        Timber.w("DNI not found in the hashes database.")
         throw IllegalArgumentException("Could not find an stored hash for the given dni.")
     }
 

@@ -83,7 +83,7 @@ fun LoginScreen(
 
                         context.toastAsync(R.string.error_toast_wrong_credentials)
                     } catch (e: IllegalArgumentException) {
-                        Timber.e("The given user doesn't have an stored hash.")
+                        Timber.w("The given user doesn't have an stored hash.")
                         ui { shouldCreateAccount = true }
                     } catch (e: NoSuchAlgorithmException) {
                         Timber.e(e, "The algorithm to use is not available")

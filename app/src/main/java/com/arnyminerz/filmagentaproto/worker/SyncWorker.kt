@@ -286,7 +286,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
                 val idSocio = RemoteDatabaseInterface.fetchIdSocioFromDni(dni)
                 if (idSocio == null) {
-                    Timber.e("Could not get idSocio for DNI=$dni")
+                    Timber.w("Could not get idSocio for DNI=$dni")
                     continue
                 }
 
