@@ -5,6 +5,7 @@ import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
 import com.arnyminerz.filamagenta.core.database.data.woo.event.EventType
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
+import com.arnyminerz.filamagenta.core.utils.lazyNullCacheable
 import com.arnyminerz.filamagenta.core.utils.now
 import java.util.Calendar
 import java.util.Date
@@ -196,7 +197,11 @@ open class EventProto(
         }
     }
 
-    var cutDescription: String = ""
+    var cutDescription: String by lazyNullCacheable {
+        shortDescription
+            .replace(untilKeywordLine, "")
+            .trim('\n', '\r', ' ')
+    }
         private set
 
     val eventDate: Date? by lazy {
@@ -259,7 +264,7 @@ open class EventProto(
                     }
                 }
 
-                cutDescription = desc.replace(found, "")
+                cutDescription = desc.replace(found, "").trim('\n', '\r')
                 calendar.time
             }
     }

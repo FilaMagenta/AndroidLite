@@ -52,38 +52,57 @@ class TestEvent {
 
     @Test
     fun test_event() {
-        assertEquals(EventType.Dinner, datesEvent.type)
-        assertEquals("SAN JORGE, cena", datesEvent.title)
-        assertEquals(14, datesEvent.index)
+        val event = datesEvent.copy(
+            shortDescription = "Comida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
+        )
+        assertEquals(EventType.Dinner, event.type)
+        assertEquals("SAN JORGE, cena", event.title)
+        assertEquals(14, event.index)
+        assertEquals(
+            "Comida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
+            event.cutDescription,
+        )
     }
 
     @Test
     fun test_lunchNoDate() {
         val event = datesEvent.copy(
-            shortDescription = "RESERVAS hasta el domingo 2 de abril.\nComida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.\nEn DETALLES DE FACTURACION, abajo pone INFORAMCION ADICIONAL, anotar el responsable de mesa.",
+            shortDescription = "RESERVAS hasta el domingo 2 de abril.\nComida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
         )
         assertFalse(event.hasPassed)
         assertEquals(Date(1680472740000), event.acceptsReservationsUntil)
         assertNull(event.eventDate)
+        assertEquals(
+            "Comida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
+            event.cutDescription,
+        )
     }
 
     @Test
     fun test_lunchNoLimit() {
         val event = datesEvent.copy(
-            shortDescription = "Domingo 2 de abril.\nComida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.\nEn DETALLES DE FACTURACION, abajo pone INFORAMCION ADICIONAL, anotar el responsable de mesa.",
+            shortDescription = "Domingo 2 de abril.\nComida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
         )
         assertFalse(event.hasPassed)
         assertNull(event.acceptsReservationsUntil)
         assertEquals(Date(1680386400000), event.eventDate)
+        assertEquals(
+            "Comida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
+            event.cutDescription,
+        )
     }
 
     @Test
     fun test_lunchDateAndLimit() {
         val event = datesEvent.copy(
-            shortDescription = "RESERVAS hasta el domingo 2 de abril.\nDía 25 de abril.\nComida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.\nEn DETALLES DE FACTURACION, abajo pone INFORAMCION ADICIONAL, anotar el responsable de mesa.",
+            shortDescription = "RESERVAS hasta el domingo 2 de abril.\nDía 25 de abril.\nComida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
         )
         assertFalse(event.hasPassed)
         assertEquals(Date(1680472740000), event.acceptsReservationsUntil)
         assertEquals(Date(1682373600000), event.eventDate)
+        assertEquals(
+            "Comida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
+            event.cutDescription,
+        )
     }
 }
