@@ -12,9 +12,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material3.Card
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,47 +68,74 @@ class ScannerActivity : AppCompatActivity() {
                 finish()
             }
 
-            val cameraPermissionState = rememberPermissionState(
-                android.Manifest.permission.CAMERA
-            )
-
-            if (cameraPermissionState.status.isGranted)
-                CameraPreview(modifier = Modifier.fillMaxSize()) { result ->
-                    Timber.d("Got result! List: $result")
-                    setResult(
-                        Activity.RESULT_OK,
-                        Intent().apply { putExtra(RESULT_CONTENT, result.toTypedArray()) },
+            Box {
+                Scaffold(
+                    floatingActionButtonPosition = FabPosition.Center,
+                    floatingActionButton = {
+                        // Back button
+                        FloatingActionButton(
+                            onClick = {
+                                setResult(Activity.RESULT_CANCELED)
+                                finish()
+                            },
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(12.dp),
+                        ) { Icon(Icons.Rounded.ChevronLeft, stringResource(R.string.back)) }
+                    },
+                ) { paddingValues ->
+                    val cameraPermissionState = rememberPermissionState(
+                        android.Manifest.permission.CAMERA
                     )
-                    finish()
-                }
-            else {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Card(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 32.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.permission_required_title),
-                            style = MaterialTheme.typography.titleMedium,
+
+                    if (cameraPermissionState.status.isGranted)
+                        CameraPreview(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp)
-                                .padding(horizontal = 8.dp),
-                        )
-                        Text(
-                            text = stringResource(R.string.permission_required_camera),
-                            style = MaterialTheme.typography.bodyMedium,
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                        ) { result ->
+                            Timber.d("Got result! List: $result")
+                            setResult(
+                                Activity.RESULT_OK,
+                                Intent().apply { putExtra(RESULT_CONTENT, result.toTypedArray()) },
+                            )
+                            finish()
+                        }
+                    else {
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 8.dp)
-                                .padding(horizontal = 8.dp),
-                        )
-                        OutlinedButton(
-                            onClick = { cameraPermissionState.launchPermissionRequest() },
-                            modifier = Modifier.align(Alignment.End),
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Text(stringResource(R.string.permission_required_grant))
+                            Card(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 32.dp),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.permission_required_title),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 8.dp)
+                                        .padding(horizontal = 8.dp),
+                                )
+                                Text(
+                                    text = stringResource(R.string.permission_required_camera),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                        .padding(horizontal = 8.dp),
+                                )
+                                OutlinedButton(
+                                    onClick = { cameraPermissionState.launchPermissionRequest() },
+                                    modifier = Modifier.align(Alignment.End),
+                                ) {
+                                    Text(stringResource(R.string.permission_required_grant))
+                                }
+                            }
                         }
                     }
                 }

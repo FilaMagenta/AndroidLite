@@ -19,6 +19,7 @@ import com.arnyminerz.filmagentaproto.database.local.migration.Migration5To6
 import com.arnyminerz.filmagentaproto.database.local.migration.Migration6To7
 import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
+import timber.log.Timber
 
 @Database(
     entities = [
@@ -59,11 +60,13 @@ abstract class AppDatabase : RoomDatabase() {
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
+                        Timber.i("Running synchronization after db creation.")
                         SyncWorker.run(context)
                     }
 
                     override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
                         super.onDestructiveMigration(db)
+                        Timber.i("Running synchronization after db destructive migration.")
                         SyncWorker.run(context)
                     }
                 })
