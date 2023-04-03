@@ -7,14 +7,28 @@ on:
   pull_request:
 
 jobs:
-  run_test:
+  paths-filter:
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.filter.outputs.workflows }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: recursive
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            workflows:
+              - 'app/**'
+  update_release:
+    runs-on: ubuntu-latest
+    # Wait from the paths-filter to be completed before starting next-job
+    needs: paths-filter
+    if: needs.paths-filter.outputs.output1 == 'true'
+    steps:
       - name: Set up JDK 15
         uses: actions/setup-java@v3
         with:
