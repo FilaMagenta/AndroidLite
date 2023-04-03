@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
 import com.arnyminerz.filamagenta.core.database.data.woo.order.OrderMetadata
 import com.arnyminerz.filmagentaproto.R
 import timber.log.Timber
@@ -36,7 +36,7 @@ import timber.log.Timber
 @Composable
 @ExperimentalMaterial3Api
 fun EventBottomSheet(
-    event: EventProto,
+    event: Event,
     onDismissRequest: () -> Unit,
     onSubmit: (metadata: List<OrderMetadata>, onComplete: () -> Unit) -> Unit,
 ) {

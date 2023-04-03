@@ -15,9 +15,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.ui.components.EventItem
 import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.components.TabsColumn

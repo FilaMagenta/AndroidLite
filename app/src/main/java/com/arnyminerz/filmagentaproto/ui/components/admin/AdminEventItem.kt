@@ -23,8 +23,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import java.util.Locale
 
 private val dateFormatter: SimpleDateFormat

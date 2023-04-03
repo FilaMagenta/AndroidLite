@@ -6,7 +6,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.arnyminerz.filmagentaproto.database.data.Transaction
+import com.arnyminerz.filamagenta.core.data.Transaction
 
 @Dao
 interface TransactionsDao {

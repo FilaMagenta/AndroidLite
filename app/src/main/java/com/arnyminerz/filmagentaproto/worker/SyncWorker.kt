@@ -26,6 +26,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest.Companion.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.arnyminerz.filamagenta.core.data.Transaction
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filamagenta.core.database.data.woo.WooClass
 import com.arnyminerz.filamagenta.core.utils.now
@@ -36,7 +37,6 @@ import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_CUSTOMER_ADMIN
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_CUSTOMER_ID
 import com.arnyminerz.filmagentaproto.activity.ShareMessageActivity
-import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.local.RemoteDatabaseDao
 import com.arnyminerz.filmagentaproto.database.local.TransactionsDao
@@ -345,7 +345,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     private suspend fun synchronizeSocio(idSocio: Long?) {
         // If idSocio is not null, fetch only transactions with that id
         val transactions = idSocio?.let {
-            RemoteDatabaseInterface.fetchTransactions(it).map { t -> t as Transaction }
+            RemoteDatabaseInterface.fetchTransactions(it)
         }
         // If idSocio is null, fetch all transactions
             ?: RemoteDatabaseInterface.fetchAllTransactions()
@@ -366,10 +366,10 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             if (oldTransaction != null) {
                 // If the transaction already exists, update it
                 transaction.notified = oldTransaction.notified
-                transactionsDao.update(transaction as Transaction)
+                transactionsDao.update(transaction)
             } else {
                 // Otherwise, simply insert the new one
-                transactionsDao.insert(transaction as Transaction)
+                transactionsDao.insert(transaction)
             }
         }
 

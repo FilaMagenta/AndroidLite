@@ -1,5 +1,6 @@
 package com.arnyminerz.filamagenta.core.data
 
+import androidx.room.Entity
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.database.prototype.RemoteDataParser
@@ -8,24 +9,25 @@ import java.sql.ResultSet
 import java.util.Date
 import org.json.JSONObject
 
-open class TransactionProto(
-    open val id: Long,
-    open val idSocio: Long,
-    open val date: Date,
-    open val concept: String,
+@Entity(tableName = "transactions", primaryKeys = ["id"])
+data class Transaction(
+    val id: Long,
+    val idSocio: Long,
+    val date: Date,
+    val concept: String,
     /** The amount of units ordered */
-    open val units: Int,
+    val units: Int,
     /** The price of each unit */
-    open val unitPrice: Double,
+    val unitPrice: Double,
     /** The total price. Should be units*unitPrice */
-    open val price: Double,
+    val price: Double,
     /** If true, the money is entering the account, if false, it's an expense. */
-    open val income: Boolean,
+    val income: Boolean,
     /** Used for notifying about new transactions */
-    open var notified: Boolean,
+    var notified: Boolean,
 ): JsonSerializable {
-    companion object: JsonSerializer<TransactionProto>, RemoteDataParser<TransactionProto> {
-        override fun fromJSON(json: JSONObject, vararg args: Any?): TransactionProto = TransactionProto(
+    companion object: JsonSerializer<Transaction>, RemoteDataParser<Transaction> {
+        override fun fromJSON(json: JSONObject, vararg args: Any?): Transaction = Transaction(
             json.getLong("id"),
             json.getLong("id_socio"),
             Date(json.getLong("date")),
@@ -37,7 +39,7 @@ open class TransactionProto(
             json.getBooleanOrNull("notified") ?: false,
         )
 
-        override fun parse(row: ResultSet): TransactionProto = TransactionProto(
+        override fun parse(row: ResultSet): Transaction = Transaction(
             row.getLong("idApunte"),
             row.getLong("idSocio"),
             row.getDate("Fecha"),
@@ -63,8 +65,8 @@ open class TransactionProto(
     }
 }
 
-val Iterable<TransactionProto>.inwards: Double
+val Iterable<Transaction>.inwards: Double
     get() = filter { it.income }.sumOf { it.price }
 
-val Iterable<TransactionProto>.outwards: Double
+val Iterable<Transaction>.outwards: Double
     get() = filter { !it.income }.sumOf { it.price }

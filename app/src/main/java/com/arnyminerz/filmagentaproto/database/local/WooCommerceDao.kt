@@ -7,10 +7,10 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.arnyminerz.filmagentaproto.database.data.woo.AvailablePayment
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
+import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePayment
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 
 @Dao
 interface WooCommerceDao {

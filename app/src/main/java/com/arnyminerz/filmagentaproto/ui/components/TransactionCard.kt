@@ -16,8 +16,8 @@ import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
+import com.arnyminerz.filamagenta.core.data.Transaction
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.Transaction
 
 private val dateFormatter: SimpleDateFormat
     get() = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())

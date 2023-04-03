@@ -26,8 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
-import com.arnyminerz.filamagenta.core.database.data.woo.InStock
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.StockStatus.Companion.InStock
 import com.arnyminerz.filamagenta.core.database.data.woo.order.OrderMetadata
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.ui.dialogs.EventBottomSheet
@@ -41,7 +41,7 @@ private val dateFormat: SimpleDateFormat
 @Composable
 @ExperimentalMaterial3Api
 fun EventItem(
-    event: EventProto,
+    event: Event,
     isConfirmed: Boolean,
     isArchived: Boolean,
     onEventSelected: () -> Unit,

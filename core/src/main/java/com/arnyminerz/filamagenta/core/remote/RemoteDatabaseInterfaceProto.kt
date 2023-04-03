@@ -1,7 +1,7 @@
 package com.arnyminerz.filamagenta.core.remote
 
 import com.arnyminerz.filamagenta.core.Logger
-import com.arnyminerz.filamagenta.core.data.TransactionProto
+import com.arnyminerz.filamagenta.core.data.Transaction
 import com.arnyminerz.filamagenta.core.data.tb.Socio
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -44,7 +44,7 @@ abstract class RemoteDatabaseInterfaceProto {
         database.query(
             "tbApuntesSocios",
             where = null,
-            parser = TransactionProto.Companion
+            parser = Transaction.Companion
         )
     }
 
@@ -55,7 +55,7 @@ abstract class RemoteDatabaseInterfaceProto {
         database.query(
             "tbApuntesSocios",
             where = mapOf("idSocio" to idSocio),
-            parser = TransactionProto.Companion
+            parser = Transaction.Companion
         )
     }
 

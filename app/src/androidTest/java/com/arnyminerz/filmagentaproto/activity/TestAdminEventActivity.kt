@@ -11,7 +11,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.launchActivity
 import androidx.test.core.app.launchActivityForResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.utils.DatabaseTest
 import com.arnyminerz.filmagentaproto.utils.createAndroidIntentComposeRule
 import kotlinx.coroutines.runBlocking

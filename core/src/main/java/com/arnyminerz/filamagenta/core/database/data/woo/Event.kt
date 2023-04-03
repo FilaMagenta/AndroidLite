@@ -1,6 +1,12 @@
 package com.arnyminerz.filamagenta.core.database.data.woo
 
+import androidx.annotation.StringDef
+import androidx.room.ColumnInfo
+import androidx.room.Entity
 import com.arnyminerz.filamagenta.core.Logger
+import com.arnyminerz.filamagenta.core.database.data.woo.StockStatus.Companion.InStock
+import com.arnyminerz.filamagenta.core.database.data.woo.StockStatus.Companion.OnBackOrder
+import com.arnyminerz.filamagenta.core.database.data.woo.StockStatus.Companion.OutOfStock
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
 import com.arnyminerz.filamagenta.core.database.data.woo.event.EventType
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
@@ -11,25 +17,31 @@ import java.util.Calendar
 import java.util.Date
 import org.json.JSONObject
 
-const val InStock = "instock"
-const val OutOfStock = "outofstock"
-const val OnBackOrder = "onbackorder"
+@StringDef(InStock, OutOfStock, OnBackOrder)
+annotation class StockStatus {
+    companion object {
+        const val InStock = "instock"
+        const val OutOfStock = "outofstock"
+        const val OnBackOrder = "onbackorder"
+    }
+}
 
-open class EventProto(
+@Entity(tableName = "events", primaryKeys = ["id"])
+data class Event(
     override val id: Long,
-    open val name: String,
-    open val slug: String,
-    open val permalink: String,
-    open val dateCreated: Date,
-    open val dateModified: Date,
-    open val description: String,
-    open val shortDescription: String,
-    open val price: Double,
-    open val attributes: List<Attribute>,
-    open val stockStatus: String,
-    open val stockQuantity: Int,
+    val name: String,
+    val slug: String,
+    val permalink: String,
+    val dateCreated: Date,
+    val dateModified: Date,
+    val description: String,
+    val shortDescription: String,
+    val price: Double,
+    val attributes: List<Attribute>,
+    @ColumnInfo(defaultValue = InStock) @StockStatus val stockStatus: String,
+    @ColumnInfo(defaultValue = "0") val stockQuantity: Int,
 ) : WooClass(id) {
-    companion object : JsonSerializer<EventProto> {
+    companion object : JsonSerializer<Event> {
         private val untilKeyword = Regex(
             "Reservas? hasta el",
             setOf(
@@ -87,12 +99,19 @@ open class EventProto(
             "noviembre", "diciembre"
         )
 
+        val EXAMPLE = Event(
+            1, "Example Event", "example-event", "https://example.com",
+            Date(1), Date(2), "This is the description of the event",
+            "Reservas hasta el lunes 23 de marzo de 2023. 12 de abril de 2023",
+            0.0, emptyList(), InStock, 120
+        )
+
         /**
          * Initializes the event from a JSONObject.
          *
          * **Note: [attributes] are set empty.**
          */
-        override fun fromJSON(json: JSONObject, vararg args: Any?): EventProto = EventProto(
+        override fun fromJSON(json: JSONObject, vararg args: Any?): Event = Event(
             json.getLong("id"),
             json.getString("name"),
             json.getString("slug"),

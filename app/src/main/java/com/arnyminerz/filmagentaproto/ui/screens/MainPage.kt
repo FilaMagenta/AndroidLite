@@ -19,10 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.work.WorkInfo
+import com.arnyminerz.filamagenta.core.data.Transaction
 import com.arnyminerz.filamagenta.core.data.inwards
 import com.arnyminerz.filamagenta.core.data.outwards
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.Transaction
 import com.arnyminerz.filmagentaproto.ui.components.BalanceCard
 import com.arnyminerz.filmagentaproto.ui.components.TransactionCard
 import com.arnyminerz.filmagentaproto.viewmodel.MainViewModel

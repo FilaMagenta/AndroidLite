@@ -1,12 +1,12 @@
 package com.arnyminerz.filmagentaproto.database.remote
 
 import android.util.Base64
+import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePayment
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filamagenta.core.remote.RemoteCommerceProto
 import com.arnyminerz.filmagentaproto.BuildConfig
-import com.arnyminerz.filmagentaproto.database.data.woo.AvailablePayment
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 
 object RemoteCommerce : RemoteCommerceProto<
         Order,

@@ -7,7 +7,6 @@ import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SUBSCRIBER
 import com.arnyminerz.filamagenta.core.database.data.woo.customer.DeliveryInformation
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.utils.DatabaseTest
 import com.arnyminerz.filmagentaproto.utils.await

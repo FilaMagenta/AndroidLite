@@ -1,10 +1,6 @@
 package com.arnyminerz.filamagenta.core.remote
 
 import com.arnyminerz.filamagenta.core.Logger
-import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePaymentProto
-import com.arnyminerz.filamagenta.core.database.data.woo.CustomerProto
-import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
-import com.arnyminerz.filamagenta.core.database.data.woo.OrderProto
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Option
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Variation
@@ -28,13 +24,13 @@ import org.json.JSONException
 import org.json.JSONObject
 
 abstract class RemoteCommerceProto<
-        Order : OrderProto,
+        Order : com.arnyminerz.filamagenta.core.database.data.woo.Order,
         OrderParser : JsonSerializer<Order>,
-        Customer : CustomerProto,
+        Customer : com.arnyminerz.filamagenta.core.database.data.woo.Customer,
         CustomerParser : JsonSerializer<Customer>,
-        Event : EventProto,
+        Event : com.arnyminerz.filamagenta.core.database.data.woo.Event,
         EventParser : JsonSerializer<Event>,
-        AvailablePayment : AvailablePaymentProto,
+        AvailablePayment : com.arnyminerz.filamagenta.core.database.data.woo.AvailablePayment,
         AvailablePaymentParser : JsonSerializer<AvailablePayment>,
         >(
     private val orderParser: OrderParser,

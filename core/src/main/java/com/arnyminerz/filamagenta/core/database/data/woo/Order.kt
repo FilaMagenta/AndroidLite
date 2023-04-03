@@ -1,5 +1,16 @@
 package com.arnyminerz.filamagenta.core.database.data.woo
 
+import androidx.annotation.StringDef
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.CANCELLED
+import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.COMPLETED
+import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.FAILED
+import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.ON_HOLD
+import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.PENDING
+import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.PROCESSING
+import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.REFUNDED
+import com.arnyminerz.filamagenta.core.database.data.woo.Status.Companion.TRASH
 import com.arnyminerz.filamagenta.core.database.data.woo.order.Payment
 import com.arnyminerz.filamagenta.core.database.data.woo.order.Product
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable
@@ -13,28 +24,34 @@ import com.arnyminerz.filamagenta.core.utils.toJSON
 import java.util.Date
 import org.json.JSONObject
 
-const val PENDING = "pending"
-const val PROCESSING = "processing"
-const val ON_HOLD = "on-hold"
-const val COMPLETED = "completed"
-const val CANCELLED = "cancelled"
-const val REFUNDED = "refunded"
-const val FAILED = "failed"
-const val TRASH = "trash"
+@StringDef(PENDING, PROCESSING, ON_HOLD, COMPLETED, CANCELLED, REFUNDED, FAILED, TRASH)
+annotation class Status {
+    companion object {
+        const val PENDING = "pending"
+        const val PROCESSING = "processing"
+        const val ON_HOLD = "on-hold"
+        const val COMPLETED = "completed"
+        const val CANCELLED = "cancelled"
+        const val REFUNDED = "refunded"
+        const val FAILED = "failed"
+        const val TRASH = "trash"
+    }
+}
 
-open class OrderProto(
+@Entity(tableName = "orders", primaryKeys = ["id"])
+data class Order(
     override val id: Long,
-    open val status: String,
-    open val currency: String,
-    open val dateCreated: Date,
-    open val dateModified: Date,
-    open val total: Double,
-    open val customerId: Long,
-    open val payment: Payment?,
-    open val items: List<Product>,
+    @Status val status: String,
+    val currency: String,
+    val dateCreated: Date,
+    val dateModified: Date,
+    val total: Double,
+    val customerId: Long,
+    @ColumnInfo(defaultValue = "null") val payment: Payment?,
+    val items: List<Product>,
 ) : JsonSerializable, WooClass(id) {
-    companion object : JsonSerializer<OrderProto> {
-        override fun fromJSON(json: JSONObject, vararg args: Any?): OrderProto = OrderProto(
+    companion object : JsonSerializer<Order> {
+        override fun fromJSON(json: JSONObject, vararg args: Any?): Order = Order(
             json.getLong("id"),
             json.getString("status"),
             json.getString("currency"),

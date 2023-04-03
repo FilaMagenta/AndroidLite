@@ -2,32 +2,32 @@ package com.arnyminerz.filmagentaproto.database.logic
 
 import android.content.Context
 import androidx.annotation.WorkerThread
-import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filamagenta.core.database.data.woo.order.Product
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 
 @WorkerThread
-suspend fun EventProto.isConfirmed(context: Context, customer: Customer): Boolean =
+suspend fun Event.isConfirmed(context: Context, customer: Customer): Boolean =
     getProductOrNull(context, customer) != null
 
 /**
- * Tries to get the [EventProto]'s matching [Product]. If null, it means that the given [customer]
+ * Tries to get the [Event]'s matching [Product]. If null, it means that the given [customer]
  * has not signed up for this event. Otherwise the returned product is the reservation made.
  */
 @WorkerThread
-suspend fun EventProto.getProductOrNull(context: Context, customer: Customer): Product? {
+suspend fun Event.getProductOrNull(context: Context, customer: Customer): Product? {
     val entries = getOrderOrNull(context, customer)?.items
     return entries?.firstOrNull()
 }
 
 /**
- * Tries to get the [EventProto]'s matching [Product]. If null, it means that the given [customer]
+ * Tries to get the [Event]'s matching [Product]. If null, it means that the given [customer]
  * has not signed up for this event. Otherwise the returned product is the reservation made.
  */
 @WorkerThread
-suspend fun EventProto.getOrderOrNull(context: Context, customer: Customer): Order? {
+suspend fun Event.getOrderOrNull(context: Context, customer: Customer): Order? {
     val database = AppDatabase.getInstance(context)
     val wooCommerceDao = database.wooCommerceDao()
     val orders = wooCommerceDao.getAllOrders()
@@ -41,7 +41,7 @@ suspend fun EventProto.getOrderOrNull(context: Context, customer: Customer): Ord
  * Gets all the orders made for the given event.
  */
 @WorkerThread
-suspend fun EventProto.getOrders(context: Context): List<Order> {
+suspend fun Event.getOrders(context: Context): List<Order> {
     val database = AppDatabase.getInstance(context)
     val wooCommerceDao = database.wooCommerceDao()
     val orders = wooCommerceDao.getAllOrders()

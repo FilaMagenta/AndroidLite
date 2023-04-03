@@ -12,13 +12,13 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filamagenta.core.utils.doAsync
 import com.arnyminerz.filmagentaproto.Shortcuts.ADMIN_PANEL_ID
 import com.arnyminerz.filmagentaproto.Shortcuts.ADMIN_PANEL_LABEL_RES
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.activity.AdminActivity
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT

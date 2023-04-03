@@ -3,7 +3,6 @@ package com.arnyminerz.filmagentaproto.implementation
 import com.arnyminerz.filamagenta.core.database.data.woo.InStock
 import com.arnyminerz.filamagenta.core.database.data.woo.event.EventType
 import com.arnyminerz.filamagenta.core.utils.now
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.verify

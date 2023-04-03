@@ -1,6 +1,6 @@
 package com.arnyminerz.filamagenta.core.utils
 
-import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePaymentProto
+import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePayment
 
 /**
  * Divides the given amount of money into the least amount possible of packages given.
@@ -12,7 +12,7 @@ import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePaymentProto
  */
 fun divideMoney(
     amount: Double,
-    availablePackages: List<AvailablePaymentProto>,
+    availablePackages: List<AvailablePayment>,
     maxCycles: Int = availablePackages.size * 100,
 ): Map<Long, Int> {
     // Sort the available packages from greatest to lowest

@@ -19,12 +19,12 @@ import androidx.work.Operation
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.getStringOrNull
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.WooCommerceDao
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.documents.DocumentUtils
@@ -110,8 +110,7 @@ class TicketWorker(context: Context, params: WorkerParameters) :
             private val simpleDateFormat: SimpleDateFormat
                 get() = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-            context(Context)
-                    suspend fun fromOrders(
+            context(Context) suspend fun fromOrders(
                 wooCommerceDao: WooCommerceDao,
                 event: Event,
                 orders: List<Order>,

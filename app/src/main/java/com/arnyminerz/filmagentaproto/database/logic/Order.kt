@@ -11,10 +11,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.applyCanvas
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.toRect
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filamagenta.core.utils.getIntOrNull
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.documents.RectD
 import com.arnyminerz.filmagentaproto.qr.BarcodeEncoder
 import com.arnyminerz.filmagentaproto.security.AESEncryption

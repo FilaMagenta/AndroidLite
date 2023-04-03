@@ -52,11 +52,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.arnyminerz.filamagenta.core.database.data.woo.EventProto
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce
@@ -159,7 +158,7 @@ class EventActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun DeleteDialog(event: EventProto, customer: Customer, onDismissRequest: () -> Unit) {
+    fun DeleteDialog(event: Event, customer: Customer, onDismissRequest: () -> Unit) {
         var isDeleting by remember { mutableStateOf(false) }
 
         AlertDialog(
@@ -207,7 +206,7 @@ class EventActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun Contents(event: EventProto, customer: Customer, order: Order) {
+    fun Contents(event: Event, customer: Customer, order: Order) {
         var showingCancelDialog by remember { mutableStateOf(false) }
         if (showingCancelDialog)
             DeleteDialog(event, customer) { showingCancelDialog = false }
@@ -328,7 +327,7 @@ class EventActivity : AppCompatActivity() {
     }
 
     class EventViewModel(application: Application) : AndroidViewModel(application) {
-        val event: MutableLiveData<EventProto> = MutableLiveData()
+        val event: MutableLiveData<Event> = MutableLiveData()
         val customer: MutableLiveData<Customer> = MutableLiveData()
         val order: MutableLiveData<Order> = MutableLiveData()
 
@@ -385,7 +384,7 @@ class EventActivity : AppCompatActivity() {
         @Suppress("BlockingMethodInNonBlockingContext")
         fun cancelEventReservation(
             customer: Customer,
-            event: EventProto,
+            event: Event,
         ) = async {
             val order = order.value
             if (order == null) {
@@ -394,7 +393,7 @@ class EventActivity : AppCompatActivity() {
             }
             RemoteCommerce.eventCancel(order.id)
             Timber.i("Event cancelled. Deleting from db...")
-            dao.delete(event as Event)
+            dao.delete(event)
         }
     }
 
@@ -407,7 +406,7 @@ class EventActivity : AppCompatActivity() {
 
     data class InputData(
         val customer: Customer,
-        val event: EventProto,
+        val event: Event,
     )
 
     object Contract : ActivityResultContract<InputData, ActionPerformed?>() {

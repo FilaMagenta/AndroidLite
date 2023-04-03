@@ -1,17 +1,25 @@
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
+    id 'com.google.devtools.ksp'
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_7
-    targetCompatibility = JavaVersion.VERSION_1_7
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 dependencies {
     implementation 'org.json:json:20230227'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+
+    // Some utility annotations
+    implementation "androidx.annotation:annotation:1.6.0"
+
+    // Room Database (for integration with Android)
+    implementation "androidx.room:room-common:$room_version"
+    // ksp "androidx.room:room-compiler:$room_version"
 
     testImplementation 'junit:junit:4.13.2'
 }

@@ -1,5 +1,7 @@
 package com.arnyminerz.filamagenta.core.database.data.woo
 
+import androidx.annotation.StringDef
+import androidx.room.Entity
 import com.arnyminerz.filamagenta.core.database.data.woo.customer.DeliveryInformation
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.capitalizedWords
@@ -15,22 +17,29 @@ const val ROLE_SUBSCRIBER = "subscriber"
 const val ROLE_CUSTOMER = "customer"
 const val ROLE_SHOP_MANAGER = "shop_manager"
 
-open class CustomerProto(
+@StringDef(
+    ROLE_ADMINISTRATOR, ROLE_EDITOR, ROLE_AUTHOR, ROLE_CONTRIBUTOR, ROLE_SUBSCRIBER,
+    ROLE_CUSTOMER, ROLE_SHOP_MANAGER
+)
+annotation class CustomerRole
+
+@Entity(tableName = "customers", primaryKeys = ["id"])
+class Customer(
     override val id: Long,
-    open val dateCreated: Date,
-    open val dateModified: Date,
-    open val email: String,
-    open val firstName: String,
-    open val lastName: String,
-    open val role: String,
-    open val username: String,
-    open val billing: DeliveryInformation,
-    open val shipping: DeliveryInformation,
-    open val isPayingCustomer: Boolean,
-    open val avatarUrl: String,
+    val dateCreated: Date,
+    val dateModified: Date,
+    val email: String,
+    val firstName: String,
+    val lastName: String,
+    @CustomerRole val role: String,
+    val username: String,
+    val billing: DeliveryInformation,
+    val shipping: DeliveryInformation,
+    val isPayingCustomer: Boolean,
+    val avatarUrl: String,
 ) : WooClass(id) {
-    companion object : JsonSerializer<CustomerProto> {
-        override fun fromJSON(json: JSONObject, vararg args: Any?): CustomerProto = CustomerProto(
+    companion object : JsonSerializer<Customer> {
+        override fun fromJSON(json: JSONObject, vararg args: Any?): Customer = Customer(
             json.getLong("id"),
             json.getDateGmt("date_created_gmt"),
             json.getDateGmt("date_modified_gmt"),

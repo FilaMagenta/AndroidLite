@@ -8,14 +8,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
+import com.arnyminerz.filamagenta.core.data.Transaction
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
 import com.arnyminerz.filamagenta.core.database.data.woo.order.OrderMetadata
 import com.arnyminerz.filamagenta.core.utils.io
 import com.arnyminerz.filamagenta.core.utils.ui
 import com.arnyminerz.filmagentaproto.App
 import com.arnyminerz.filmagentaproto.account.Authenticator
-import com.arnyminerz.filmagentaproto.database.data.Transaction
-import com.arnyminerz.filmagentaproto.database.data.woo.Customer
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.isConfirmed
 import com.arnyminerz.filmagentaproto.database.remote.RemoteCommerce

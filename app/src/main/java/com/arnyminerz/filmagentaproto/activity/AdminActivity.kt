@@ -30,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,11 +39,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_ADMINISTRATOR
 import com.arnyminerz.filmagentaproto.App
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.data.woo.Event
-import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.logic.getOrders
 import com.arnyminerz.filmagentaproto.ui.components.NavigationBarItem
@@ -85,8 +84,6 @@ class AdminActivity : AppCompatActivity() {
         val comesFromActivity = intent.getBooleanExtra(EXTRA_PARENT_ACTIVITY, false)
 
         setContentThemed {
-            val scope = rememberCoroutineScope()
-
             // Handle back presses
             BackHandler { setResult(Activity.RESULT_CANCELED); finish() }
 
