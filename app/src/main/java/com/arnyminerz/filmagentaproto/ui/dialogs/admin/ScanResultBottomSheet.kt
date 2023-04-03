@@ -1,10 +1,14 @@
 package com.arnyminerz.filmagentaproto.ui.dialogs.admin
 
+import androidx.annotation.IntDef
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.NewReleases
 import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material3.CircularProgressIndicator
@@ -16,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,12 +30,81 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_INVALID
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_LOADING
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_OK
+import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_OLD
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity.Companion.SCAN_RESULT_REPEATED
 import com.arnyminerz.filmagentaproto.ui.theme.SuccessColor
 import com.arnyminerz.filmagentaproto.ui.theme.WarningColor
 
 private val BOTTOM_MARGIN = 72.dp
 private val HORIZONTAL_MARGIN = 12.dp
+
+private const val LEVEL_SUCCESS = 0
+private const val LEVEL_WARNING = 1
+private const val LEVEL_ERROR = 2
+
+@IntDef(LEVEL_SUCCESS, LEVEL_WARNING, LEVEL_ERROR)
+annotation class ResponseLevel
+
+@Composable
+fun ColumnScope.ResponseView(
+    @ResponseLevel level: Int,
+    @StringRes titleRes: Int,
+    @StringRes messageRes: Int? = null,
+    message: String? = null,
+) {
+    Icon(
+        when (level) {
+            LEVEL_SUCCESS -> Icons.Outlined.Verified
+            LEVEL_WARNING -> Icons.Outlined.NewReleases
+            LEVEL_ERROR -> Icons.Outlined.Cancel
+            else -> Icons.Outlined.Close
+        },
+        null,
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .size(96.dp)
+            .padding(top = 32.dp),
+        tint = when (level) {
+            LEVEL_SUCCESS -> SuccessColor
+            LEVEL_WARNING -> WarningColor
+            LEVEL_ERROR -> MaterialTheme.colorScheme.error
+            else -> Color.Unspecified
+        },
+    )
+    Text(
+        text = stringResource(titleRes),
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .padding(
+                bottom = BOTTOM_MARGIN.takeIf { message == null && messageRes == null } ?: 4.dp
+            )
+            .padding(horizontal = HORIZONTAL_MARGIN),
+        fontSize = 26.sp,
+    )
+    message?.let { msg ->
+        Text(
+            text = msg,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = BOTTOM_MARGIN.takeIf { messageRes == null } ?: 4.dp)
+                .padding(horizontal = HORIZONTAL_MARGIN),
+            textAlign = TextAlign.Center,
+        )
+    }
+    messageRes?.let { msgRes ->
+        Text(
+            text = stringResource(msgRes),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = BOTTOM_MARGIN)
+                .padding(horizontal = HORIZONTAL_MARGIN),
+            textAlign = TextAlign.Center,
+        )
+    }
+}
 
 @Composable
 @ExperimentalMaterial3Api
@@ -57,90 +131,32 @@ fun ScanResultBottomSheet(scanResult: Int, scanCustomer: String?, onDismissReque
                 )
             }
             SCAN_RESULT_OK -> {
-                Icon(
-                    Icons.Outlined.Verified,
-                    null,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .size(96.dp)
-                        .padding(top = 32.dp),
-                    tint = SuccessColor,
-                )
-                Text(
-                    text = stringResource(R.string.admin_scan_correct),
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 32.dp)
-                        .padding(horizontal = HORIZONTAL_MARGIN),
-                    fontSize = 26.sp,
-                )
-                Text(
-                    text = scanCustomer ?: "",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(bottom = BOTTOM_MARGIN)
-                        .padding(horizontal = HORIZONTAL_MARGIN),
-                    textAlign = TextAlign.Center,
+                ResponseView(
+                    level = LEVEL_SUCCESS,
+                    titleRes = R.string.admin_scan_correct,
+                    message = scanCustomer,
                 )
             }
             SCAN_RESULT_REPEATED -> {
-                Icon(
-                    Icons.Outlined.NewReleases,
-                    null,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .size(96.dp)
-                        .padding(top = 32.dp),
-                    tint = WarningColor,
-                )
-                Text(
-                    text = stringResource(R.string.admin_scan_repeated),
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 32.dp)
-                        .padding(horizontal = HORIZONTAL_MARGIN),
-                    fontSize = 26.sp,
-                )
-                Text(
-                    text = scanCustomer ?: "",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(bottom = 4.dp)
-                        .padding(horizontal = HORIZONTAL_MARGIN),
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = stringResource(R.string.admin_scan_repeated_msg),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(bottom = BOTTOM_MARGIN)
-                        .padding(horizontal = HORIZONTAL_MARGIN),
-                    textAlign = TextAlign.Center,
+                ResponseView(
+                    level = LEVEL_WARNING,
+                    titleRes = R.string.admin_scan_repeated,
+                    message = scanCustomer,
+                    messageRes = R.string.admin_scan_repeated_msg,
                 )
             }
             SCAN_RESULT_INVALID -> {
-                Icon(
-                    Icons.Outlined.Cancel,
-                    null,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .size(96.dp)
-                        .padding(top = 32.dp),
-                    tint = MaterialTheme.colorScheme.error,
+                ResponseView(
+                    level = LEVEL_ERROR,
+                    titleRes = R.string.admin_scan_repeated,
+                    messageRes = R.string.admin_scan_invalid,
                 )
-                Text(
-                    text = stringResource(R.string.admin_scan_invalid),
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(bottom = BOTTOM_MARGIN)
-                        .padding(horizontal = HORIZONTAL_MARGIN),
-                    fontSize = 26.sp,
+            }
+            SCAN_RESULT_OLD -> {
+                ResponseView(
+                    level = LEVEL_ERROR,
+                    titleRes = R.string.admin_scan_old,
+                    messageRes = R.string.admin_scan_old_msg,
                 )
             }
         }

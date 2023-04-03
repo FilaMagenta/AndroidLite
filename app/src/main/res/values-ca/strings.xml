@@ -12,6 +12,7 @@
     <string name="login_title">Inici de Sessió</string>
     <string name="login_nif">NIF</string>
     <string name="login_nif_aux">El teu DNI, NIE, o el que aplique</string>
+    <string name="register_password_safe">La teua contrassenya és segura.</string>
     <string name="register_password_unsafe_magenta">La teua contrassenya no pot estar relacionada amb la Filà Magenta.</string>
     <string name="register_password_unsafe_short">La teua contrassenya és massa curta.</string>
     <string name="register_password_unsafe_all_caps">La teua contrassenya no pot contenir únicament lletres majúscules.</string>
@@ -109,6 +110,9 @@
     <string name="notification_transaction_input_message">Se t\'han ingressat %.2f € al teu compte en concepte de \"%s\".</string>
     <string name="enabled">Habilitat</string>
     <string name="disabled">Deshabilitat</string>
+    <string name="permission_required_title">Permís necessari!</string>
+    <string name="permission_required_grant">Donar Permís</string>
+    <string name="permission_required_camera">Cal que dones accés a l\'aplicació a la càmera del dispositiu. Sense açò no es pot escanejar cap codi.</string>
     <string name="admin_title">Administrador</string>
     <string name="admin_events_title">Actes</string>
     <string name="admin_events_message">Ací pots administrar tots els esdeveniments creats, veure la gent apuntada, i validar l\'accés.</string>
@@ -125,6 +129,8 @@
     <string name="admin_scan_loading">Verificant…</string>
     <string name="admin_scan_correct">Correcte!</string>
     <string name="admin_scan_invalid">Invàlid!</string>
+    <string name="admin_scan_old">Codi antic</string>
+    <string name="admin_scan_old_msg">Aquest codi ha sigut generat en una versió antiga de l\'aplicació. Per motius de seguretat açò no és acceptable.</string>
     <string name="admin_tickets_ready">Tiquets llestos!</string>
     <string name="admin_tickets_generating">Generant tiquets…</string>
     <string name="none">Cap</string>

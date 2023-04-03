@@ -4,6 +4,7 @@ buildscript {
         mockk_version = '1.13.4'
         kotlin_version = '1.8.10'
         agp_version = '7.4.2'
+        camerax_version = '1.2.2'
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"

@@ -153,6 +153,10 @@
     <string name="dialog_account_migration_title">Account migration</string>
     <string name="dialog_account_migration_message">The login method for the app has been updated to make it more secure. Please, log in again to keep using the app.</string>
 
+    <string name="permission_required_title">Permission required!</string>
+    <string name="permission_required_grant">Grant Permission</string>
+    <string name="permission_required_camera">It\'s required that you grant the application permission to access the camera. Otherwise it\'t not able to scan any code.</string>
+
     <string name="admin_title">Admin View</string>
     <string name="admin_events_title">Events</string>
     <string name="admin_events_message">Here you can manage all the created events, view the signed up people, and validate accesses.</string>
@@ -170,6 +174,8 @@
     <string name="admin_scan_invalid">Invalid!</string>
     <string name="admin_scan_repeated">Repeated!</string>
     <string name="admin_scan_repeated_msg">This code has already been scanned</string>
+    <string name="admin_scan_old">Old code</string>
+    <string name="admin_scan_old_msg">This code was generated on an old version of the app. For security reasons, it\'s not acceptable.</string>
     <string name="admin_tickets_ready">Tickets Ready!</string>
     <string name="admin_tickets_generating">Generating tickets…</string>
     <string name="admin_events_mark_paid_title">Mark as paid?</string>

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
+import androidx.activity.result.ActivityResultLauncher
 import com.arnyminerz.filmagentaproto.R
 import java.util.Date
 import kotlin.reflect.KClass
@@ -40,3 +41,6 @@ fun <T: Any> Intent.getParcelableExtraCompat(key: String, kClass: KClass<T>) =
         @Suppress("DEPRECATION")
         getParcelableExtra(key)
     }
+
+/** Launches the activity with `null` as input. */
+fun ActivityResultLauncher<Void?>.launch() = launch(null)

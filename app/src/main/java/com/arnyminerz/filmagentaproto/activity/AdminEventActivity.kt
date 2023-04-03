@@ -82,10 +82,9 @@ import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.utils.async
 import com.arnyminerz.filmagentaproto.utils.await
 import com.arnyminerz.filmagentaproto.utils.getParcelableExtraCompat
+import com.arnyminerz.filmagentaproto.utils.launch
 import com.arnyminerz.filmagentaproto.utils.toastAsync
 import com.arnyminerz.filmagentaproto.worker.TicketWorker
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanOptions
 import java.util.Locale
 import timber.log.Timber
 
@@ -102,6 +101,7 @@ class AdminEventActivity : AppCompatActivity() {
         const val SCAN_RESULT_FAIL = 2
         const val SCAN_RESULT_INVALID = 3
         const val SCAN_RESULT_REPEATED = 4
+        const val SCAN_RESULT_OLD = 5
 
         private const val SORT_BY_NAME = 0
         private const val SORT_BY_ORDER = 1
@@ -134,16 +134,17 @@ class AdminEventActivity : AppCompatActivity() {
             intent?.getParcelableExtraCompat(RESULT_ERROR, Throwable::class)
     }
 
-    private val barcodeLauncher = registerForActivityResult(ScanContract()) { result ->
-        val contents: String? = result.contents
-        viewModel.decodeQR(contents)
+    private val barcodeLauncher = registerForActivityResult(ScannerActivity.Contract) { result ->
+        if (result == null) {
+            Timber.w("Got a null result from the barcode launcher.")
+            viewModel.decodeQR(null)
+        } else
+            result.forEach { viewModel.decodeQR(it) }
     }
 
     private val savePdfLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("application/pdf")
-    ) { uri ->
-        if (uri != null) viewModel.generatePdf(uri)
-    }
+    ) { if (it != null) viewModel.generatePdf(it) }
 
     private val viewModel by viewModels<ViewModel>()
 
@@ -443,12 +444,9 @@ class AdminEventActivity : AppCompatActivity() {
     }
 
     private fun scanQRCode() {
-        val options = ScanOptions().apply {
-            setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-            // TODO: setPrompt()
-        }
         viewModel.scanResult.postValue(SCAN_RESULT_LOADING)
-        barcodeLauncher.launch(options)
+        viewModel.scanCustomer.postValue(null)
+        barcodeLauncher.launch()
     }
 
     class ViewModel(application: Application) : AndroidViewModel(application) {
@@ -496,24 +494,27 @@ class AdminEventActivity : AppCompatActivity() {
         fun decodeQR(contents: String?) = async {
             if (contents == null)
                 scanResult.postValue(SCAN_RESULT_FAIL)
-            else {
-                val verification = Order.verifyQRCode(contents)
-                if (verification == null)
-                    scanResult.postValue(SCAN_RESULT_INVALID)
-                else {
-                    if (adminDao.getFromHash(verification.hash) != null) {
-                        // Notify about a repeated code
-                        scanResult.postValue(SCAN_RESULT_REPEATED)
-                    } else {
-                        // Insert the scanned code
-                        val codeScanned = CodeScanned(0, verification.hash)
-                        adminDao.insert(codeScanned)
+            else
+                try {
+                    val verification = Order.verifyQRCode(contents)
+                    if (verification == null)
+                        scanResult.postValue(SCAN_RESULT_INVALID)
+                    else {
+                        if (adminDao.getFromHash(verification.hash) != null) {
+                            // Notify about a repeated code
+                            scanResult.postValue(SCAN_RESULT_REPEATED)
+                        } else {
+                            // Insert the scanned code
+                            val codeScanned = CodeScanned(0, verification.hash)
+                            adminDao.insert(codeScanned)
 
-                        scanResult.postValue(SCAN_RESULT_OK)
+                            scanResult.postValue(SCAN_RESULT_OK)
+                        }
+                        scanCustomer.postValue(verification.customerName)
                     }
-                    scanCustomer.postValue(verification.customerName)
+                } catch (e: SecurityException) {
+                    scanResult.postValue(SCAN_RESULT_OLD)
                 }
-            }
         }
 
         /**
