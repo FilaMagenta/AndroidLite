@@ -16,9 +16,9 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.database.data.woo.Customer
 import com.arnyminerz.filmagentaproto.database.data.woo.Order
 import com.arnyminerz.filmagentaproto.documents.RectD
+import com.arnyminerz.filmagentaproto.qr.BarcodeEncoder
 import com.arnyminerz.filmagentaproto.security.AESEncryption
 import com.google.zxing.BarcodeFormat
-import com.journeyapps.barcodescanner.BarcodeEncoder
 import org.json.JSONObject
 import timber.log.Timber
 
