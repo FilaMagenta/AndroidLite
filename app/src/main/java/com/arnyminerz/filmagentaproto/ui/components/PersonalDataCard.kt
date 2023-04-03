@@ -13,8 +13,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.arnyminerz.filamagenta.core.data.tb.Socio
 import com.arnyminerz.filmagentaproto.R
-import com.arnyminerz.filmagentaproto.database.remote.protos.Socio
 import com.arnyminerz.filmagentaproto.ui.screens.DateFormatter
 
 @Composable
