@@ -8,6 +8,7 @@ on:
 
 jobs:
   paths-filter:
+    name: Check if should build
     runs-on: ubuntu-latest
     outputs:
       output1: ${{ steps.filter.outputs.workflows }}
@@ -26,7 +27,7 @@ jobs:
   build_and_release:
     strategy:
       matrix:
-        os: [ [Ubuntu, ubuntu-latest, deb], [Windows, windows-latest, exe] ]
+        os: [ [Ubuntu, ubuntu-latest, deb], [Windows, windows-latest, msi] ]
     runs-on: ${{ matrix.os[1] }}
     name: Build for ${{ matrix.os[0] }}
     # Wait from the paths-filter to be completed before starting next-job
