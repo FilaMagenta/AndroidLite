@@ -42,6 +42,42 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Prepare Gradle secure file
+      run: |
+        # First for Android
+        echo 'SIGNING_KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
+        echo 'SIGNING_KEY_ALIAS=${{ secrets.KEYSTORE_USERNAME }}' >> local.properties
+        echo 'SIGNING_KEY_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
+        echo 'host=${{ secrets.HOST }}' >> local.properties
+        echo 'woo.consumer_key=${{ secrets.WOO_CONSUMER_KEY }}' >> local.properties
+        echo 'woo.consumer_secret=${{ secrets.WOO_CONSUMER_SECRET }}' >> local.properties
+        echo 'db.hostname=${{ secrets.DB_HOSTNAME }}' >> local.properties
+        echo 'db.port=${{ secrets.DB_PORT }}' >> local.properties
+        echo 'db.database=${{ secrets.DB_DATABASE }}' >> local.properties
+        echo 'db.username=${{ secrets.DB_USERNAME }}' >> local.properties
+        echo 'db.password=${{ secrets.DB_PASSWORD }}' >> local.properties
+        echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN }}' >> local.properties
+        echo 'AES_KEY=${{ secrets.AES_KEY }}' >> local.properties
+        echo 'AES_SALT=${{ secrets.AES_SALT }}' >> local.properties
+        echo 'AES_IV=${{ secrets.AES_IV }}' >> local.properties
+        
+        # And for Desktop
+        echo 'SIGNING_KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> desktop/src/main/resources/local.properties
+        echo 'SIGNING_KEY_ALIAS=${{ secrets.KEYSTORE_USERNAME }}' >> desktop/src/main/resources/local.properties
+        echo 'SIGNING_KEY_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> desktop/src/main/resources/local.properties
+        echo 'host=${{ secrets.HOST }}' >> desktop/src/main/resources/local.properties
+        echo 'woo.consumer_key=${{ secrets.WOO_CONSUMER_KEY }}' >> desktop/src/main/resources/local.properties
+        echo 'woo.consumer_secret=${{ secrets.WOO_CONSUMER_SECRET }}' >> desktop/src/main/resources/local.properties
+        echo 'db.hostname=${{ secrets.DB_HOSTNAME }}' >> desktop/src/main/resources/local.properties
+        echo 'db.port=${{ secrets.DB_PORT }}' >> desktop/src/main/resources/local.properties
+        echo 'db.database=${{ secrets.DB_DATABASE }}' >> desktop/src/main/resources/local.properties
+        echo 'db.username=${{ secrets.DB_USERNAME }}' >> desktop/src/main/resources/local.properties
+        echo 'db.password=${{ secrets.DB_PASSWORD }}' >> desktop/src/main/resources/local.properties
+        echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN }}' >> desktop/src/main/resources/local.properties
+        echo 'AES_KEY=${{ secrets.AES_KEY }}' >> desktop/src/main/resources/local.properties
+        echo 'AES_SALT=${{ secrets.AES_SALT }}' >> desktop/src/main/resources/local.properties
+        echo 'AES_IV=${{ secrets.AES_IV }}' >> desktop/src/main/resources/local.properties
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
