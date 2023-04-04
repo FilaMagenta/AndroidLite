@@ -96,9 +96,9 @@ fun AppTheme(
             titleLarge = TextStyle(fontFamily = poppinsFamily),
             titleMedium = TextStyle(fontFamily = poppinsFamily),
             titleSmall = TextStyle(fontFamily = poppinsFamily),
-            labelLarge = TextStyle(fontFamily = poppinsFamily, fontWeight = FontWeight.ExtraBold),
-            labelMedium = TextStyle(fontFamily = poppinsFamily, fontWeight = FontWeight.ExtraBold),
-            labelSmall = TextStyle(fontFamily = poppinsFamily, fontWeight = FontWeight.ExtraBold),
+            labelLarge = TextStyle(fontFamily = poppinsFamily, fontWeight = FontWeight.Medium),
+            labelMedium = TextStyle(fontFamily = poppinsFamily, fontWeight = FontWeight.Medium),
+            labelSmall = TextStyle(fontFamily = poppinsFamily, fontWeight = FontWeight.Medium),
         ),
         content = content,
     )

@@ -1,4 +1,4 @@
-package com.arnyminerz.filmagentaproto.utils
+package com.arnyminerz.filamagenta.core.utils
 
 private const val dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE"
 

@@ -1,6 +1,10 @@
 package com.arnyminerz.filamagenta.core.remote
 
 import com.arnyminerz.filamagenta.core.Logger
+import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePayment
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Option
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Variation
@@ -23,21 +27,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-abstract class RemoteCommerceProto<
-        Order : com.arnyminerz.filamagenta.core.database.data.woo.Order,
-        OrderParser : JsonSerializer<Order>,
-        Customer : com.arnyminerz.filamagenta.core.database.data.woo.Customer,
-        CustomerParser : JsonSerializer<Customer>,
-        Event : com.arnyminerz.filamagenta.core.database.data.woo.Event,
-        EventParser : JsonSerializer<Event>,
-        AvailablePayment : com.arnyminerz.filamagenta.core.database.data.woo.AvailablePayment,
-        AvailablePaymentParser : JsonSerializer<AvailablePayment>,
-        >(
-    private val orderParser: OrderParser,
-    private val customerParser: CustomerParser,
-    private val eventParser: EventParser,
-    private val availablePaymentParser: AvailablePaymentParser,
-) {
+abstract class RemoteCommerceProto {
     companion object {
         private const val CATEGORY_EVENTOS = 21
 
@@ -267,7 +257,7 @@ abstract class RemoteCommerceProto<
                 )
             }
             Logger.d("Converting JSON to Event...")
-            eventParser.fromJSON(eventJson, attributes)
+            Event.fromJSON(eventJson, attributes)
         }
     }
 
@@ -285,7 +275,7 @@ abstract class RemoteCommerceProto<
                     builder
             }
             .build()
-        return multiPageGet(endpoint, orderParser, perPage = 100)
+        return multiPageGet(endpoint, Order.Companion, perPage = 100)
     }
 
     suspend fun customersList(page: Int = 1): List<Customer> {
@@ -294,7 +284,7 @@ abstract class RemoteCommerceProto<
             .appendQueryParameter("context", "view")
             .appendQueryParameter("role", "all")
             .build()
-        return multiPageGet(endpoint, customerParser, perPage = 100)
+        return multiPageGet(endpoint, Customer.Companion, perPage = 100)
     }
 
 
@@ -311,7 +301,7 @@ abstract class RemoteCommerceProto<
             .build()
         return multiPageGet(
             endpoint,
-            availablePaymentParser,
+            AvailablePayment.Companion,
             perPage = 100
         )
     }
@@ -387,7 +377,7 @@ abstract class RemoteCommerceProto<
         Logger.d("Making POST request to $ordersEndpoint with: $body")
         val response = post(ordersEndpoint, body)
         val json = JSONObject(response)
-        val responseOrderProto = orderParser.fromJSON(json)
+        val responseOrderProto = Order.fromJSON(json)
         return json.getString("payment_url") to responseOrderProto
     }
 

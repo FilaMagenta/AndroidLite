@@ -1,7 +1,7 @@
-package com.arnyminerz.filmagentaproto
+package com.arnyminerz.filamagenta.core
 
-import com.arnyminerz.filmagentaproto.utils.dniLetter
-import com.arnyminerz.filmagentaproto.utils.isValidDni
+import com.arnyminerz.filamagenta.core.utils.dniLetter
+import com.arnyminerz.filamagenta.core.utils.isValidDni
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

@@ -21,5 +21,8 @@ dependencies {
     implementation "androidx.room:room-common:$room_version"
     // ksp "androidx.room:room-compiler:$room_version"
 
+    // Dependency injection
+    api("io.insert-koin:koin-core:3.4.0")
+
     testImplementation 'junit:junit:4.13.2'
 }
