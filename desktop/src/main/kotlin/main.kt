@@ -17,7 +17,7 @@ private const val TAG = "Main"
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun main() {
-    Translations.load("en")
+    Translations.load("en", "ca", "es")
     LocalPropertiesStorage[LANGUAGE]?.let {
         Translations.setFallback(it)
     } ?: Translations.setFallback(Locale.ENGLISH)
