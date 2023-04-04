@@ -43,7 +43,7 @@ import com.arnyminerz.filamagenta.core.utils.doUi
 import com.arnyminerz.filamagenta.core.utils.io
 import com.arnyminerz.filamagenta.core.utils.isValidDni
 import com.arnyminerz.filamagenta.core.utils.ui
-import com.arnyminerz.filamagenta.desktop.localization.Translations.get
+import com.arnyminerz.filamagenta.desktop.localization.Translations.getString
 import com.arnyminerz.filamagenta.desktop.remote.RemoteAuthentication
 import com.arnyminerz.filamagenta.desktop.storage.LocalPropertiesStorage
 import com.arnyminerz.filamagenta.desktop.storage.Properties.USER_DNI
@@ -80,7 +80,7 @@ fun LoginWindow(
 
         fun showSnackbar(msgKey: String) = doUi {
             snackbarHost.showSnackbar(
-                message = get(msgKey),
+                message = getString(msgKey),
                 duration = SnackbarDuration.Short
             )
         }
@@ -91,7 +91,7 @@ fun LoginWindow(
             fun performLogin() = scope.launch {
                 isLoading = true
                 if (dni?.isValidDni == false || password.length < Passwords.MIN_LENGTH) {
-                    snackbarHost.showSnackbar(get("form.login.error.incomplete"))
+                    snackbarHost.showSnackbar(getString("form.login.error.incomplete"))
                     isLoading = false
                     return@launch
                 }
@@ -136,7 +136,7 @@ fun LoginWindow(
                         .widthIn(max = 500.dp),
                 ) {
                     Text(
-                        text = get("form.login.title"),
+                        text = getString("form.login.title"),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 48.sp,
@@ -154,17 +154,17 @@ fun LoginWindow(
                     FormField(
                         value = dni ?: "",
                         onValueChange = { dni = it },
-                        label = get("form.login.dni"),
+                        label = getString("form.login.dni"),
                         thisFocusRequester = dniFocusRequester,
                         nextFocusRequester = pasFocusRequester,
-                        error = get("form.login.error.dni").takeIf { dni?.isValidDni == false },
+                        error = getString("form.login.error.dni").takeIf { dni?.isValidDni == false },
                         enabled = !isLoading,
                     )
                     FormField(
                         value = password,
                         onValueChange = { password = it },
                         isPassword = true,
-                        label = get("form.login.password"),
+                        label = getString("form.login.password"),
                         thisFocusRequester = pasFocusRequester,
                         prevFocusRequester = dniFocusRequester,
                         onImeAction = { performLogin() },
@@ -183,13 +183,13 @@ fun LoginWindow(
                             enabled = !isLoading,
                         )
                         Text(
-                            get("form.login.remember_password"),
+                            getString("form.login.remember_password"),
                             style = MaterialTheme.typography.labelMedium,
                         )
                     }
 
                     Text(
-                        text = get("form.login.info_storage"),
+                        text = getString("form.login.info_storage"),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
@@ -209,7 +209,7 @@ fun LoginWindow(
                         OutlinedButton(
                             enabled = !isLoading && isFormFine,
                             onClick = { performLogin() },
-                        ) { Text(get("form.login.action")) }
+                        ) { Text(getString("form.login.action")) }
                     }
 
                     Spacer(Modifier.height(12.dp))

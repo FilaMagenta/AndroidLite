@@ -6,6 +6,7 @@ import com.arnyminerz.filamagenta.core.database.data.woo.customer.DeliveryInform
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.capitalizedWords
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
+import com.arnyminerz.filamagenta.core.utils.putDateGmt
 import java.util.Date
 import org.json.JSONObject
 
@@ -53,6 +54,21 @@ class Customer(
             json.getBoolean("is_paying_customer"),
             json.getString("avatar_url"),
         )
+    }
+
+    override fun toJSON(): JSONObject = JSONObject().apply {
+        put("id", id)
+        putDateGmt("date_created_gmt", dateCreated)
+        putDateGmt("date_modified_gmt", dateModified)
+        put("email", email)
+        put("first_name", firstName)
+        put("last_name", lastName)
+        put("role", role)
+        put("username", username)
+        put("billing", billing.toJSON())
+        put("shipping", shipping.toJSON())
+        put("is_paying_customer", isPayingCustomer)
+        put("avatar_url", avatarUrl)
     }
 
     val fullName: String by lazy { "$firstName $lastName".lowercase().capitalizedWords() }

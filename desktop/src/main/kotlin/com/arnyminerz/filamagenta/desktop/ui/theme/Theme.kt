@@ -107,6 +107,7 @@ fun AppTheme(
 @Composable
 fun ThemedWindow(
     onCloseRequest: () -> Unit,
+    visible: Boolean = true,
     titleArgument: String? = null,
     initialSize: Pair<Int, Int> = 1000 to 700,
     content: @Composable FrameWindowScope.() -> Unit,
@@ -115,6 +116,7 @@ fun ThemedWindow(
 
     Window(
         onCloseRequest = onCloseRequest,
+        visible = visible,
         title = "Filà Magenta" + (titleArgument?.let { " - $it" } ?: ""),
         state = rememberWindowState(width = width.dp, height = height.dp),
         icon = painterResource("icon.svg"),

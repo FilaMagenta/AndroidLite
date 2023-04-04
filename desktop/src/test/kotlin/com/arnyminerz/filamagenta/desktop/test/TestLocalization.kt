@@ -33,11 +33,11 @@ class TestLocalization {
         Translations.load("en", "es")
         assertEquals(2, Translations.loadedLocales)
 
-        assertEquals("Hello world!", Translations.get("test"))
+        assertEquals("Hello world!", Translations.getString("test"))
 
         // Update the locale
         Locale.setDefault(Locale.forLanguageTag("es"))
-        assertEquals("Hola mundo!", Translations.get("test"))
+        assertEquals("Hola mundo!", Translations.getString("test"))
     }
 
     @Test
@@ -46,7 +46,7 @@ class TestLocalization {
         assertEquals(1, Translations.loadedLocales)
 
         val correct = try {
-            Translations.get("missing")
+            Translations.getString("missing")
             false
         } catch (e: IllegalStateException) {
             true
@@ -62,7 +62,7 @@ class TestLocalization {
         Translations.setFallback("en")
 
         val correct = try {
-            Translations.get("missing")
+            Translations.getString("missing")
             false
         } catch (e: NullPointerException) {
             true
@@ -78,7 +78,7 @@ class TestLocalization {
         Translations.setFallback(Locale.CHINESE)
 
         val correct = try {
-            Translations.get("any")
+            Translations.getString("any")
             false
         } catch (e: IllegalStateException) {
             true
@@ -89,7 +89,7 @@ class TestLocalization {
     @Test
     fun test_no_load() {
         val correct = try {
-            Translations.get("any")
+            Translations.getString("any")
             false
         } catch (e: UninitializedPropertyAccessException) {
             true

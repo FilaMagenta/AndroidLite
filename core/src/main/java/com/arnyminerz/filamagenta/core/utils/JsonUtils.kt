@@ -1,5 +1,7 @@
 package com.arnyminerz.filamagenta.core.utils
 
+import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable
+import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -63,13 +65,13 @@ fun <T : Any> JSONObject.getObjectOrNull(key: String, serializer: com.arnyminerz
     null
 }
 
-fun <T : Any> JSONObject.getObjectInlineOrNull(serializer: com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer<T>): T? = try {
+fun <T : Any> JSONObject.getObjectInlineOrNull(serializer: JsonSerializer<T>): T? = try {
     serializer.fromJSON(this)
 } catch (e: JSONException) {
     null
 }
 
-fun Iterable<com.arnyminerz.filamagenta.core.database.prototype.JsonSerializable>.toJSON(): JSONArray = JSONArray().apply {
+fun Iterable<JsonSerializable>.toJSON(): JSONArray = JSONArray().apply {
     for (serializable in this@toJSON)
         put(serializable.toJSON())
 }

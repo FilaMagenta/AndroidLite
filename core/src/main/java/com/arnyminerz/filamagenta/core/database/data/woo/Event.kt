@@ -11,8 +11,12 @@ import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
 import com.arnyminerz.filamagenta.core.database.data.woo.event.EventType
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
+import com.arnyminerz.filamagenta.core.utils.getJSONArrayOrNull
 import com.arnyminerz.filamagenta.core.utils.lazyNullCacheable
+import com.arnyminerz.filamagenta.core.utils.mapObjects
 import com.arnyminerz.filamagenta.core.utils.now
+import com.arnyminerz.filamagenta.core.utils.putDateGmt
+import com.arnyminerz.filamagenta.core.utils.toJSON
 import java.util.Calendar
 import java.util.Date
 import org.json.JSONObject
@@ -123,13 +127,28 @@ data class Event(
             json.getString("description"),
             json.getString("short_description"),
             json.getDouble("price"),
-            emptyList(),
+            json.getJSONArrayOrNull("attributes")?.mapObjects { Attribute.fromJSON(it) } ?: emptyList(),
             json.getString("stock_status"),
             json.getInt("stock_quantity"),
         )
     }
 
     override fun toString(): String = id.toString()
+
+    override fun toJSON(): JSONObject = JSONObject().apply {
+        put("id", id)
+        put("name", name)
+        put("slug", slug)
+        put("permalink", permalink)
+        putDateGmt("date_created_gmt", dateCreated)
+        putDateGmt("date_modified_gmt", dateModified)
+        put("description", description)
+        put("short_description", shortDescription)
+        put("price", price)
+        put("attributes", attributes.toJSON())
+        put("stock_status", stockStatus)
+        put("stock_quantity", stockQuantity)
+    }
 
     val acceptsReservationsUntil: Date? by lazy {
         shortDescription.let { desc ->

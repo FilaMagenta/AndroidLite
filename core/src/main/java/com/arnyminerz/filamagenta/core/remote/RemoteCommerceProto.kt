@@ -75,7 +75,7 @@ abstract class RemoteCommerceProto {
             .build()
     }
 
-    protected abstract fun base64Encode(input: ByteArray): ByteArray
+    protected abstract fun base64Encode(input: ByteArray): String
 
     private fun <R> URI.openConnection(
         method: String,
@@ -92,8 +92,7 @@ abstract class RemoteCommerceProto {
 
         val auth = "$wooConsumerKey:$wooConsumerSecret"
         val authBytes = auth.toByteArray(Charsets.UTF_8)
-        val encodedAuthBytes = base64Encode(authBytes)
-        val encodedAuth = encodedAuthBytes.toString(Charsets.UTF_8)
+        val encodedAuth = base64Encode(authBytes)
         connection.setRequestProperty("Authorization", "Basic $encodedAuth")
 
         beforeConnection(connection)
@@ -114,7 +113,12 @@ abstract class RemoteCommerceProto {
         endpoint.openConnection("GET") { connection ->
             when (connection.responseCode) {
                 in 200 until 300 -> connection.inputStream.bufferedReader().readText()
-                else -> throw IOException("Request failed (${connection.responseCode}): ${connection.responseMessage}")
+                else -> {
+                    val body = connection.errorStream.bufferedReader().readText()
+                    throw IOException(
+                        "Request failed (${connection.responseCode}): ${connection.responseMessage}.\nBody: $body"
+                    )
+                }
             }
         }
     }
