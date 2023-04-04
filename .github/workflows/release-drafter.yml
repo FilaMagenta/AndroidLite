@@ -1,4 +1,4 @@
-name: Releaser
+name: Android Releaser
 
 on:
   workflow_dispatch:
