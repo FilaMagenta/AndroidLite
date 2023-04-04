@@ -1,3 +1,4 @@
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
@@ -19,7 +20,9 @@ dependencies {
         exclude("androidx.compose.material")
     }
     implementation(compose.material3)
-    implementation(compose.materialIconsExtended)
+    implementation(compose.materialIconsExtended) {
+        exclude("androidx.compose.material")
+    }
 
     implementation("org.json:json:20230227")
 
@@ -42,5 +45,21 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "MainKt"
+        nativeDistributions {
+            targetFormats(TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "filamagenta-desktop"
+
+            packageVersion = "0.0.1"
+
+            val iconsRoot = project.file("src/main/resources/icons")
+
+            linux {
+                iconFile.set(iconsRoot.resolve("icon.png"))
+            }
+
+            windows {
+                iconFile.set(iconsRoot.resolve("icon.ico"))
+            }
+        }
     }
 }

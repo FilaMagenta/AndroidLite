@@ -8,6 +8,7 @@ import java.io.OutputStream
 object Properties {
     const val USER_DNI = "user.dni"
     const val USER_TOKEN = "user.token"
+    const val LANGUAGE = "language"
 }
 
 object LocalPropertiesStorage: PropertiesProvider(false) {

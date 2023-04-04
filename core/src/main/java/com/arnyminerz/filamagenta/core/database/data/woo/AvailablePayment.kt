@@ -15,4 +15,9 @@ data class AvailablePayment(
             json.getDouble("price"),
         )
     }
+
+    override fun toJSON(): JSONObject = JSONObject().apply {
+        put("id", id)
+        put("price", price)
+    }
 }

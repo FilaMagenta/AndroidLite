@@ -22,6 +22,12 @@ object Translations {
         get() = translations?.size ?: 0
 
     /**
+     * Gets a list with all the locales available. Can be null if [load] has still not been called.
+     */
+    val availableLocales: Set<Locale>?
+        get() = translations?.keys
+
+    /**
      * Loads all the translations available in resources. Note that running this method will
      * override any translations currently loaded.
      *
@@ -88,11 +94,13 @@ object Translations {
      * @throws NullPointerException If the given [key] is not translated or present in any
      * translations file.
      */
-    fun get(key: String, locale: Locale = Locale.getDefault()): String {
+    fun getString(key: String, vararg args: Any?): String {
         if (translations == null)
             throw UninitializedPropertyAccessException("There are no translations loaded. Please, perform load with Translations.load")
 
         var result: String? = null
+
+        val locale: Locale = Locale.getDefault()
 
         val translations = translations!!
         if (translations.containsKey(locale))
@@ -109,6 +117,6 @@ object Translations {
                 throw IllegalStateException("Fallback locale ($fallbackLocale) does not exist inside the loaded translations.")
         }
 
-        return result!!
+        return result!!.format(*args)
     }
 }
