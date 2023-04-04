@@ -26,15 +26,9 @@ jobs:
   build_and_release:
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
-        extension: [ deb, exe ]
-        include:
-          - os: ubuntu-latest
-            extension: deb
-          - os: windows-latest
-            extension: exe
-    runs-on: ${{ matrix.os }}
-    name: Build for ${{ matrix.os }}
+        os: [ [Ubuntu, ubuntu-latest, deb], [Windows, windows-latest, exe] ]
+    runs-on: ${{ matrix.os[1] }}
+    name: Build for ${{ matrix.os[0] }}
     # Wait from the paths-filter to be completed before starting next-job
     needs: paths-filter
     if: needs.paths-filter.outputs.output1 == 'true'
@@ -75,4 +69,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Artifact
-          path: ./desktop/build/compose/binaries/main/dev/*.${{ matrix.extension }}
+          path: ./desktop/build/compose/binaries/main/dev/*.${{ matrix.os[2] }}
