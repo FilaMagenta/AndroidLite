@@ -6,6 +6,8 @@ import com.arnyminerz.filamagenta.core.security.Passwords
 import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException
 
+private const val TAG = "RemoteAuthenticationProto"
+
 abstract class RemoteAuthenticationProto(
     private val remoteDatabaseInterface: RemoteDatabaseInterfaceProto
 ) {
@@ -22,23 +24,23 @@ abstract class RemoteAuthenticationProto(
      * @throws InvalidKeySpecException If there's an error with the generated key spec.
      */
     fun login(dni: String, password: String): String {
-        Logger.d("Getting remote hash for DNI=$dni")
+        Logger.d(TAG, "Getting remote hash for DNI=$dni")
         val pair = remoteDatabaseInterface.getHashForDni(dni)
         if (pair != null) {
-            Logger.d("Processing password...")
+            Logger.d(TAG, "Processing password...")
             val (hash, salt) = pair
             val passwordArray = password.toCharArray()
             val hashBytes = base64Decode(hash)
             val saltBytes = base64Decode(salt)
-            Logger.d("Checking if password is correct...")
+            Logger.d(TAG, "Checking if password is correct...")
             if (Passwords.isExpectedPassword(passwordArray, saltBytes, hashBytes))
                 return hash
             else {
-                Logger.e("The password stored doesn't match the introduced one.")
+                Logger.e(TAG, "The password stored doesn't match the introduced one.")
                 throw WrongCredentialsException("The introduced password is not correct.")
             }
         }
-        Logger.w("DNI not found in the hashes database.")
+        Logger.w(TAG, "DNI not found in the hashes database.")
         throw IllegalArgumentException("Could not find an stored hash for the given dni.")
     }
 

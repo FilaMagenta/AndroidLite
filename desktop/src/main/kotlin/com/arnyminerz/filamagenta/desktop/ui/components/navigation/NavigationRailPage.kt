@@ -3,6 +3,7 @@ package com.arnyminerz.filamagenta.desktop.ui.components.navigation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
@@ -22,10 +23,19 @@ data class NavigationRailItemData(
     val unselectedText: String = selectedText,
 )
 
+data class NavigationRailAction(
+    val icon: ImageVector,
+    val label: String,
+    val action: () -> Unit,
+) {
+    operator fun invoke() = action()
+}
+
 @Composable
 fun NavigationRailPage(
     items: Iterable<NavigationRailItemData>,
     modifier: Modifier = Modifier,
+    action: NavigationRailAction? = null,
     onPageSelected: (page: Int) -> Unit = {},
     content: @Composable ColumnScope.(page: Int) -> Unit,
 ) {
@@ -58,6 +68,15 @@ fun NavigationRailPage(
                         )
                     },
                 )
+            Spacer(Modifier.weight(1f))
+            action?.let { item ->
+                NavigationRailItem(
+                    selected = false,
+                    onClick = { item() },
+                    icon = { Icon(item.icon, item.label) },
+                    label = { Text(item.label) },
+                )
+            }
         }
         Column(
             modifier = Modifier.weight(1f),

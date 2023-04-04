@@ -52,6 +52,8 @@ import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException
 import kotlinx.coroutines.launch
 
+private const val TAG = "LoginWindow"
+
 /**
  * Provides a form for logging in. Requires Internet connection.
  * @param onCloseRequest Called when the user closes the window.
@@ -94,13 +96,13 @@ fun LoginWindow(
                 val userDni = dni!!
                 io {
                     try {
-                        Logger.d("Logging in as $userDni...")
+                        Logger.d(TAG, "Logging in as $userDni...")
                         LocalPropertiesStorage["user.dni"] = userDni
                         val token = RemoteAuthentication.login(userDni, password)
 
-                        Logger.d("Credentials are correct!")
+                        Logger.d(TAG, "Credentials are correct!")
                         if (storePassword) {
-                            Logger.d("Writing token to local properties...")
+                            Logger.d(TAG, "Writing token to local properties...")
                             LocalPropertiesStorage["user.token"] = token
                         }
 

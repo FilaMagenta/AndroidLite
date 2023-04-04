@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 fun doAsync(@WorkerThread block: suspend CoroutineScope.() -> Unit): Job =
-    CoroutineScope(Dispatchers.Main).launch {
+    CoroutineScope(Dispatchers.Default).launch {
         withContext(Dispatchers.IO, block = block)
     }
 

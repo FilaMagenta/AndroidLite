@@ -1,8 +1,6 @@
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.application
 import com.arnyminerz.filamagenta.desktop.localization.Translations
@@ -17,11 +15,11 @@ fun main() {
     Translations.setFallback(Locale.ENGLISH)
 
     application {
-        var userToken by remember { mutableStateOf(LocalPropertiesStorage["user.token"]) }
+        val userToken by LocalPropertiesStorage.getLive("user.token").collectAsState(null)
 
         if (userToken == null)
-            LoginWindow(::exitApplication) { userToken = it }
+            LoginWindow(::exitApplication) { LocalPropertiesStorage.setMemory("user.token", it) }
         else
-            MainWindow(::exitApplication)
+            MainWindow(::exitApplication) { LocalPropertiesStorage.clear("user.token") }
     }
 }

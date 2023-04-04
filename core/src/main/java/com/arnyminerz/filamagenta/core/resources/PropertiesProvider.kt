@@ -1,7 +1,16 @@
 package com.arnyminerz.filamagenta.core.resources
 
+import com.arnyminerz.filamagenta.core.Logger
+import com.arnyminerz.filamagenta.core.utils.doAsync
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.channelFlow
+
+private const val TAG = "PropertiesProvider"
 
 abstract class PropertiesProvider(private val readOnly: Boolean) {
     /**
@@ -15,6 +24,10 @@ abstract class PropertiesProvider(private val readOnly: Boolean) {
      * is `true`, but will be ignored.
      */
     protected abstract fun getOutputStream(): OutputStream?
+
+    private val collectorsLock = ReentrantLock()
+
+    private val collectors: MutableMap<String, List<suspend CoroutineScope.(String?) -> Unit>> = mutableMapOf()
 
     private val properties: MutableMap<String, String> by lazy {
         getInputStream()
@@ -53,9 +66,49 @@ abstract class PropertiesProvider(private val readOnly: Boolean) {
      * again into the properties file.
      * @throws UnsupportedOperationException If [readOnly] is `true`.
      */
-    operator fun set(key: String, value: String) {
-        if (readOnly) throw UnsupportedOperationException("You are trying to write into a read-only properties provider.")
-        properties[key] = value
+    operator fun set(key: String, value: String?) {
+        setMemory(key, value)
         writeProperties()
+    }
+
+    /**
+     * Updates the current value of the property at [key] to [value], but doesn't store its value
+     * in the output file. Also calls all the listeners added with [getLive], for example.
+     */
+    fun setMemory(key: String, value: String?) {
+        if (readOnly) throw UnsupportedOperationException("You are trying to write into a read-only properties provider.")
+        if (value == null)
+            properties.remove(key)
+        else
+            properties[key] = value
+        doAsync {
+            collectorsLock.lock()
+            collectors[key]?.let { callbacks ->
+                Logger.d(TAG, "Running ${callbacks.size} callbacks for property \"$key\"")
+                for (callback in callbacks) callback(value)
+            }
+            collectorsLock.unlock()
+        }
+    }
+
+    /**
+     * Resets the value of the property [key] to `null`.
+     */
+    fun clear(key: String) = set(key, null)
+
+    fun getLive(key: String) = channelFlow {
+        // Emit the initial value
+        send(get(key))
+        // Add to collectors for collecting all the new values
+        collectorsLock.withLock {
+            val list = (collectors[key] ?: emptyList()).toMutableList()
+            list.add {
+                Logger.v(TAG, "Got new data for \"$key\": $it")
+                send(it)
+            }
+            Logger.v(TAG, "Adding new collector for $key")
+            collectors[key] = list
+        }
+        awaitCancellation()
     }
 }

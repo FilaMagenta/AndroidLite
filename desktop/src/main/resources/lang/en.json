@@ -12,5 +12,6 @@
   "form.login.error.wrong": "Wrong username or password",
   "form.login.error.password": "You still have not assigned a password for your account. You will be able to do that here soon.",
   "form.login.error.algorithm": "Your system does not support the passwords encryption algorithm. Please, contact an administrator.",
-  "form.login.error.key_spec": "A key spec for your password could not have been generated. Please, check that your password is correct, or contact an administrator."
+  "form.login.error.key_spec": "A key spec for your password could not have been generated. Please, check that your password is correct, or contact an administrator.",
+  "form.login.logout": "Logout"
 }
