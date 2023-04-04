@@ -1,6 +1,10 @@
 package com.arnyminerz.filamagenta.core.remote
 
 import com.arnyminerz.filamagenta.core.Logger
+import com.arnyminerz.filamagenta.core.database.data.woo.AvailablePayment
+import com.arnyminerz.filamagenta.core.database.data.woo.Customer
+import com.arnyminerz.filamagenta.core.database.data.woo.Event
+import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Option
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Variation
@@ -23,21 +27,9 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-abstract class RemoteCommerceProto<
-        Order : com.arnyminerz.filamagenta.core.database.data.woo.Order,
-        OrderParser : JsonSerializer<Order>,
-        Customer : com.arnyminerz.filamagenta.core.database.data.woo.Customer,
-        CustomerParser : JsonSerializer<Customer>,
-        Event : com.arnyminerz.filamagenta.core.database.data.woo.Event,
-        EventParser : JsonSerializer<Event>,
-        AvailablePayment : com.arnyminerz.filamagenta.core.database.data.woo.AvailablePayment,
-        AvailablePaymentParser : JsonSerializer<AvailablePayment>,
-        >(
-    private val orderParser: OrderParser,
-    private val customerParser: CustomerParser,
-    private val eventParser: EventParser,
-    private val availablePaymentParser: AvailablePaymentParser,
-) {
+private const val TAG = "RemoteCommerceProto"
+
+abstract class RemoteCommerceProto {
     companion object {
         private const val CATEGORY_EVENTOS = 21
 
@@ -90,7 +82,7 @@ abstract class RemoteCommerceProto<
         beforeConnection: (HttpsURLConnection) -> Unit = {},
         block: (HttpsURLConnection) -> R,
     ): R {
-        Logger.d("$method > $this")
+        Logger.d(TAG, "$method > $this")
         val url = toURL()
         val connection = url.openConnection() as HttpsURLConnection
         connection.requestMethod = method
@@ -173,7 +165,7 @@ abstract class RemoteCommerceProto<
         perPage: Int = 40,
         pageProcessor: suspend (json: JSONObject, progress: Pair<Int, Int>) -> T,
     ): List<T> {
-        Logger.d("Getting page $page of $URI...")
+        Logger.d(TAG, "Getting page $page of $URI...")
         val endpoint = URI.buildUpon()
             .appendQueryParameter("page", "$page")
             .appendQueryParameter("per_page", "$perPage")
@@ -220,7 +212,7 @@ abstract class RemoteCommerceProto<
         return multiPageGet(endpoint, perPage = 100) { eventJson, progress ->
             progressCallback(progress)
 
-            Logger.d("Parsing event.")
+            Logger.d(TAG, "Parsing event.")
             val eventId = eventJson.getLong("id")
             val price = eventJson.getDouble("price")
 
@@ -230,25 +222,25 @@ abstract class RemoteCommerceProto<
                 val newModificationDate = eventJson.getDateGmt("date_modified_gmt")
                 if (newModificationDate <= event.dateModified) {
                     // If the event has not been updated, return the cached one
-                    Logger.d("Event #$eventId has not been updated ($newModificationDate). Taking cache.")
+                    Logger.d(TAG, "Event #$eventId has not been updated ($newModificationDate). Taking cache.")
                     return@multiPageGet event
                 }
             }
 
-            Logger.d("Getting variations...")
+            Logger.d(TAG, "Getting variations...")
             val variationEndpoint = productsEndpoint.buildUpon()
                 .appendPath(eventId.toString())
                 .appendPath("variations")
                 .build()
             val variations = getList(variationEndpoint, Variation.Companion)
-            Logger.d("Got ${variations.size} variations for event #$eventId: $variations")
+            Logger.d(TAG, "Got ${variations.size} variations for event #$eventId: $variations")
 
-            Logger.d("Event parsing. Processing attributes...")
+            Logger.d(TAG, "Event parsing. Processing attributes...")
             val attributes = eventJson.getJSONArray("attributes").mapObjects { attributeJson ->
                 val options = attributeJson.getStringJSONArray("options")
 
                 val attribute = Attribute.fromJSON(attributeJson)
-                Logger.d("Processing event attributes...")
+                Logger.d(TAG, "Processing event attributes...")
                 val variation = variations.find { variation ->
                     variation.attributes.find { it.id == attribute.id } != null
                 }
@@ -266,8 +258,8 @@ abstract class RemoteCommerceProto<
                     variation = variation,
                 )
             }
-            Logger.d("Converting JSON to Event...")
-            eventParser.fromJSON(eventJson, attributes)
+            Logger.d(TAG, "Converting JSON to Event...")
+            Event.fromJSON(eventJson, attributes)
         }
     }
 
@@ -285,16 +277,16 @@ abstract class RemoteCommerceProto<
                     builder
             }
             .build()
-        return multiPageGet(endpoint, orderParser, perPage = 100)
+        return multiPageGet(endpoint, Order.Companion, perPage = 100)
     }
 
     suspend fun customersList(page: Int = 1): List<Customer> {
-        Logger.d("Getting page $page of customers...")
+        Logger.d(TAG, "Getting page $page of customers...")
         val endpoint = customersEndpoint.buildUpon()
             .appendQueryParameter("context", "view")
             .appendQueryParameter("role", "all")
             .build()
-        return multiPageGet(endpoint, customerParser, perPage = 100)
+        return multiPageGet(endpoint, Customer.Companion, perPage = 100)
     }
 
 
@@ -311,7 +303,7 @@ abstract class RemoteCommerceProto<
             .build()
         return multiPageGet(
             endpoint,
-            availablePaymentParser,
+            AvailablePayment.Companion,
             perPage = 100
         )
     }
@@ -349,7 +341,7 @@ abstract class RemoteCommerceProto<
             put("paid", false)
             put("line_items", lineItems)
         }
-        Logger.d("Making POST request to $ordersEndpoint with: $body")
+        Logger.d(TAG, "Making POST request to $ordersEndpoint with: $body")
         val response = post(ordersEndpoint, body)
         val json = JSONObject(response)
         return json.getString("payment_url")
@@ -368,14 +360,14 @@ abstract class RemoteCommerceProto<
         event: Event,
         metadata: List<OrderMetadata>
     ): Pair<String, Order> {
-        Logger.d("Creating item for event...")
+        Logger.d(TAG, "Creating item for event...")
         val item = JSONObject().apply {
             put("product_id", event.id)
             put("quantity", 1)
             put("meta_data", metadata.toJSON())
         }
 
-        Logger.d("Building body for request...")
+        Logger.d(TAG, "Building body for request...")
         val body = JSONObject().apply {
             put("customer_id", customer.id)
             put("customer_note", notes.takeIf { it.isNotBlank() })
@@ -384,10 +376,10 @@ abstract class RemoteCommerceProto<
             put("set_paid", event.price <= 0.0)
             put("line_items", JSONArray().apply { put(item) })
         }
-        Logger.d("Making POST request to $ordersEndpoint with: $body")
+        Logger.d(TAG, "Making POST request to $ordersEndpoint with: $body")
         val response = post(ordersEndpoint, body)
         val json = JSONObject(response)
-        val responseOrderProto = orderParser.fromJSON(json)
+        val responseOrderProto = Order.fromJSON(json)
         return json.getString("payment_url") to responseOrderProto
     }
 

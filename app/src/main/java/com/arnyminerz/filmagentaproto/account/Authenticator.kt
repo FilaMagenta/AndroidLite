@@ -7,9 +7,9 @@ import android.accounts.AccountManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.arnyminerz.filamagenta.core.exception.WrongCredentialsException
 import com.arnyminerz.filmagentaproto.activity.LoginActivity
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
-import com.arnyminerz.filmagentaproto.exceptions.WrongCredentialsException
 import timber.log.Timber
 
 class Authenticator(private val context: Context) : AbstractAccountAuthenticator(context) {

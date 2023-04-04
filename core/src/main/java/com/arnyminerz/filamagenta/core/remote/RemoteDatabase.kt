@@ -5,6 +5,8 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.ResultSet
 
+private const val TAG = "RemoteDatabase"
+
 class RemoteDatabase(
     ip: String,
     port: Int,
@@ -23,7 +25,7 @@ class RemoteDatabase(
     init {
         Class.forName(Classes)
 
-        Logger.d("Performing connection with $ip:$port...")
+        Logger.d(TAG, "Performing connection with $ip:$port...")
         connection = DriverManager.getConnection(url, username, password)
     }
 
@@ -33,7 +35,7 @@ class RemoteDatabase(
     fun close() = connection.close()
 
     fun <T : Any> query(sql: String, predicate: (row: ResultSet) -> T): List<T> {
-        Logger.d("SQL > $sql")
+        Logger.d(TAG, "SQL > $sql")
         val statement = connection.createStatement()
         val result = statement.executeQuery(sql)
         val list = arrayListOf<T>()

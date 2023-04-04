@@ -1,47 +1,26 @@
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
 import com.arnyminerz.filamagenta.desktop.localization.Translations
+import com.arnyminerz.filamagenta.desktop.storage.LocalPropertiesStorage
+import com.arnyminerz.filamagenta.desktop.storage.Properties.USER_TOKEN
+import com.arnyminerz.filamagenta.desktop.ui.window.LoginWindow
+import com.arnyminerz.filamagenta.desktop.ui.window.MainWindow
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun main() {
     Translations.load("en")
+    Translations.setFallback(Locale.ENGLISH)
 
     application {
-        Window(
-            onCloseRequest = ::exitApplication,
-            title = "Filà Magenta",
-            state = rememberWindowState(width = 300.dp, height = 300.dp),
-            icon = painterResource("icon.svg")
-        ) {
-            val count = remember { mutableStateOf(0) }
-            MaterialTheme {
-                Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
-                    Button(modifier = Modifier.align(Alignment.CenterHorizontally),
-                        onClick = {
-                            count.value++
-                        }) {
-                        Text(if (count.value == 0) "Hello World" else "Clicked ${count.value}!")
-                    }
-                    Button(modifier = Modifier.align(Alignment.CenterHorizontally),
-                        onClick = {
-                            count.value = 0
-                        }) {
-                        Text("Reset")
-                    }
-                }
-            }
-        }
+        val userToken by LocalPropertiesStorage.getLive(USER_TOKEN).collectAsState(null)
+
+        if (userToken == null)
+            LoginWindow(::exitApplication) { LocalPropertiesStorage.setMemory(USER_TOKEN, it) }
+        else
+            MainWindow(::exitApplication) { LocalPropertiesStorage.clear(USER_TOKEN) }
     }
 }
