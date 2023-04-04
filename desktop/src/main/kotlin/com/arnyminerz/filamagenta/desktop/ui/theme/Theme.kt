@@ -1,11 +1,18 @@
 package com.arnyminerz.filamagenta.desktop.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -122,7 +129,21 @@ fun ThemedWindow(
         icon = painterResource("icon.svg"),
     ) {
         AppTheme {
-            content()
+            Box {
+                Surface(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 0.dp),
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                ) {
+                    Text(
+                        text = "BETA",
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
+                    )
+                }
+
+                content()
+            }
         }
     }
 }
