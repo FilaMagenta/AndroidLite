@@ -83,8 +83,9 @@ jobs:
       - name: Build
         id: build
         run: bash ./gradlew :desktop:packageDistributionForCurrentOS --stacktrace
+      - run: ls ./desktop/build/compose/binaries/main
       - name: Artifact
         uses: actions/upload-artifact@v3
         with:
           name: Artifact
-          path: ./desktop/build/compose/binaries/main/dev/*.${{ matrix.os[2] }}
+          path: ./desktop/build/compose/binaries/main/${{ matrix.os[2] }}/*
