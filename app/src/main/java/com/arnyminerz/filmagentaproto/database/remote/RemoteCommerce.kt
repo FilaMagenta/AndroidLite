@@ -11,6 +11,6 @@ object RemoteCommerce : RemoteCommerceProto() {
 
     override val wooConsumerSecret: String = BuildConfig.WOO_CONSUMER_SECRET
 
-    override fun base64Encode(input: ByteArray): ByteArray = Base64.encode(input, Base64.NO_WRAP)
+    override fun base64Encode(input: ByteArray): String = Base64.encodeToString(input, Base64.NO_WRAP)
 
 }
