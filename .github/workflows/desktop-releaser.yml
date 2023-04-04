@@ -1,4 +1,4 @@
-name: Releaser
+name: Desktop Releaser
 
 on:
   workflow_dispatch:
@@ -51,6 +51,23 @@ jobs:
           java-version: '17'
           java-package: jdk
           cache: 'gradle'
+      - name: Prepare Gradle secure file
+        run: |
+          echo 'SIGNING_KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> desktop/src/main/resources/local.properties
+          echo 'SIGNING_KEY_ALIAS=${{ secrets.KEYSTORE_USERNAME }}' >> desktop/src/main/resources/local.properties
+          echo 'SIGNING_KEY_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> desktop/src/main/resources/local.properties
+          echo 'host=${{ secrets.HOST }}' >> desktop/src/main/resources/local.properties
+          echo 'woo.consumer_key=${{ secrets.WOO_CONSUMER_KEY }}' >> desktop/src/main/resources/local.properties
+          echo 'woo.consumer_secret=${{ secrets.WOO_CONSUMER_SECRET }}' >> desktop/src/main/resources/local.properties
+          echo 'db.hostname=${{ secrets.DB_HOSTNAME }}' >> desktop/src/main/resources/local.properties
+          echo 'db.port=${{ secrets.DB_PORT }}' >> desktop/src/main/resources/local.properties
+          echo 'db.database=${{ secrets.DB_DATABASE }}' >> desktop/src/main/resources/local.properties
+          echo 'db.username=${{ secrets.DB_USERNAME }}' >> desktop/src/main/resources/local.properties
+          echo 'db.password=${{ secrets.DB_PASSWORD }}' >> desktop/src/main/resources/local.properties
+          echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN }}' >> desktop/src/main/resources/local.properties
+          echo 'AES_KEY=${{ secrets.AES_KEY }}' >> desktop/src/main/resources/local.properties
+          echo 'AES_SALT=${{ secrets.AES_SALT }}' >> desktop/src/main/resources/local.properties
+          echo 'AES_IV=${{ secrets.AES_IV }}' >> desktop/src/main/resources/local.properties
       - name: Build
         id: build
         run: bash ./gradlew desktop:packageDistributionForCurrentOS --stacktrace
