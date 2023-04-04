@@ -5,6 +5,11 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 
+object Properties {
+    const val USER_DNI = "user.dni"
+    const val USER_TOKEN = "user.token"
+}
+
 object LocalPropertiesStorage: PropertiesProvider(false) {
     private val file = File(dataDir, "local.properties")
 

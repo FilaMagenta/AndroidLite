@@ -46,6 +46,8 @@ import com.arnyminerz.filamagenta.core.utils.ui
 import com.arnyminerz.filamagenta.desktop.localization.Translations.get
 import com.arnyminerz.filamagenta.desktop.remote.RemoteAuthentication
 import com.arnyminerz.filamagenta.desktop.storage.LocalPropertiesStorage
+import com.arnyminerz.filamagenta.desktop.storage.Properties.USER_DNI
+import com.arnyminerz.filamagenta.desktop.storage.Properties.USER_TOKEN
 import com.arnyminerz.filamagenta.desktop.ui.components.forms.FormField
 import com.arnyminerz.filamagenta.desktop.ui.theme.ThemedWindow
 import java.security.NoSuchAlgorithmException
@@ -71,8 +73,8 @@ fun LoginWindow(
         val scope = rememberCoroutineScope()
         val snackbarHost = remember { SnackbarHostState() }
 
-        var dni by remember { mutableStateOf(LocalPropertiesStorage["user.dni"]) }
-        var password by remember { mutableStateOf(LocalPropertiesStorage["user.token"] ?: "") }
+        var dni by remember { mutableStateOf(LocalPropertiesStorage[USER_DNI]) }
+        var password by remember { mutableStateOf(LocalPropertiesStorage[USER_TOKEN] ?: "") }
         var storePassword by remember { mutableStateOf(false) }
         var isLoading by remember { mutableStateOf(false) }
 
