@@ -6,6 +6,9 @@
   "navigation.users": "Users",
   "navigation.settings": "Settings",
 
+  "card.unauthorized.title": "Unauthorized",
+  "card.unauthorized.message": "You must be an administrator to use this application. If you think this is an error, please, contact an administrator.",
+
   "form.login.title": "Login",
   "form.login.dni": "DNI",
   "form.login.password": "Password",
@@ -20,10 +23,13 @@
   "form.login.error.key_spec": "A key spec for your password could not have been generated. Please, check that your password is correct, or contact an administrator.",
   "form.login.logout": "Logout",
 
+  "list.event.create": "Create new Event",
   "list.event.title": "Events",
   "list.event.date": "Date: %s",
   "list.event.reservation": "Reservations Until: %s",
   "list.event.type": "Event Type",
+
+  "list.user.create": "Create new User",
 
   "list.settings.title": "Settings",
   "list.settings.language": "Language",
