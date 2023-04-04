@@ -11,9 +11,9 @@ import org.json.JSONObject
  * [Locale.setDefault].
  */
 object Translations {
-    private var translations: Map<Locale, Map<String, String>>? = null
+    private var translations: Map<String, Map<String, String>>? = null
 
-    private var fallbackLocale: Locale? = null
+    private var fallbackLocale: String? = null
 
     /**
      * Gets the amount of locales currently loaded. You can load some with [load].
@@ -24,8 +24,8 @@ object Translations {
     /**
      * Gets a list with all the locales available. Can be null if [load] has still not been called.
      */
-    val availableLocales: Set<Locale>?
-        get() = translations?.keys
+    val availableLocales: List<Locale>?
+        get() = translations?.keys?.map { Locale.forLanguageTag(it) }
 
     /**
      * Loads all the translations available in resources. Note that running this method will
@@ -36,7 +36,7 @@ object Translations {
      * file inside `resources/lang`.
      */
     fun load(vararg languageTags: String) {
-        val newTranslations = mutableMapOf<Locale, Map<String, String>>()
+        val newTranslations = mutableMapOf<String, Map<String, String>>()
 
         for (language in languageTags) {
             val locale = Locale.forLanguageTag(language)
@@ -52,7 +52,7 @@ object Translations {
                     ?.use { it.bufferedReader().readText() }
                     ?.let { raw ->
                         val json = JSONObject(raw)
-                        newTranslations[locale] = json.keySet().associateWith { json.getString(it) }
+                        newTranslations[locale.language] = json.keySet().associateWith { json.getString(it) }
                     }
                     ?: System.err.println("Could not find language \"$language\" in resources.")
             } catch (e: JSONException) {
@@ -73,7 +73,7 @@ object Translations {
      * Updates the fallback locale for when a translation is not available on the system's locale.
      */
     fun setFallback(locale: Locale): Translations {
-        this.fallbackLocale = locale
+        this.fallbackLocale = locale.language
         return this
     }
 
@@ -100,7 +100,7 @@ object Translations {
 
         var result: String? = null
 
-        val locale: Locale = Locale.getDefault()
+        val locale: String = Locale.getDefault().language
 
         val translations = translations!!
         if (translations.containsKey(locale))
@@ -117,6 +117,6 @@ object Translations {
                 throw IllegalStateException("Fallback locale ($fallbackLocale) does not exist inside the loaded translations.")
         }
 
-        return result!!.format(*args)
+        return result?.format(*args) ?: throw NullPointerException("Could not get string \"$key\" for language \"$locale\".")
     }
 }
