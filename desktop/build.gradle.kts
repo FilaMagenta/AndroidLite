@@ -7,6 +7,8 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+version = "0.0.1"
+
 val compileKotlin: KotlinCompilationTask<*> by tasks
 compileKotlin.compilerOptions.freeCompilerArgs.add("-Xcontext-receivers")
 
