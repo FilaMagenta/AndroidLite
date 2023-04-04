@@ -18,13 +18,9 @@ sourceSets.main {
 }
 
 dependencies {
-    implementation(compose.desktop.currentOs) {
-        exclude("androidx.compose.material")
-    }
+    implementation(compose.desktop.currentOs)
     implementation(compose.material3)
-    implementation(compose.materialIconsExtended) {
-        exclude("androidx.compose.material")
-    }
+    implementation(compose.materialIconsExtended)
 
     implementation("org.json:json:20230227")
 
