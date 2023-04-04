@@ -147,7 +147,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-text-google-fonts:1.4.0"
 
     // Jetpack Compose - Accompanist
-    implementation "com.google.accompanist:accompanist-permissions:0.30.0"
+    implementation "com.google.accompanist:accompanist-permissions:0.30.1"
 
     // For using MS SQL databases
     implementation 'net.sourceforge.jtds:jtds:1.3.1'
