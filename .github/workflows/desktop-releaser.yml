@@ -64,7 +64,7 @@ jobs:
           echo 'AES_IV=${{ secrets.AES_IV }}' >> desktop/src/main/resources/local.properties
       - name: Build
         id: build
-        run: bash ./gradlew desktop:packageDistributionForCurrentOS --stacktrace
+        run: bash ./gradlew :desktop:packageDistributionForCurrentOS --stacktrace
       - name: Artifact
         uses: actions/upload-artifact@v3
         with:
