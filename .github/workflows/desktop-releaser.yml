@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+  release:
 
 jobs:
   paths-filter:
@@ -84,9 +85,15 @@ jobs:
       - name: Build
         id: build
         run: bash ./gradlew :desktop:packageDistributionForCurrentOS --stacktrace
-      - run: ls ./desktop/build/compose/binaries/main
       - name: Artifact
         uses: actions/upload-artifact@v3
         with:
           name: Artifact
           path: ./desktop/build/compose/binaries/main/${{ matrix.os[2] }}/*
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'release'
+        with:
+          files: ./desktop/build/compose/binaries/main/${{ matrix.os[2] }}/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
