@@ -31,6 +31,7 @@ dependencies {
     // Some utility annotations
     implementation("androidx.annotation:annotation:1.6.0")
 
+    // Include core
     implementation(project(":core"))
 
     // For using MS SQL databases
