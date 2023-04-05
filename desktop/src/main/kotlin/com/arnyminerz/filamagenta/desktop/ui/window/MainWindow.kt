@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -62,6 +63,7 @@ context (ApplicationScope)
         @Composable
         @ExperimentalMaterial3Api
         @ExperimentalComposeUiApi
+        @ExperimentalFoundationApi
 fun MainWindow(
     onCloseRequest: () -> Unit,
     onLogout: () -> Unit,
