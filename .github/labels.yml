@@ -81,6 +81,10 @@
   description: When there are updates on the admins system
   color: A32424
 
+- name: desktop
+  description: When there are updates on the desktop application
+  color: E63244
+
 - name: major
   description: Major changes
   color: 16970B
