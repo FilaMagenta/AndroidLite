@@ -38,6 +38,8 @@ fun FormField(
     prevFocusRequester: FocusRequester? = null,
     onImeAction: (() -> Unit)? = null,
     error: String? = null,
+    showError: Boolean? = null,
+    supportingText: String? = null,
 ) {
     OutlinedTextField(
         value = value,
@@ -84,7 +86,9 @@ fun FormField(
                 onImeAction?.invoke()
             }
         },
-        isError = error != null,
-        supportingText = { error?.let { Text(it) } },
+        isError = showError == true || error != null,
+        supportingText = {
+            error?.let { Text(it) } ?: supportingText?.let { Text(it) }
+        },
     )
 }

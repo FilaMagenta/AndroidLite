@@ -1,6 +1,7 @@
 {
   "common.not_set": "Not set",
   "common.restart": "Restart",
+  "common.back": "Go Back",
 
   "navigation.events": "Events",
   "navigation.users": "Users",
@@ -33,5 +34,11 @@
 
   "list.settings.title": "Settings",
   "list.settings.language": "Language",
-  "list.settings.snack.restart": "It's required to restart the application to apply changes."
+  "list.settings.snack.restart": "It's required to restart the application to apply changes.",
+
+  "new.event.title": "New Event",
+  "new.event.name": "Event Name",
+  "new.event.date": "Event Date",
+  "new.event.date_summary": "The date and time at which the event will take place. Must follow format yyyy-MM-dd HH:mm, where \"y\" is the year, \"M\" month, \"d\" day, \"H\" hours and \"m\" minutes",
+  "new.event.action": "Create Event"
 }

@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
@@ -60,6 +61,7 @@ import kotlinx.coroutines.flow.filterNotNull
 context (ApplicationScope)
         @Composable
         @ExperimentalMaterial3Api
+        @ExperimentalComposeUiApi
 fun MainWindow(
     onCloseRequest: () -> Unit,
     onLogout: () -> Unit,
@@ -84,6 +86,10 @@ fun MainWindow(
         }
 
         val snackbarState = SnackbarHostState()
+
+        var showingNewEventDialog by remember { mutableStateOf(false) }
+        if (showingNewEventDialog)
+            NewEventDialog { showingNewEventDialog = false }
 
         when (isAdmin) {
             null -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
@@ -118,7 +124,7 @@ fun MainWindow(
                             exit = slideOutVertically(tween(200)) { it } + fadeOut(),
                         ) {
                             FloatingActionButton(
-                                onClick = {},
+                                onClick = { showingNewEventDialog = true },
                             ) { Icon(Icons.Rounded.EditCalendar, getString("list.event.create")) }
                         }
                         AnimatedVisibility(
