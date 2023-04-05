@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.zIndex
 
 
 private val LightColors = lightColorScheme(
@@ -132,8 +133,8 @@ fun ThemedWindow(
             Box {
                 Surface(
                     color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 0.dp),
-                    modifier = Modifier.align(Alignment.BottomEnd),
+                    shape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 8.dp),
+                    modifier = Modifier.align(Alignment.TopEnd).zIndex(9999f),
                 ) {
                     Text(
                         text = "BETA",

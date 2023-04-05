@@ -39,6 +39,9 @@ dependencies {
     ksp("io.insert-koin:koin-ksp-compiler:1.2.0")
     implementation("io.insert-koin:koin-core:3.4.0")
 
+    // Issue reporting
+    implementation("io.sentry:sentry:6.17.0")
+
     testImplementation("junit:junit:4.13.2")
 }
 

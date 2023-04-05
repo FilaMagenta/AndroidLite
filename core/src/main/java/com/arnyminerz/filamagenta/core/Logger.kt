@@ -24,6 +24,11 @@ object Logger {
         println(ANSI_YELLOW + "$tag/W: " + ANSI_RESET + message.format(formatArgs))
     }
 
+    fun e(tag: String, exception: Throwable, message: String, vararg formatArgs: Any?) {
+        System.err.println(ANSI_RED + "$tag/E: " + message.format(formatArgs))
+        System.err.println(ANSI_RED + "$tag/E: " + exception.stackTraceToString())
+    }
+
     fun e(tag: String, message: String, vararg formatArgs: Any?) {
         System.err.println(ANSI_RED + "$tag/E: " + ANSI_RESET + message.format(formatArgs))
     }
