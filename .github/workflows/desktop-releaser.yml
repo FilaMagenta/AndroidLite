@@ -78,7 +78,7 @@ jobs:
           echo 'db.database=${{ secrets.DB_DATABASE }}' >> desktop/src/main/resources/local.properties
           echo 'db.username=${{ secrets.DB_USERNAME }}' >> desktop/src/main/resources/local.properties
           echo 'db.password=${{ secrets.DB_PASSWORD }}' >> desktop/src/main/resources/local.properties
-          echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN }}' >> desktop/src/main/resources/local.properties
+          echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN_DESKTOP }}' >> desktop/src/main/resources/local.properties
           echo 'AES_KEY=${{ secrets.AES_KEY }}' >> desktop/src/main/resources/local.properties
           echo 'AES_SALT=${{ secrets.AES_SALT }}' >> desktop/src/main/resources/local.properties
           echo 'AES_IV=${{ secrets.AES_IV }}' >> desktop/src/main/resources/local.properties
