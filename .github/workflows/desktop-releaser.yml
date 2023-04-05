@@ -33,7 +33,7 @@ jobs:
     name: Build for ${{ matrix.os[0] }}
     # Wait from the paths-filter to be completed before starting next-job
     needs: paths-filter
-    if: needs.paths-filter.outputs.output1 == 'true'
+    if: github.event_name == 'release' || needs.paths-filter.outputs.output1 == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
