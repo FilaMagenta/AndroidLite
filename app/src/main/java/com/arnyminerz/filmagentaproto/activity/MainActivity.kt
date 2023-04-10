@@ -313,7 +313,7 @@ class MainActivity : AppCompatActivity() {
         ModalNavigationDrawer(
             items = listOf(
                 ModalDrawerSheetItem(SimpleIcons.Telegram, R.string.telegram_channel) {
-
+                    launchUrl("https://t.me/+wwGBArIV2uszMTA0")
                 },
                 ModalDrawerSheetItem(Icons.Outlined.Language, R.string.website) {
                     launchUrl("https://filamagenta.com/")
