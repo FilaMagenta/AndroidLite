@@ -15,8 +15,6 @@ import com.arnyminerz.filamagenta.desktop.ui.window.MainWindow
 import io.sentry.Sentry
 import java.util.Locale
 
-private const val TAG = "Main"
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun main() {
     Translations.load("en", "ca", "es")
@@ -24,7 +22,7 @@ fun main() {
         Translations.setFallback(it)
     } ?: Translations.setFallback(Locale.ENGLISH)
 
-    Logger.i(TAG, "Initializing Sentry...")
+    Logger.i("Initializing Sentry...")
     Sentry.init { options ->
         options.dsn = LocalCredentialsProvider["SENTRY_DSN"]
         // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
@@ -42,7 +40,7 @@ fun main() {
         else
             MainWindow(::exitApplication) {
                 LocalPropertiesStorage.clear(USER_TOKEN)
-                Logger.i(TAG, "Restating application...")
+                Logger.i("Restating application...")
                 exitApplication()
                 doAsync { main() }
             }

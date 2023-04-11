@@ -44,8 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_ADMINISTRATOR
+import com.arnyminerz.filamagenta.desktop.loaders.MainWindowLoader
 import com.arnyminerz.filamagenta.desktop.localization.Translations.getString
-import com.arnyminerz.filamagenta.desktop.remote.RemoteCommerce
 import com.arnyminerz.filamagenta.desktop.storage.LocalPropertiesStorage
 import com.arnyminerz.filamagenta.desktop.storage.Properties.USER_DNI
 import com.arnyminerz.filamagenta.desktop.storage.Properties.USER_TOKEN
@@ -55,6 +55,7 @@ import com.arnyminerz.filamagenta.desktop.ui.components.navigation.NavigationRai
 import com.arnyminerz.filamagenta.desktop.ui.pages.EventsPage
 import com.arnyminerz.filamagenta.desktop.ui.pages.SettingsPage
 import com.arnyminerz.filamagenta.desktop.ui.theme.ThemedWindow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.filterNotNull
 
 context (ApplicationScope)
@@ -67,21 +68,22 @@ fun MainWindow(
     ThemedWindow(
         onCloseRequest,
     ) {
+        val mainWindowLoader = remember { MainWindowLoader() }
+
         val token by LocalPropertiesStorage.getLive(USER_TOKEN).collectAsState(null)
         val dni by LocalPropertiesStorage.getLive(USER_DNI).collectAsState(null)
         var isAdmin by remember { mutableStateOf<Boolean?>(null) }
+        val customers by remember { mainWindowLoader.customersCache }
 
-        LaunchedEffect(dni) {
-            val customersList = RemoteCommerce.customersList()
-
-            snapshotFlow { dni }
-                .filterNotNull()
-                .collect {
-                    val customer = customersList
-                        .find { it.username == dni } ?: return@collect onLogout()
-                    isAdmin = customer.role == ROLE_ADMINISTRATOR
-                }
+        LaunchedEffect(dni, customers) {
+            val collector: FlowCollector<String?> = FlowCollector {
+                val customer = customers?.find { it.username == dni } ?: return@FlowCollector onLogout()
+                isAdmin = customer.role == ROLE_ADMINISTRATOR
+            }
+            snapshotFlow { customers }.filterNotNull().collect { collector.emit(dni) }
+            snapshotFlow { dni }.filterNotNull().collect(collector)
         }
+        LaunchedEffect(Unit) { mainWindowLoader.loadCustomers() }
 
         val snackbarState = SnackbarHostState()
 
