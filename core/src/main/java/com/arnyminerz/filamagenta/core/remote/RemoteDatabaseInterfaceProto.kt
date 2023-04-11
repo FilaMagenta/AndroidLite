@@ -6,8 +6,6 @@ import com.arnyminerz.filamagenta.core.data.tb.Socio
 import java.sql.ResultSet
 import java.sql.SQLException
 
-private const val TAG = "RemoteDatabaseInterfaceProto"
-
 abstract class RemoteDatabaseInterfaceProto {
     protected abstract val dbHostname: String
     protected abstract val dbPort: Int
@@ -18,7 +16,7 @@ abstract class RemoteDatabaseInterfaceProto {
     private inline fun <R> interact(block: (RemoteDatabase) -> R): R {
         var database: RemoteDatabase? = null
         try {
-            Logger.d(TAG, "Initializing connection with database...")
+            Logger.d("Initializing connection with database...")
             database = RemoteDatabase(
                 dbHostname,
                 dbPort,
@@ -26,7 +24,7 @@ abstract class RemoteDatabaseInterfaceProto {
                 dbUsername,
                 dbPassword,
             )
-            Logger.d(TAG, "Running database interaction...")
+            Logger.d("Running database interaction...")
             return block(database)
         } catch (e: Exception) {
             throw e
@@ -83,12 +81,12 @@ abstract class RemoteDatabaseInterfaceProto {
      * @return The hash and salt stored, or null if any.
      */
     fun getHashForDni(dni: String) = interact { database ->
-        Logger.d(TAG, "Getting Hash and Salt from database...")
+        Logger.d("Getting Hash and Salt from database...")
         database.query("SELECT Hash, Salt FROM mHashes WHERE Dni='$dni';") { resultSet ->
-            Logger.d(TAG, "Got a match in the server for $dni.")
+            Logger.d("Got a match in the server for $dni.")
             resultSet.getString("Hash") to resultSet.getString("Salt")
         }.firstOrNull().also {
-            if (it == null) Logger.d(TAG, "Got null response from database.")
+            if (it == null) Logger.d("Got null response from database.")
         }
     }
 
@@ -97,7 +95,7 @@ abstract class RemoteDatabaseInterfaceProto {
      * @throws SQLException If there's an error while running the request.
      */
     fun addHashForDni(dni: String, hash: String, salt: String) = interact { database ->
-        Logger.d(TAG, "Setting hash for $dni...")
+        Logger.d("Setting hash for $dni...")
         database.update("INSERT INTO mHashes (Dni, Hash, Salt) VALUES ('$dni', '$hash', '$salt  ');")
     }
 }

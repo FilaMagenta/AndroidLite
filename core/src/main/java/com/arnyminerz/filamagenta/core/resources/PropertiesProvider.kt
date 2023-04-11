@@ -10,8 +10,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.channelFlow
 
-private const val TAG = "PropertiesProvider"
-
 abstract class PropertiesProvider(private val readOnly: Boolean) {
     /**
      * The stream for reading all the properties. Should never be null, or [get] will always
@@ -84,7 +82,7 @@ abstract class PropertiesProvider(private val readOnly: Boolean) {
         doAsync {
             collectorsLock.lock()
             collectors[key]?.let { callbacks ->
-                Logger.d(TAG, "Running ${callbacks.size} callbacks for property \"$key\"")
+                Logger.d("Running ${callbacks.size} callbacks for property \"$key\"")
                 for (callback in callbacks) callback(value)
             }
             collectorsLock.unlock()
@@ -103,10 +101,10 @@ abstract class PropertiesProvider(private val readOnly: Boolean) {
         collectorsLock.withLock {
             val list = (collectors[key] ?: emptyList()).toMutableList()
             list.add {
-                Logger.v(TAG, "Got new data for \"$key\": $it")
+                Logger.v("Got new data for \"$key\": $it")
                 send(it)
             }
-            Logger.v(TAG, "Adding new collector for $key")
+            Logger.v("Adding new collector for $key")
             collectors[key] = list
         }
         awaitCancellation()

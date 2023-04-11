@@ -30,8 +30,6 @@ annotation class StockStatus {
     }
 }
 
-private const val TAG = "Event"
-
 @Entity(tableName = "events", primaryKeys = ["id"])
 data class Event(
     override val id: Long,
@@ -154,17 +152,17 @@ data class Event(
         shortDescription.let { desc ->
             val keywordFind = untilKeyword.find(desc)
             if (keywordFind == null) {
-                Logger.d(TAG, "Keyword not found in event $id")
+                Logger.d("Keyword not found in event $id")
                 return@let null
             }
             val position = keywordFind.range.last
             if (position < 0) {
-                Logger.d(TAG, "Could not cut event $id. position=$position")
+                Logger.d("Could not cut event $id. position=$position")
                 return@let null
             }
             val lineBreak = desc.indexOf('\n', position)
             if (position < 0 || lineBreak < 0) {
-                Logger.d(TAG, "Could not cut event $id. lineBreak=$lineBreak")
+                Logger.d("Could not cut event $id. lineBreak=$lineBreak")
                 return@let null
             }
 
@@ -175,14 +173,14 @@ data class Event(
 
             val firstSpace = until.indexOf(' ')
             if (firstSpace < 0) {
-                Logger.d(TAG, "Could not find space in event $id. until=\"$until\"")
+                Logger.d("Could not find space in event $id. until=\"$until\"")
                 return@let null
             }
 
             val dayString = until.substring(0, firstSpace)
             val day = dayString.toIntOrNull()
             if (day == null) {
-                Logger.d(TAG, "Could not parse number in event $id. dayString=\"$dayString\"")
+                Logger.d("Could not parse number in event $id. dayString=\"$dayString\"")
                 return@let null
             }
 
