@@ -15,6 +15,7 @@ import timber.log.Timber
 class Authenticator(private val context: Context) : AbstractAccountAuthenticator(context) {
     companion object {
         const val AuthTokenType = "com.arnyminerz.filmagentaproto"
+        const val AccountType = AuthTokenType
 
         const val USER_DATA_VERSION = "version"
         const val USER_DATA_ID_SOCIO = "id_socio"
