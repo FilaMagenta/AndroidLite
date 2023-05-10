@@ -8,6 +8,7 @@ import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SUBSCRIBER
 import com.arnyminerz.filamagenta.core.database.data.woo.customer.DeliveryInformation
+import com.arnyminerz.filamagenta.core.utils.currentDate
 import com.arnyminerz.filmagentaproto.database.logic.QR_VERSION
 import com.arnyminerz.filmagentaproto.database.logic.getQRCode
 import com.arnyminerz.filmagentaproto.database.logic.verifyQRCode
@@ -35,8 +36,8 @@ class TestQRGeneration {
 
     private val customer = Customer(
         id = 123,
-        dateCreated = LocalDate.now(),
-        dateModified = LocalDate.now(),
+        dateCreated = currentDate(),
+        dateModified = currentDate(),
         email = "example@mail.com",
         firstName = "Example",
         lastName = "User",
@@ -75,8 +76,8 @@ class TestQRGeneration {
         id = 1,
         status = OrderStatus.PROCESSING,
         currency = "",
-        dateCreated = LocalDate.now(),
-        dateModified = LocalDate.now(),
+        dateCreated = currentDate(),
+        dateModified = currentDate(),
         total = 0.0,
         customerId = 123,
         payment = null,

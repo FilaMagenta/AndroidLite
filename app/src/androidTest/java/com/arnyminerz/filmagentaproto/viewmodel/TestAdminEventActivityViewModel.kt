@@ -8,6 +8,7 @@ import com.arnyminerz.filamagenta.core.database.data.woo.Order
 import com.arnyminerz.filamagenta.core.database.data.woo.OrderStatus
 import com.arnyminerz.filamagenta.core.database.data.woo.ROLE_SUBSCRIBER
 import com.arnyminerz.filamagenta.core.database.data.woo.customer.DeliveryInformation
+import com.arnyminerz.filamagenta.core.utils.currentDate
 import com.arnyminerz.filmagentaproto.activity.AdminEventActivity
 import com.arnyminerz.filmagentaproto.utils.DatabaseTest
 import com.arnyminerz.filmagentaproto.utils.await
@@ -29,8 +30,8 @@ class TestAdminEventActivityViewModel: DatabaseTest() {
 
         private val customer = Customer(
             id = 123,
-            dateCreated = LocalDate.now(),
-            dateModified = LocalDate.now(),
+            dateCreated = currentDate(),
+            dateModified = currentDate(),
             email = "example@mail.com",
             firstName = "Example",
             lastName = "User",
@@ -70,8 +71,8 @@ class TestAdminEventActivityViewModel: DatabaseTest() {
             id = 1,
             status = OrderStatus.PROCESSING,
             currency = "",
-            dateCreated = LocalDate.now(),
-            dateModified = LocalDate.now(),
+            dateCreated = currentDate(),
+            dateModified = currentDate(),
             total = 0.0,
             customerId = 123,
             payment = null,

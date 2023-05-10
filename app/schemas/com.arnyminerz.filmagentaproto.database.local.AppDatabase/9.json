@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 9,
-    "identityHash": "0e0b7c2428af2a4621bf3fa1c684aef6",
+    "identityHash": "3986d6de6fa33a74066acae59f4128ef",
     "entities": [
       {
         "tableName": "transactions",
@@ -74,7 +74,7 @@
       },
       {
         "tableName": "socios",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idSocio` INTEGER NOT NULL, `Nombre` TEXT NOT NULL, `Apellidos` TEXT NOT NULL, `Direccion` TEXT, `idCodPostal` INTEGER, `Dni` TEXT, `FecNacimiento` INTEGER, `TlfParticular` TEXT, `TlfTrabajo` TEXT, `TlfMovil` TEXT, `eMail` TEXT, `idEstadoCivil` INTEGER, `idEstadoFicha` INTEGER, `bDerechoActos` INTEGER, `FecAlta` INTEGER, `FecUltAlta` INTEGER, `AnyAltaJuvenil` INTEGER, `AnyAltaFester` INTEGER, `FecBaja` INTEGER, `AnyMuntanyesMerit` INTEGER, `bRodaBlancos` INTEGER, `bRodaNegros` INTEGER, `nrAntiguedad` INTEGER, `bArrancoDianaJuvenil` INTEGER, `AnyAltaRodaBlancos` INTEGER, `nrRodaBlancos` INTEGER, `AnyAltaRodaNegros` INTEGER, `nrRodaNegros` INTEGER, `AnyUltEscuadra` INTEGER, `idPuestoEscuadra` INTEGER, `AnyUltEscuadraEspecial` INTEGER, `idPuestoEscuadraEspecial` INTEGER, `AnyGloriero` INTEGER, `idFormaPago` INTEGER, `Sexo` INTEGER, `idTipoFestero` INTEGER, `idCargo` INTEGER, `Obs` TEXT, `Fotografia` TEXT, `AsociadoCon` INTEGER, `bCarnetAvancarga` INTEGER, `FecCaducidadAvancarga` INTEGER, `bDisparaAvancarga` INTEGER, `idParentesco` INTEGER, `bEnviadoAsociacion` INTEGER, `bTipoFesteroBloqueado` INTEGER, `ImpLoteriaAbonado` REAL, `bAbonadoLoteria` INTEGER, `idBanco` INTEGER, `Iban` TEXT, `Bic` TEXT, `bUsaMontepio` INTEGER, `TiempoBaja` INTEGER, `IdentificadorBanco` INTEGER, `IdentificadorClienteBanco` INTEGER, `UltNrRemesa` INTEGER, `esAutorizoProteccionDatos` INTEGER NOT NULL, `filaPrincipal` INTEGER, `FecExpedicionAvancarga` INTEGER, `RodaBlancaBloqueada` INTEGER, `CtaContable` INTEGER, PRIMARY KEY(`idSocio`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idSocio` INTEGER NOT NULL, `Nombre` TEXT NOT NULL, `Apellidos` TEXT NOT NULL, `Direccion` TEXT, `idCodPostal` INTEGER, `Dni` TEXT, `FecNacimiento` TEXT, `TlfParticular` TEXT, `TlfTrabajo` TEXT, `TlfMovil` TEXT, `eMail` TEXT, `idEstadoCivil` INTEGER, `idEstadoFicha` INTEGER, `bDerechoActos` INTEGER, `FecAlta` TEXT, `FecUltAlta` TEXT, `AnyAltaJuvenil` INTEGER, `AnyAltaFester` INTEGER, `FecBaja` TEXT, `AnyMuntanyesMerit` INTEGER, `bRodaBlancos` INTEGER, `bRodaNegros` INTEGER, `nrAntiguedad` INTEGER, `bArrancoDianaJuvenil` INTEGER, `AnyAltaRodaBlancos` INTEGER, `nrRodaBlancos` INTEGER, `AnyAltaRodaNegros` INTEGER, `nrRodaNegros` INTEGER, `AnyUltEscuadra` INTEGER, `idPuestoEscuadra` INTEGER, `AnyUltEscuadraEspecial` INTEGER, `idPuestoEscuadraEspecial` INTEGER, `AnyGloriero` INTEGER, `idFormaPago` INTEGER, `Sexo` INTEGER, `idTipoFestero` INTEGER, `idCargo` INTEGER, `Obs` TEXT, `Fotografia` TEXT, `AsociadoCon` INTEGER, `bCarnetAvancarga` INTEGER, `FecCaducidadAvancarga` TEXT, `bDisparaAvancarga` INTEGER, `idParentesco` INTEGER, `bEnviadoAsociacion` INTEGER, `bTipoFesteroBloqueado` INTEGER, `ImpLoteriaAbonado` REAL, `bAbonadoLoteria` INTEGER, `idBanco` INTEGER, `Iban` TEXT, `Bic` TEXT, `bUsaMontepio` INTEGER, `TiempoBaja` INTEGER, `IdentificadorBanco` INTEGER, `IdentificadorClienteBanco` INTEGER, `UltNrRemesa` INTEGER, `esAutorizoProteccionDatos` INTEGER NOT NULL, `filaPrincipal` INTEGER, `FecExpedicionAvancarga` TEXT, `RodaBlancaBloqueada` INTEGER, `CtaContable` INTEGER, PRIMARY KEY(`idSocio`))",
         "fields": [
           {
             "fieldPath": "idSocio",
@@ -115,7 +115,7 @@
           {
             "fieldPath": "FecNacimiento",
             "columnName": "FecNacimiento",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -163,13 +163,13 @@
           {
             "fieldPath": "FecAlta",
             "columnName": "FecAlta",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "FecUltAlta",
             "columnName": "FecUltAlta",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -187,7 +187,7 @@
           {
             "fieldPath": "FecBaja",
             "columnName": "FecBaja",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -325,7 +325,7 @@
           {
             "fieldPath": "FecCaducidadAvancarga",
             "columnName": "FecCaducidadAvancarga",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -427,7 +427,7 @@
           {
             "fieldPath": "FecExpedicionAvancarga",
             "columnName": "FecExpedicionAvancarga",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -751,7 +751,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0e0b7c2428af2a4621bf3fa1c684aef6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3986d6de6fa33a74066acae59f4128ef')"
     ]
   }
 }

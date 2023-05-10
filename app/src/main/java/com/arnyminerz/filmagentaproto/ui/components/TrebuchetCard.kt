@@ -22,10 +22,11 @@ import com.arnyminerz.filmagentaproto.ui.screens.DateFormatter
 import com.arnyminerz.filmagentaproto.ui.theme.AppTheme
 import com.arnyminerz.filmagentaproto.utils.launchCalendarInsert
 import java.sql.Date
+import java.time.ZonedDateTime
 
 @Composable
 @ExperimentalMaterial3Api
-fun TrebuchetCard(shoots: Boolean?, obtainedDate: Date?, expiresDate: Date?) {
+fun TrebuchetCard(shoots: Boolean?, obtainedDate: ZonedDateTime?, expiresDate: ZonedDateTime?) {
     val context = LocalContext.current
 
     ElevatedCard(
@@ -54,7 +55,7 @@ fun TrebuchetCard(shoots: Boolean?, obtainedDate: Date?, expiresDate: Date?) {
             value = expiresDate?.let { DateFormatter.format(it) },
             label = R.string.profile_trebuchet_expires,
             action = expiresDate?.let {
-                Icons.Rounded.EditCalendar to { context.launchCalendarInsert(it) }
+                Icons.Rounded.EditCalendar to { context.launchCalendarInsert(it.toLocalDateTime()) }
             }
         )
     }
@@ -65,6 +66,6 @@ fun TrebuchetCard(shoots: Boolean?, obtainedDate: Date?, expiresDate: Date?) {
 @OptIn(ExperimentalMaterial3Api::class)
 fun TrebuchetCardPreview() {
     AppTheme {
-        TrebuchetCard(true, Date.valueOf("2022-01-31"), Date.valueOf("2027-01-31"))
+        TrebuchetCard(true, ZonedDateTime.now(), ZonedDateTime.now())
     }
 }

@@ -10,6 +10,7 @@ import com.arnyminerz.filamagenta.core.database.data.woo.StockStatus.Companion.O
 import com.arnyminerz.filamagenta.core.database.data.woo.event.Attribute
 import com.arnyminerz.filamagenta.core.database.data.woo.event.EventType
 import com.arnyminerz.filamagenta.core.database.prototype.JsonSerializer
+import com.arnyminerz.filamagenta.core.utils.currentDateTime
 import com.arnyminerz.filamagenta.core.utils.getDateGmt
 import com.arnyminerz.filamagenta.core.utils.getJSONArrayOrNull
 import com.arnyminerz.filamagenta.core.utils.lazyNullCacheable
@@ -21,7 +22,12 @@ import java.util.Calendar
 import java.util.Date
 import org.json.JSONObject
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
+import java.time.temporal.IsoFields
+import java.time.temporal.TemporalUnit
 
 @StringDef(InStock, OutOfStock, OnBackOrder)
 annotation class StockStatus {
@@ -151,7 +157,7 @@ data class Event(
         put("stock_quantity", stockQuantity)
     }
 
-    val acceptsReservationsUntil: Date? by lazy {
+    val acceptsReservationsUntil: LocalDateTime? by lazy {
         shortDescription.let { desc ->
             val keywordFind = untilKeyword.find(desc)
             if (keywordFind == null) {
@@ -164,7 +170,7 @@ data class Event(
                 return@let null
             }
             val lineBreak = desc.indexOf('\n', position)
-            if (position < 0 || lineBreak < 0) {
+            if (lineBreak < 0) {
                 Logger.d("Could not cut event $id. lineBreak=$lineBreak")
                 return@let null
             }
@@ -188,28 +194,24 @@ data class Event(
             }
 
             until = until.replace(" de ", "")
-            val monthIndex = months.indexOfFirst { until.contains(it, ignoreCase = true) }
+            val eventMonth = months.indexOfFirst { until.contains(it, ignoreCase = true) } + 1
 
-            val calendar = Calendar.getInstance()
+            var localDateTime = currentDateTime()
 
-            // Reset seconds and millis
-            calendar.set(Calendar.SECOND, 0)
-            calendar.set(Calendar.MILLISECOND, 0)
+            // Reset seconds and nanos
+            localDateTime = localDateTime.withSecond(0)
+            localDateTime = localDateTime.withNano(0)
 
-            // Check if year is specified
+            // Update year
             val yearFind = yearRegex.find(until)
             if (yearFind != null) {
-                val yearString = yearFind.value
-                yearString.toIntOrNull()?.let { year ->
-                    calendar.set(Calendar.YEAR, year)
-                }
+                val yearString = yearFind.value.toInt()
+                localDateTime = localDateTime.withYear(yearString)
             } else {
                 // If current month is greater than the month specified in event, increase year
-                val currentMonth = calendar.get(Calendar.MONTH)
-                if (currentMonth > monthIndex) {
-                    val year = calendar.get(Calendar.YEAR)
-                    calendar.set(Calendar.YEAR, year + 1)
-                }
+                val currentMonth = localDateTime.monthValue
+                if (currentMonth > eventMonth)
+                    localDateTime = localDateTime.plusYears(1)
             }
 
             // Check if time is specified
@@ -221,20 +223,20 @@ data class Event(
                 val hours = timeParts.getOrNull(0)?.toIntOrNull()
                 val minutes = timeParts.getOrNull(1)?.toIntOrNull()
                 if (hours != null && minutes != null) {
-                    calendar.set(Calendar.HOUR_OF_DAY, hours)
-                    calendar.set(Calendar.MINUTE, minutes)
+                    localDateTime = localDateTime.withHour(hours)
+                    localDateTime = localDateTime.withMinute(minutes)
                     timeUpdated = true
                 }
             }
             if (!timeUpdated) {
-                calendar.set(Calendar.HOUR_OF_DAY, 23)
-                calendar.set(Calendar.MINUTE, 59)
+                localDateTime = localDateTime.withHour(23)
+                localDateTime = localDateTime.withMinute(59)
             }
 
-            calendar.set(Calendar.MONTH, monthIndex)
-            calendar.set(Calendar.DAY_OF_MONTH, day)
+            localDateTime = localDateTime.withMonth(eventMonth)
+            localDateTime = localDateTime.withDayOfMonth(day)
 
-            calendar.time
+            localDateTime
         }
     }
 
@@ -245,7 +247,7 @@ data class Event(
     }
         private set
 
-    val eventDate: Date? by lazy {
+    val eventDate: LocalDateTime? by lazy {
         shortDescription
             .replace(untilKeywordLine, "")
             .trim('\n', '\r', ' ')
@@ -253,11 +255,11 @@ data class Event(
                 val find = dateRegex.find(desc) ?: return@let null
                 val found = find.value
 
-                val calendar = Calendar.getInstance()
+                var localDateTime = currentDateTime()
 
-                // Reset seconds and millis
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
+                // Reset seconds and nanos
+                localDateTime = localDateTime.withSecond(0)
+                localDateTime = localDateTime.withNano(0)
 
                 // Update time
                 var timeUpdated = false
@@ -268,45 +270,42 @@ data class Event(
                     val hours = timeParts.getOrNull(0)?.toIntOrNull()
                     val minutes = timeParts.getOrNull(1)?.toIntOrNull()
                     if (hours != null && minutes != null) {
-                        calendar.set(Calendar.HOUR_OF_DAY, hours)
-                        calendar.set(Calendar.MINUTE, minutes)
+                        localDateTime = localDateTime.withHour(hours)
+                        localDateTime = localDateTime.withMinute(minutes)
                         timeUpdated = true
                     }
                 }
                 if (!timeUpdated) {
-                    calendar.set(Calendar.HOUR_OF_DAY, 0)
-                    calendar.set(Calendar.MINUTE, 0)
+                    localDateTime = localDateTime.withHour(0)
+                    localDateTime = localDateTime.withMinute(0)
                 }
 
                 // Update day
                 val day = found.split(" ")
                     .find { it.toIntOrNull() != null }
                     ?.toInt() ?: return@let null
-                calendar.set(Calendar.DAY_OF_MONTH, day)
+                localDateTime = localDateTime.withDayOfMonth(day)
 
                 // Update month
-                val monthIndex = months.indexOfFirst { found.contains(it, ignoreCase = true) }
-                    .takeIf { it >= 0 } ?: return@let null
-                calendar.set(Calendar.MONTH, monthIndex)
+                val eventMonth = months.indexOfFirst { found.contains(it, ignoreCase = true) }
+                    .takeIf { it >= 0 }
+                    ?.plus(1) ?: return@let null
+                localDateTime = localDateTime.withMonth(eventMonth)
 
                 // Update year
                 val yearFind = yearRegex.find(found)
                 if (yearFind != null) {
-                    val yearString = yearFind.value
-                    yearString.toIntOrNull()?.let { year ->
-                        calendar.set(Calendar.YEAR, year)
-                    }
+                    val yearString = yearFind.value.toInt()
+                    localDateTime = localDateTime.withYear(yearString)
                 } else {
                     // If current month is greater than the month specified in event, increase year
-                    val currentMonth = calendar.get(Calendar.MONTH)
-                    if (currentMonth > monthIndex) {
-                        val year = calendar.get(Calendar.YEAR)
-                        calendar.set(Calendar.YEAR, year + 1)
-                    }
+                    val currentMonth = localDateTime.monthValue
+                    if (currentMonth > eventMonth)
+                        localDateTime = localDateTime.plusYears(1)
                 }
 
                 cutDescription = desc.replace(found, "").trim('\n', '\r')
-                calendar.time
+                localDateTime
             }
     }
 
@@ -334,8 +333,6 @@ data class Event(
      * date with the current date, and if 4 hours have passed, it's considered as true.
      */
     val hasPassed: Boolean by lazy {
-        eventDate?.let { date ->
-            date.time - now().time < -4 * 60 * 1000
-        } ?: false
+        eventDate?.until(currentDateTime(), ChronoUnit.HOURS)?.let { it > -4 } ?: false
     }
 }

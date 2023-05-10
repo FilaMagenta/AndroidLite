@@ -6,6 +6,7 @@ import com.arnyminerz.filamagenta.core.utils.toJSON
 import java.sql.Date
 import org.json.JSONArray
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 
 class Converters {
@@ -39,4 +40,10 @@ class Converters {
     fun toLocalDate(value: Long?): LocalDate? = value?.let {
         Date(value).toInstant().atZone(ZoneId.of("UTC")).toLocalDate()
     }
+
+    @TypeConverter
+    fun fromLocalDateTime(value: LocalDateTime?): String? = value?.toString()
+
+    @TypeConverter
+    fun toLocalDateTime(value: String?): LocalDateTime? = value?.let { LocalDateTime.parse(it) }
 }
