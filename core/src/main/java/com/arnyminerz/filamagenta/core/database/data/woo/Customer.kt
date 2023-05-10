@@ -9,6 +9,8 @@ import com.arnyminerz.filamagenta.core.utils.getDateGmt
 import com.arnyminerz.filamagenta.core.utils.putDateGmt
 import java.util.Date
 import org.json.JSONObject
+import java.time.LocalDate
+import java.time.ZonedDateTime
 
 const val ROLE_ADMINISTRATOR = "administrator"
 const val ROLE_EDITOR = "editor"
@@ -27,8 +29,8 @@ annotation class CustomerRole
 @Entity(tableName = "customers", primaryKeys = ["id"])
 class Customer(
     override val id: Long,
-    val dateCreated: Date,
-    val dateModified: Date,
+    val dateCreated: LocalDate,
+    val dateModified: LocalDate,
     val email: String,
     val firstName: String,
     val lastName: String,
@@ -42,8 +44,8 @@ class Customer(
     companion object : JsonSerializer<Customer> {
         override fun fromJSON(json: JSONObject, vararg args: Any?): Customer = Customer(
             json.getLong("id"),
-            json.getDateGmt("date_created_gmt"),
-            json.getDateGmt("date_modified_gmt"),
+            json.getDateGmt("date_created_gmt").toLocalDate(),
+            json.getDateGmt("date_modified_gmt").toLocalDate(),
             json.getString("email"),
             json.getString("first_name"),
             json.getString("last_name"),
@@ -58,8 +60,8 @@ class Customer(
 
     override fun toJSON(): JSONObject = JSONObject().apply {
         put("id", id)
-        putDateGmt("date_created_gmt", dateCreated)
-        putDateGmt("date_modified_gmt", dateModified)
+        putDateGmt("date_created_gmt", dateCreated.atStartOfDay())
+        putDateGmt("date_modified_gmt", dateModified.atStartOfDay())
         put("email", email)
         put("first_name", firstName)
         put("last_name", lastName)

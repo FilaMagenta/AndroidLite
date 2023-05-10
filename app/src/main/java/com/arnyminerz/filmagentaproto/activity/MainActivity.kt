@@ -74,6 +74,7 @@ import com.arnyminerz.filamagenta.core.utils.doAsync
 import com.arnyminerz.filamagenta.core.utils.now
 import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.R
+import com.arnyminerz.filmagentaproto.account.AccountHelper
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.AuthTokenType
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_VERSION
@@ -265,11 +266,13 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        val accounts = am.getAccountsByType(AuthTokenType)
-        if (accounts.isEmpty())
+        val accounts = AccountHelper.getAccountsList(am)
+        if (accounts.isEmpty()) {
+            Timber.i("Requesting login since to accounts have been added.")
             loginRequestLauncher.launch(
                 LoginActivity.Contract.Data(true, null)
             )
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(

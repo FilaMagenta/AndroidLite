@@ -37,6 +37,7 @@ import com.arnyminerz.filmagentaproto.ui.components.TrebuchetCard
 import com.arnyminerz.filmagentaproto.ui.components.WheelNumberCard
 import com.arnyminerz.filmagentaproto.ui.theme.AppTheme
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.Locale
 
 val DateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
@@ -99,8 +100,8 @@ fun ProfilePage(
         if (data.bCarnetAvancarga == true)
             TrebuchetCard(
                 data.bDisparaAvancarga,
-                data.FecExpedicionAvancarga,
-                data.FecCaducidadAvancarga,
+                data.FecExpedicionAvancarga?.atZone(ZoneId.systemDefault()),
+                data.FecCaducidadAvancarga?.atZone(ZoneId.systemDefault())
             )
         PersonalDataCard(data)
     }

@@ -10,6 +10,11 @@ import java.util.TimeZone
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.text.DateFormat
+import java.time.DateTimeException
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 fun JSONObject.getDoubleOrNull(key: String): Double? = try {
     if (has(key))
@@ -119,8 +124,8 @@ fun <T : Any> JSONObject.getJSONArrayOrNull(key: String, serializer: com.arnymin
 fun <T : Any> JSONObject.toMap(converter: (Any) -> T): Map<String, T> =
     keys().asSequence().associateWith { converter(get(it)) }
 
-private val dateFormatter: SimpleDateFormat
-    get() = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+private val dateFormatter: DateTimeFormatter
+    get() = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
 
 /**
  * Gets the value date of the given field in the GMT timezone.
@@ -129,10 +134,12 @@ private val dateFormatter: SimpleDateFormat
  * @throws ParseException If the value at [key] cannot be parsed to a date.
  * @see dateFormatter
  */
-fun JSONObject.getDateGmt(key: String): Date = getString(key)
+fun JSONObject.getDateGmt(key: String): ZonedDateTime = getString(key)
     .let {
-        dateFormatter.timeZone = TimeZone.getTimeZone("GMT")
-        dateFormatter.parse(it)!!
+        val parsed = dateFormatter
+            .withZone(TimeZone.getTimeZone("GMT").toZoneId())
+            .parse(it)!!
+        ZonedDateTime.from(parsed)
     }
 
 /**
@@ -140,7 +147,7 @@ fun JSONObject.getDateGmt(key: String): Date = getString(key)
  * or cannot be parsed into a date.
  * @see dateFormatter
  */
-fun JSONObject.getDateGmtOrNull(key: String): Date? =
+fun JSONObject.getDateGmtOrNull(key: String): ZonedDateTime? =
     try {
         getDateGmt(key)
     } catch (_: NullPointerException) {
@@ -148,6 +155,8 @@ fun JSONObject.getDateGmtOrNull(key: String): Date? =
     } catch (_: JSONException) {
         null
     } catch (_: ParseException) {
+        null
+    } catch (_: DateTimeException) {
         null
     }
 
@@ -157,12 +166,12 @@ fun JSONObject.getDateGmtOrNull(key: String): Date? =
  * @throws JSONException If `this` doesn't contain the key [key] or it's not a String.
  * @see dateFormatter
  */
-fun JSONObject.getDate(key: String): Date = getString(key)
-    .let { dateFormatter.parse(it)!! }
+fun JSONObject.getDate(key: String): LocalDateTime = getString(key)
+    .let { LocalDateTime.parse(it) }
 
 /**
  * Puts the given date into the given [key] using the GMT timezone to be extracted later with
  * [getDateGmt] and [getDateGmtOrNull].
  */
-fun JSONObject.putDateGmt(key: String, date: Date?): JSONObject =
+fun JSONObject.putDateGmt(key: String, date: LocalDateTime?): JSONObject =
     put(key, date?.let { dateFormatter.format(it) })

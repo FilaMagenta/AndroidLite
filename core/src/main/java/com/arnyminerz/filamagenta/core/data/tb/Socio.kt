@@ -2,8 +2,9 @@ package com.arnyminerz.filamagenta.core.data.tb
 
 import androidx.room.Entity
 import com.arnyminerz.filamagenta.core.utils.capitalized
-import java.sql.Date
 import java.sql.ResultSet
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity(tableName = "socios", primaryKeys = ["idSocio"])
 data class Socio(
@@ -13,7 +14,7 @@ data class Socio(
     val Direccion: String?,
     val idCodPostal: Int?,
     val Dni: String?,
-    val FecNacimiento: Date?,
+    val FecNacimiento: LocalDateTime?,
     val TlfParticular: String?,
     val TlfTrabajo: String?,
     val TlfMovil: String?,
@@ -21,11 +22,11 @@ data class Socio(
     val idEstadoCivil: Int?,
     val idEstadoFicha: Int?,
     val bDerechoActos: Boolean?,
-    val FecAlta: Date?,
-    val FecUltAlta: Date?,
+    val FecAlta: LocalDateTime?,
+    val FecUltAlta: LocalDateTime?,
     val AnyAltaJuvenil: Int?,
     val AnyAltaFester: Int?,
-    val FecBaja: Date?,
+    val FecBaja: LocalDateTime?,
     val AnyMuntanyesMerit: Int?,
     val bRodaBlancos: Boolean?,
     val bRodaNegros: Boolean?,
@@ -48,7 +49,7 @@ data class Socio(
     val Fotografia: String?,
     val AsociadoCon: Int?,
     val bCarnetAvancarga: Boolean?,
-    val FecCaducidadAvancarga: Date?,
+    val FecCaducidadAvancarga: LocalDateTime?,
     val bDisparaAvancarga: Boolean?,
     val idParentesco: Int?,
     val bEnviadoAsociacion: Boolean?,
@@ -65,7 +66,7 @@ data class Socio(
     val UltNrRemesa: Int?,
     val esAutorizoProteccionDatos: Boolean,
     val filaPrincipal: Int?,
-    val FecExpedicionAvancarga: Date?,
+    val FecExpedicionAvancarga: LocalDateTime?,
     val RodaBlancaBloqueada: Boolean?,
     val CtaContable: Int?,
 ) {
@@ -77,7 +78,7 @@ data class Socio(
             "Sample street, Alcoi",
             12,
             "123456789C",
-            Date.valueOf("1945-08-10"),
+            LocalDate.parse("1945-08-10").atStartOfDay(),
             "987654321",
             null,
             null,
@@ -85,7 +86,7 @@ data class Socio(
             1,
             null,
             true,
-            Date.valueOf("1962-05-04"),
+            LocalDate.parse("1962-05-04").atStartOfDay(),
             null,
             null,
             1965,
@@ -112,7 +113,7 @@ data class Socio(
             null,
             null,
             true,
-            Date.valueOf("2027-02-16"),
+            LocalDate.parse("2027-02-16").atStartOfDay(),
             true,
             null,
             true,
@@ -129,7 +130,7 @@ data class Socio(
             null,
             false,
             null,
-            Date.valueOf("2022-02-16"),
+            LocalDate.parse("2022-02-16").atStartOfDay(),
             false,
             6,
         )
@@ -141,7 +142,7 @@ data class Socio(
             row.getString(4),
             row.getInt(5),
             row.getString(6),
-            row.getDate(7),
+            row.getDate(7)?.toLocalDate()?.atStartOfDay(),
             row.getString(8),
             row.getString(9),
             row.getString(10),
@@ -149,11 +150,11 @@ data class Socio(
             row.getInt(12),
             row.getInt(13),
             row.getBoolean(14),
-            row.getDate(15),
-            row.getDate(16),
+            row.getDate(15)?.toLocalDate()?.atStartOfDay(),
+            row.getDate(16)?.toLocalDate()?.atStartOfDay(),
             row.getInt(17),
             row.getInt(18),
-            row.getDate(19),
+            row.getDate(19)?.toLocalDate()?.atStartOfDay(),
             row.getInt(20),
             row.getBoolean(21),
             row.getBoolean(22),
@@ -176,7 +177,7 @@ data class Socio(
             row.getString(39),
             row.getInt(40),
             row.getBoolean(41),
-            row.getDate(42),
+            row.getDate(42)?.toLocalDate()?.atStartOfDay(),
             row.getBoolean(43),
             row.getInt(44),
             row.getBoolean(45),
@@ -193,7 +194,7 @@ data class Socio(
             row.getInt(56),
             row.getBoolean(57),
             row.getInt(58),
-            row.getDate(59),
+            row.getDate(59)?.toLocalDate()?.atStartOfDay(),
             row.getBoolean(60),
             row.getInt(61),
         )

@@ -3,36 +3,37 @@ package com.arnyminerz.filmagentaproto.implementation
 import com.arnyminerz.filamagenta.core.database.data.woo.Event
 import com.arnyminerz.filamagenta.core.database.data.woo.StockStatus
 import com.arnyminerz.filamagenta.core.database.data.woo.event.EventType
-import com.arnyminerz.filamagenta.core.utils.now
+import com.arnyminerz.filamagenta.core.utils.currentDate
+import com.arnyminerz.filamagenta.core.utils.currentDateTime
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.verify
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class TestEvent {
-    @Before
-    fun mock_now() {
-        // Mock the now() function to return specific time
-        mockkStatic(::now)
-        every { now() } returns Date(1680176818000)
-        assertEquals(1680176818000, now().time)
-        verify { now() }
-    }
+    private val fixedDateTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+    private val fixedDate = LocalDate.of(2023, 1, 1)
 
     @Before
-    fun mock_calendar() {
-        mockkStatic(Calendar::class)
-        every { Calendar.getInstance() } returns Calendar.getInstance(TimeZone.getTimeZone("Europe/Madrid"), Locale.ENGLISH)
-        assertEquals("Europe/Madrid", Calendar.getInstance().timeZone.id)
-        verify { Calendar.getInstance() }
+    fun mock_currentDate_currentDateTime() {
+        mockkStatic("com.arnyminerz.filamagenta.core.utils.DateUtilsKt")
+
+        // Mock the currentDate() function to return specific time
+        every { currentDate() } returns fixedDate
+        assertEquals(fixedDate, currentDate())
+        verify { currentDate() }
+
+        // Mock the currentDateTime() function to return specific time
+        every { currentDateTime() } returns fixedDateTime
+        assertEquals(fixedDateTime, currentDateTime())
+        verify { currentDateTime() }
     }
 
     private val datesEvent = Event(
@@ -40,8 +41,8 @@ class TestEvent {
         name = "14 SAN JORGE, cena",
         slug = "san-jorge-cena",
         permalink = "",
-        dateCreated = Date(1680176818000),
-        dateModified = Date(1680176818000),
+        dateCreated = LocalDate.of(2023, 1, 1),
+        dateModified = LocalDate.of(2023, 1, 1),
         description = "",
         shortDescription = "",
         price = 0.0,
@@ -69,8 +70,9 @@ class TestEvent {
         val event = datesEvent.copy(
             shortDescription = "RESERVAS hasta el domingo 2 de abril.\nComida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
         )
+        assertEquals(fixedDateTime, currentDateTime())
         assertFalse(event.hasPassed)
-        assertEquals(Date(1680472740000), event.acceptsReservationsUntil)
+        assertEquals(LocalDateTime.of(2023, 4, 2, 23, 59), event.acceptsReservationsUntil)
         assertNull(event.eventDate)
         assertEquals(
             "Comida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
@@ -83,9 +85,9 @@ class TestEvent {
         val event = datesEvent.copy(
             shortDescription = "Domingo 2 de abril.\nComida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
         )
-        assertFalse(event.hasPassed)
+        assertEquals(LocalDateTime.of(2023, 4, 2, 0, 0), event.eventDate)
         assertNull(event.acceptsReservationsUntil)
-        assertEquals(Date(1680386400000), event.eventDate)
+        assertFalse(event.hasPassed)
         assertEquals(
             "Comida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
             event.cutDescription,
@@ -97,9 +99,9 @@ class TestEvent {
         val event = datesEvent.copy(
             shortDescription = "RESERVAS hasta el domingo 2 de abril.\nDía 25 de abril.\nComida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
         )
+        assertEquals(LocalDateTime.of(2023, 4, 25, 0, 0), event.eventDate)
+        assertEquals(LocalDateTime.of(2023, 4, 2, 23, 59), event.acceptsReservationsUntil)
         assertFalse(event.hasPassed)
-        assertEquals(Date(1680472740000), event.acceptsReservationsUntil)
-        assertEquals(Date(1682373600000), event.eventDate)
         assertEquals(
             "Comida organizada por mesas. No se estregan tickets.\nIndicar el responsable de mesa.",
             event.cutDescription,

@@ -221,7 +221,7 @@ abstract class RemoteCommerceProto {
             // Check if the event is cached
             cachedEvents.find { it.id == eventId }?.let { event ->
                 // If it has been cached, compare the modification dates
-                val newModificationDate = eventJson.getDateGmt("date_modified_gmt")
+                val newModificationDate = eventJson.getDateGmt("date_modified_gmt").toLocalDate()
                 if (newModificationDate <= event.dateModified) {
                     // If the event has not been updated, return the cached one
                     Logger.d("Event #$eventId has not been updated ($newModificationDate). Taking cache.")
