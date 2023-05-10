@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteConstraintException
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.map
@@ -74,19 +76,26 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
         private const val PERIODIC_WORK_NAME = "sync"
 
-        private const val SYNC_CUSTOMERS = "sync_customers"
+        @VisibleForTesting(PRIVATE)
+        const val SYNC_CUSTOMERS = "sync_customers"
 
-        private const val SYNC_ORDERS = "sync_orders"
+        @VisibleForTesting(PRIVATE)
+        const val SYNC_ORDERS = "sync_orders"
 
-        private const val SYNC_EVENTS = "sync_events"
+        @VisibleForTesting(PRIVATE)
+        const val SYNC_EVENTS = "sync_events"
 
-        private const val SYNC_PAYMENTS = "sync_payments"
+        @VisibleForTesting(PRIVATE)
+        const val SYNC_PAYMENTS = "sync_payments"
 
-        private const val SYNC_TRANSACTIONS = "sync_transactions"
+        @VisibleForTesting(PRIVATE)
+        const val SYNC_TRANSACTIONS = "sync_transactions"
 
-        private const val SYNC_SOCIOS = "sync_socios"
+        @VisibleForTesting(PRIVATE)
+        const val SYNC_SOCIOS = "sync_socios"
 
-        private const val IGNORE_CACHE = "ignore_cache"
+        @VisibleForTesting(PRIVATE)
+        const val IGNORE_CACHE = "ignore_cache"
 
         const val PROGRESS_STEP = "step"
 
@@ -95,8 +104,11 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         const val EXCEPTION_CLASS = "exception_class"
         const val EXCEPTION_MESSAGE = "exception_message"
 
-        private const val NOTIFICATION_ID = 20230315
-        private const val ERROR_NOTIFICATION_ID = 20230324
+        @VisibleForTesting(PRIVATE)
+        const val NOTIFICATION_ID = 20230315
+
+        @VisibleForTesting(PRIVATE)
+        const val ERROR_NOTIFICATION_ID = 20230324
 
         /**
          * The number of attempts to do before giving up on synchronization.
@@ -181,7 +193,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     private lateinit var remoteDatabaseDao: RemoteDatabaseDao
     private lateinit var wooCommerceDao: WooCommerceDao
 
-    private lateinit var transaction: ITransaction
+    private var transaction: ITransaction? = null
 
     private var isFirstSynchronization = false
 
@@ -190,10 +202,11 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(): Result {
         Timber.i("Running Synchronization...")
 
-        transaction = Sentry.startTransaction("SyncWorker", "synchronization")
+        if (Sentry.isEnabled())
+            transaction = Sentry.startTransaction("SyncWorker", "synchronization")
 
         ignoreCache = inputData.getBoolean(IGNORE_CACHE, false)
-        transaction.setData(IGNORE_CACHE, ignoreCache)
+        transaction?.setData(IGNORE_CACHE, ignoreCache)
 
         notificationManager = NotificationManagerCompat.from(applicationContext)
 
@@ -210,8 +223,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             Timber.e(e, "Could not complete synchronization.")
 
             // Append the error to the transaction
-            transaction.throwable = e
-            transaction.status = SpanStatus.INTERNAL_ERROR
+            transaction?.throwable = e
+            transaction?.status = SpanStatus.INTERNAL_ERROR
 
             // Notify Sentry about the error
             Sentry.captureException(e)
@@ -232,7 +245,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         } finally {
             notificationManager.cancel(NOTIFICATION_ID)
 
-            transaction.finish()
+            transaction?.finish()
         }
     }
 
@@ -413,7 +426,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         deleteMethod: (item: T) -> Unit,
         listExtraProcessing: (List<T>) -> Unit = {},
     ) {
-        val span = transaction.startChild("fetchAndUpdateDatabase", progressStep.name)
+        val span = transaction?.startChild("fetchAndUpdateDatabase", progressStep.name)
         val shouldSync = inputData.getBoolean(shouldSyncInputKey, true)
         if (shouldSync) {
             setProgress(progressStep)
@@ -440,16 +453,17 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
             setProgress(ProgressStep.INTERMEDIATE)
         }
-        span.finish()
+        span?.finish()
     }
 
     /**
      * Fetches all the data from the REST endpoints, and updates the database accordingly.
      */
-    private suspend fun fetchAndUpdateWooData(
+    @VisibleForTesting(PRIVATE)
+    suspend fun fetchAndUpdateWooData(
         account: Account,
     ) {
-        val span = transaction.startChild("fetchAndUpdateWooData")
+        val span = transaction?.startChild("fetchAndUpdateWooData")
         val dni = account.name
 
         var customerId: Long? = am.getUserData(account, USER_DATA_CUSTOMER_ID)?.toLongOrNull()
@@ -523,7 +537,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             { wooCommerceDao.delete(it) },
         )
 
-        span.finish()
+        span?.finish()
     }
 
     /**

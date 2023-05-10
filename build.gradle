@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        compose_version = '1.4.7'
+        compose_version = '1.4.6'
         mockk_version = '1.13.4'
         kotlin_version = '1.8.20'
         agp_version = '7.4.2'

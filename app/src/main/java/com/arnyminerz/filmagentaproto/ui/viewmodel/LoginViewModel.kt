@@ -9,6 +9,7 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.arnyminerz.filamagenta.core.utils.ui
+import com.arnyminerz.filmagentaproto.account.AccountHelper
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.credentials.Credentials
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
@@ -21,7 +22,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     val credentials = MutableLiveData<Credentials?>()
 
     @WorkerThread
-    @Suppress("BlockingMethodInNonBlockingContext")
     fun addAccount(activity: Activity) = async {
         val credentials = credentials.value ?: throw IllegalStateException("Credentials not ready.")
 
@@ -29,15 +29,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         val password = credentials.password
         val token = credentials.token
 
-        val idSocio = RemoteDatabaseInterface.fetchIdSocioFromDni(dni)
-
-        val account = Account(dni, Authenticator.AuthTokenType)
-        am.addAccountExplicitly(account, password, Bundle())
-        am.setAuthToken(account, Authenticator.AuthTokenType, token)
-        am.setUserData(account, Authenticator.USER_DATA_VERSION, Authenticator.VERSION.toString())
-        am.setUserData(account, Authenticator.USER_DATA_ID_SOCIO, idSocio.toString())
-
-        SyncWorker.run(activity)
+        AccountHelper.addAccount(am, dni, password, token, activity)
 
         ui {
             activity.setResult(Activity.RESULT_OK)
