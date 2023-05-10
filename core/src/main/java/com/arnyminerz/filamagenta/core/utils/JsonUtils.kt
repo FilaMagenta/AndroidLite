@@ -11,6 +11,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.text.DateFormat
+import java.time.DateTimeException
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -154,6 +155,8 @@ fun JSONObject.getDateGmtOrNull(key: String): ZonedDateTime? =
     } catch (_: JSONException) {
         null
     } catch (_: ParseException) {
+        null
+    } catch (_: DateTimeException) {
         null
     }
 
