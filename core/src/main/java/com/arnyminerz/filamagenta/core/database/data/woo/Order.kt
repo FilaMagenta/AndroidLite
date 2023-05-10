@@ -23,6 +23,8 @@ import com.arnyminerz.filamagenta.core.utils.mapObjects
 import com.arnyminerz.filamagenta.core.utils.toJSON
 import java.util.Date
 import org.json.JSONObject
+import java.time.LocalDate
+import java.time.ZoneOffset
 
 @StringDef(PENDING, PROCESSING, ON_HOLD, COMPLETED, CANCELLED, REFUNDED, FAILED, TRASH)
 annotation class OrderStatus {
@@ -43,8 +45,8 @@ data class Order(
     override val id: Long,
     @OrderStatus val status: String,
     val currency: String,
-    val dateCreated: Date,
-    val dateModified: Date,
+    val dateCreated: LocalDate,
+    val dateModified: LocalDate,
     val total: Double,
     val customerId: Long,
     @ColumnInfo(defaultValue = "null") val payment: Payment?,
@@ -55,8 +57,8 @@ data class Order(
             json.getLong("id"),
             json.getString("status"),
             json.getString("currency"),
-            json.getDateGmt("date_created"),
-            json.getDateGmt("date_modified"),
+            json.getDateGmt("date_created").toLocalDate(),
+            json.getDateGmt("date_modified").toLocalDate(),
             json.getDouble("total"),
             json.getLong("customer_id"),
             json.getObjectInlineOrNull(Payment)
@@ -80,7 +82,7 @@ data class Order(
     /** Provides a hash that uniquely identifies the Order. */
     val hash: String by lazy {
         val str =
-            "$id;$status;$currency;${dateCreated.time};${dateModified.time};$total;$customerId;${items.map { "${it.id}:${it.productId}:${it.variationId}:${it.quantity}" }}"
+            "$id;$status;$currency;${dateCreated.atStartOfDay().toEpochSecond(ZoneOffset.UTC)};${dateModified.atStartOfDay().toEpochSecond(ZoneOffset.UTC)};$total;$customerId;${items.map { "${it.id}:${it.productId}:${it.variationId}:${it.quantity}" }}"
         Hashing.sha256(str)
     }
 }

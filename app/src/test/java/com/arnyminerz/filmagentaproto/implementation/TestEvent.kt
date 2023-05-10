@@ -16,6 +16,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDate
 
 class TestEvent {
     @Before
@@ -40,8 +41,8 @@ class TestEvent {
         name = "14 SAN JORGE, cena",
         slug = "san-jorge-cena",
         permalink = "",
-        dateCreated = Date(1680176818000),
-        dateModified = Date(1680176818000),
+        dateCreated = LocalDate.of(2023, 1, 1),
+        dateModified = LocalDate.of(2023, 1, 1),
         description = "",
         shortDescription = "",
         price = 0.0,

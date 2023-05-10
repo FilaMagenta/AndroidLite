@@ -20,6 +20,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDate
 
 @RunWith(AndroidJUnit4::class)
 class TestAdminEventActivityViewModel: DatabaseTest() {
@@ -28,8 +29,8 @@ class TestAdminEventActivityViewModel: DatabaseTest() {
 
         private val customer = Customer(
             id = 123,
-            dateCreated = Date(),
-            dateModified = Date(),
+            dateCreated = LocalDate.now(),
+            dateModified = LocalDate.now(),
             email = "example@mail.com",
             firstName = "Example",
             lastName = "User",
@@ -69,8 +70,8 @@ class TestAdminEventActivityViewModel: DatabaseTest() {
             id = 1,
             status = OrderStatus.PROCESSING,
             currency = "",
-            dateCreated = Date(),
-            dateModified = Date(),
+            dateCreated = LocalDate.now(),
+            dateModified = LocalDate.now(),
             total = 0.0,
             customerId = 123,
             payment = null,

@@ -22,6 +22,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.time.LocalDate
 
 class TestQRGeneration {
     companion object {
@@ -34,8 +35,8 @@ class TestQRGeneration {
 
     private val customer = Customer(
         id = 123,
-        dateCreated = Date(),
-        dateModified = Date(),
+        dateCreated = LocalDate.now(),
+        dateModified = LocalDate.now(),
         email = "example@mail.com",
         firstName = "Example",
         lastName = "User",
@@ -74,8 +75,8 @@ class TestQRGeneration {
         id = 1,
         status = OrderStatus.PROCESSING,
         currency = "",
-        dateCreated = Date(),
-        dateModified = Date(),
+        dateCreated = LocalDate.now(),
+        dateModified = LocalDate.now(),
         total = 0.0,
         customerId = 123,
         payment = null,

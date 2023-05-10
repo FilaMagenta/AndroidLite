@@ -20,6 +20,8 @@ import com.arnyminerz.filamagenta.core.utils.toJSON
 import java.util.Calendar
 import java.util.Date
 import org.json.JSONObject
+import java.time.LocalDate
+import java.time.ZonedDateTime
 
 @StringDef(InStock, OutOfStock, OnBackOrder)
 annotation class StockStatus {
@@ -36,8 +38,8 @@ data class Event(
     val name: String,
     val slug: String,
     val permalink: String,
-    val dateCreated: Date,
-    val dateModified: Date,
+    val dateCreated: LocalDate,
+    val dateModified: LocalDate,
     val description: String,
     val shortDescription: String,
     val price: Double,
@@ -105,7 +107,8 @@ data class Event(
 
         val EXAMPLE = Event(
             1, "Example Event", "example-event", "https://example.com",
-            Date(1), Date(2), "This is the description of the event",
+            LocalDate.ofYearDay(2023, 1), LocalDate.ofYearDay(2023, 1),
+            "This is the description of the event",
             "Reservas hasta el lunes 23 de marzo de 2023. 12 de abril de 2023",
             0.0, emptyList(), InStock, 120
         )
@@ -120,8 +123,8 @@ data class Event(
             json.getString("name"),
             json.getString("slug"),
             json.getString("permalink"),
-            json.getDateGmt("date_created_gmt"),
-            json.getDateGmt("date_modified_gmt"),
+            json.getDateGmt("date_created_gmt").toLocalDate(),
+            json.getDateGmt("date_modified_gmt").toLocalDate(),
             json.getString("description"),
             json.getString("short_description"),
             json.getDouble("price"),
@@ -138,8 +141,8 @@ data class Event(
         put("name", name)
         put("slug", slug)
         put("permalink", permalink)
-        putDateGmt("date_created_gmt", dateCreated)
-        putDateGmt("date_modified_gmt", dateModified)
+        putDateGmt("date_created_gmt", dateCreated.atStartOfDay())
+        putDateGmt("date_modified_gmt", dateModified.atStartOfDay())
         put("description", description)
         put("short_description", shortDescription)
         put("price", price)
