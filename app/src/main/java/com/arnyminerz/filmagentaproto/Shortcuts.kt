@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 object Shortcuts {
     const val ADMIN_PANEL_ID = "admin"
 
-    @StringRes
-    const val ADMIN_PANEL_LABEL_RES = R.string.shortcut_admin_label
+    val ADMIN_PANEL_LABEL_RES: Int
+        @StringRes
+        get() = R.string.shortcut_admin_label
 }
