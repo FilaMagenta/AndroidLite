@@ -2,7 +2,6 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
-    id 'com.arnyminerz.locator' version '1.0.2'
     id 'io.sentry.android.gradle'
     id 'kotlin-parcelize'
 }
@@ -113,6 +112,10 @@ android {
         resources {
             excludes += '/META-INF/*'
         }
+    }
+    androidResources {
+        // Enable automatic per-app language support generation
+        generateLocaleConfig true
     }
 }
 

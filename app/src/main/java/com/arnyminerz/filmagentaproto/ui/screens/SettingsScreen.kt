@@ -21,12 +21,12 @@ import androidx.core.os.LocaleListCompat
 import androidx.work.WorkInfo
 import com.arnyminerz.filamagenta.core.utils.capitalized
 import com.arnyminerz.filmagentaproto.BuildConfig
-import com.arnyminerz.filmagentaproto.Locator
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.service.LanguageChangeReceiver
 import com.arnyminerz.filmagentaproto.ui.components.OutlinedDropdownField
 import com.arnyminerz.filmagentaproto.ui.components.settings.SettingsCategory
 import com.arnyminerz.filmagentaproto.ui.components.settings.SettingsItem
+import com.arnyminerz.filmagentaproto.utils.asList
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
 
 @Composable
@@ -50,7 +50,7 @@ fun SettingsScreen() {
                     ?.firstOrNull()
                     ?.let { it.getDisplayName(it).capitalized(it) }
                     ?: stringResource(R.string.settings_language_default),
-                options = Locator.Locales.toList(),
+                options = AppCompatDelegate.getApplicationLocales().asList,
                 label = stringResource(R.string.settings_language),
                 itemToString = { it.getDisplayName(it).capitalize(Locale.current) },
             ) { locale ->
