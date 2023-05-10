@@ -105,6 +105,10 @@ android {
         buildConfig true
         compose true
     }
+    compileOptions {
+        // Enable desugaring
+        coreLibraryDesugaringEnabled true
+    }
     composeOptions {
         kotlinCompilerExtensionVersion "$compose_version"
     }
@@ -202,6 +206,9 @@ dependencies {
 
     // Import modules
     implementation project(":core")
+
+    // Desugaring for supporting Java 8 features on old versions of android
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 
     // Unit test implementations
     testImplementation 'junit:junit:4.13.2'
