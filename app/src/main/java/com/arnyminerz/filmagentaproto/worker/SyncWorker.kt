@@ -193,7 +193,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     private lateinit var remoteDatabaseDao: RemoteDatabaseDao
     private lateinit var wooCommerceDao: WooCommerceDao
 
-    private lateinit var transaction: ITransaction
+    private var transaction: ITransaction? = null
 
     private var isFirstSynchronization = false
 
@@ -202,10 +202,11 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(): Result {
         Timber.i("Running Synchronization...")
 
-        transaction = Sentry.startTransaction("SyncWorker", "synchronization")
+        if (Sentry.isEnabled())
+            transaction = Sentry.startTransaction("SyncWorker", "synchronization")
 
         ignoreCache = inputData.getBoolean(IGNORE_CACHE, false)
-        transaction.setData(IGNORE_CACHE, ignoreCache)
+        transaction?.setData(IGNORE_CACHE, ignoreCache)
 
         notificationManager = NotificationManagerCompat.from(applicationContext)
 
@@ -222,8 +223,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             Timber.e(e, "Could not complete synchronization.")
 
             // Append the error to the transaction
-            transaction.throwable = e
-            transaction.status = SpanStatus.INTERNAL_ERROR
+            transaction?.throwable = e
+            transaction?.status = SpanStatus.INTERNAL_ERROR
 
             // Notify Sentry about the error
             Sentry.captureException(e)
@@ -244,7 +245,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         } finally {
             notificationManager.cancel(NOTIFICATION_ID)
 
-            transaction.finish()
+            transaction?.finish()
         }
     }
 
@@ -425,7 +426,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         deleteMethod: (item: T) -> Unit,
         listExtraProcessing: (List<T>) -> Unit = {},
     ) {
-        val span = transaction.startChild("fetchAndUpdateDatabase", progressStep.name)
+        val span = transaction?.startChild("fetchAndUpdateDatabase", progressStep.name)
         val shouldSync = inputData.getBoolean(shouldSyncInputKey, true)
         if (shouldSync) {
             setProgress(progressStep)
@@ -452,7 +453,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
 
             setProgress(ProgressStep.INTERMEDIATE)
         }
-        span.finish()
+        span?.finish()
     }
 
     /**
@@ -462,7 +463,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
     suspend fun fetchAndUpdateWooData(
         account: Account,
     ) {
-        val span = transaction.startChild("fetchAndUpdateWooData")
+        val span = transaction?.startChild("fetchAndUpdateWooData")
         val dni = account.name
 
         var customerId: Long? = am.getUserData(account, USER_DATA_CUSTOMER_ID)?.toLongOrNull()
@@ -536,7 +537,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
             { wooCommerceDao.delete(it) },
         )
 
-        span.finish()
+        span?.finish()
     }
 
     /**

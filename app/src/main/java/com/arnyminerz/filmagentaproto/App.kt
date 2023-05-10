@@ -54,12 +54,17 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
         super.onCreate()
 
         // Initialize Sentry
-        SentryAndroid.init(this) { options ->
-            options.dsn = BuildConfig.SENTRY_DSN
-            options.tracesSampleRate = if (BuildConfig.DEBUG)
-                1.0
-            else
-                0.3
+        try {
+            SentryAndroid.init(this) { options ->
+                options.dsn = BuildConfig.SENTRY_DSN
+                options.tracesSampleRate = if (BuildConfig.DEBUG)
+                    1.0
+                else
+                    0.3
+            }
+        } catch (_: IllegalArgumentException) {
+            // Sometimes initialization might fail because of invalid DSN, for example in tests,
+            // simply ignore error
         }
 
         // Initialize Timber
