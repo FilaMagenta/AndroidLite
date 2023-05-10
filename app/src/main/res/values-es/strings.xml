@@ -46,10 +46,10 @@
     <string name="settings_worker_success">Completado</string>
     <string name="settings_worker_failing">Con errores!</string>
     <string name="settings_worker_not_scheduled">No Programado</string>
-    <string name="balance_balance">Balance</string>
+    <string name="balance_balance">Saldo</string>
     <string name="balance_in">Ingresos</string>
     <string name="balance_out">Gastos</string>
-    <string name="navigation_balance">Balance</string>
+    <string name="navigation_balance">Saldo</string>
     <string name="navigation_events">Eventos</string>
     <string name="navigation_profile">Perfil</string>
     <string name="navigation_settings">Ajustes</string>
