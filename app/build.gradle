@@ -94,6 +94,10 @@ android {
             buildConfigField "String", "TPVV_COMM_NM", "\"${properties.getProperty("TPVV_COMM_NM")}\""
         }
     }
+    sourceSets {
+        // Adds exported schema location as test app assets.
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+    }
     kotlin {
         jvmToolchain {
             languageVersion.set(JavaLanguageVersion.of("17"))
@@ -226,6 +230,7 @@ dependencies {
     androidTestImplementation 'androidx.test:core-ktx:1.5.0'
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     androidTestImplementation 'androidx.work:work-testing:2.8.1'
+    androidTestImplementation "androidx.room:room-testing:$room_version"
     debugImplementation "androidx.compose.ui:ui-tooling"
     debugImplementation "androidx.compose.ui:ui-test-manifest"
 }
