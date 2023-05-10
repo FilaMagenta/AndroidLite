@@ -18,6 +18,7 @@ import com.arnyminerz.filmagentaproto.database.data.admin.CodeScanned
 import com.arnyminerz.filmagentaproto.database.data.woo.WooConverters
 import com.arnyminerz.filmagentaproto.database.local.migration.Migration5To6
 import com.arnyminerz.filmagentaproto.database.local.migration.Migration6To7
+import com.arnyminerz.filmagentaproto.database.local.migration.Migration8To9
 import com.arnyminerz.filmagentaproto.worker.SyncWorker
 import timber.log.Timber
 
@@ -26,7 +27,7 @@ import timber.log.Timber
         Transaction::class, Socio::class, Event::class, Order::class, Customer::class,
         AvailablePayment::class, CodeScanned::class
     ],
-    version = 8,
+    version = 9,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -37,6 +38,8 @@ import timber.log.Timber
         AutoMigration(from = 6, to = 7, spec = Migration6To7::class),
         // Added payment information to order
         AutoMigration(from = 7, to = 8),
+        // Migrated dates to Java 8
+        AutoMigration(from = 8, to = 9),
     ]
 )
 @TypeConverters(Converters::class, WooConverters::class)
@@ -70,6 +73,7 @@ abstract class AppDatabase : RoomDatabase() {
                         SyncWorker.run(context)
                     }
                 })
+                .addMigrations(Migration8To9)
                 .build()
                 .also { INSTANCE = it }
         }
