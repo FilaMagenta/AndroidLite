@@ -95,14 +95,9 @@ android {
             buildConfigField "String", "TPVV_COMM_NM", "\"${properties.getProperty("TPVV_COMM_NM")}\""
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
-        freeCompilerArgs = ["-Xcontext-receivers"]
-    }
+    kotlin.jvmToolchain.languageVersion.set(JavaLanguageVersion.of("17"))
+    kotlinOptions.freeCompilerArgs = ["-Xcontext-receivers"]
+
     buildFeatures {
         buildConfig true
         compose true
