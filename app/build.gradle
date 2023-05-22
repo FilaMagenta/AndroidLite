@@ -165,7 +165,7 @@ dependencies {
 
     // For loading images
     implementation("io.coil-kt:coil:2.3.0")
-    implementation("io.coil-kt:coil-compose:2.3.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     // For storing preferences
     implementation "androidx.datastore:datastore-preferences:1.0.0"
