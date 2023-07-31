@@ -181,7 +181,7 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:2.8.1"
 
     // For creating QR codes
-    implementation 'com.google.zxing:core:3.5.1'
+    implementation 'com.google.zxing:core:3.5.2'
 
     // For scanning QR codes
     implementation 'com.google.mlkit:barcode-scanning:17.1.0'
