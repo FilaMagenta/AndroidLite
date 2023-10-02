@@ -10,12 +10,12 @@ java {
 }
 
 dependencies {
-    implementation 'org.json:json:20230227'
+    implementation 'org.json:json:20230618'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
 
     // Some utility annotations
-    implementation "androidx.annotation:annotation:1.6.0"
+    implementation "androidx.annotation:annotation:1.7.0"
 
     // Room Database (for integration with Android)
     implementation "androidx.room:room-common:$room_version"

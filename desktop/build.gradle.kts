@@ -23,10 +23,10 @@ dependencies {
     implementation(compose.material3)
     implementation(compose.materialIconsExtended)
 
-    implementation("org.json:json:20230227")
+    implementation("org.json:json:20230618")
 
     // Some utility annotations
-    implementation("androidx.annotation:annotation:1.6.0")
+    implementation("androidx.annotation:annotation:1.7.0")
 
     // Include core
     implementation(project(":core"))
@@ -37,10 +37,10 @@ dependencies {
     // Dependency injection
     implementation("io.insert-koin:koin-annotations:1.2.0")
     ksp("io.insert-koin:koin-ksp-compiler:1.2.0")
-    implementation("io.insert-koin:koin-core:3.4.0")
+    implementation("io.insert-koin:koin-core:3.4.3")
 
     // Issue reporting
-    implementation("io.sentry:sentry:6.17.0")
+    implementation("io.sentry:sentry:6.28.0")
 
     testImplementation("junit:junit:4.13.2")
 }
