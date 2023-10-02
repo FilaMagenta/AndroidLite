@@ -1,6 +1,5 @@
 package com.arnyminerz.filmagentaproto.ui.components.admin
 
-import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,10 +24,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.filamagenta.core.database.data.woo.Event
 import com.arnyminerz.filamagenta.core.database.data.woo.Order
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private val dateFormatter: SimpleDateFormat
-    get() = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+private val dateFormatter: DateTimeFormatter
+    get() = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.getDefault())
 
 @Composable
 fun DoubleRow(icon1: ImageVector, text1: String, icon2: ImageVector, text2: String) {

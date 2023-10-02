@@ -37,8 +37,11 @@ fun MainPage(transactions: List<Transaction>, viewModel: MainViewModel) {
 
     val listState = rememberLazyListState()
     LazyColumn(state = listState) {
-        items(workerState?.filter { it.state == WorkInfo.State.RUNNING && !it.state.isFinished }
-            ?: emptyList()) { workInfo ->
+        items(
+            items = workerState
+                ?.filter { it.state == WorkInfo.State.RUNNING && !it.state.isFinished }
+                ?: emptyList()
+        ) { workInfo ->
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()

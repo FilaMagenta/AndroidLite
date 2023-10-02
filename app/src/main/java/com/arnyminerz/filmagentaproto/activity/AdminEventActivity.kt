@@ -87,6 +87,7 @@ import com.arnyminerz.filmagentaproto.utils.toastAsync
 import com.arnyminerz.filmagentaproto.worker.TicketWorker
 import java.util.Locale
 import timber.log.Timber
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 class AdminEventActivity : AppCompatActivity() {
@@ -122,7 +123,7 @@ class AdminEventActivity : AppCompatActivity() {
             }
     }
 
-    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault())
 
     class Contract : ActivityResultContract<Event, Throwable?>() {
         override fun createIntent(context: Context, input: Event): Intent =

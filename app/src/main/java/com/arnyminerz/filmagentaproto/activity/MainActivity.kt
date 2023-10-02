@@ -55,6 +55,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -133,10 +134,6 @@ import timber.log.Timber
     ExperimentalFoundationApi::class
 )
 class MainActivity : AppCompatActivity() {
-    companion object {
-        val TOP_BAR_HEIGHT = (56 + 16).dp
-    }
-
     private val viewModel by viewModels<MainViewModel>()
 
     private lateinit var am: AccountManager
@@ -290,7 +287,7 @@ class MainActivity : AppCompatActivity() {
         onPaymentBottomSheetRequested: () -> Unit,
         databaseData: List<Socio>?,
     ) {
-        var currentPage by remember { mutableStateOf(0) }
+        var currentPage by remember { mutableIntStateOf(0) }
         val scope = rememberCoroutineScope()
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
@@ -468,15 +465,6 @@ class MainActivity : AppCompatActivity() {
                         finish()
                     }
 
-                val topPadding by animateDpAsState(
-                    if (currentPage == 0)
-                        TOP_BAR_HEIGHT
-                    else
-                        0.dp,
-                    animationSpec = tween(durationMillis = 300),
-                    label = "animate top padding"
-                )
-
                 // Fetches associated accounts for the current one
                 LaunchedEffect(socio) {
                     snapshotFlow { socio }
@@ -509,7 +497,6 @@ class MainActivity : AppCompatActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(
-                                top = topPadding,
                                 bottom = paddingValues.calculateBottomPadding()
                             ),
                     ) { page ->
