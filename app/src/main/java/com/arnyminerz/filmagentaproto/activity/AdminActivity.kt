@@ -88,7 +88,7 @@ class AdminActivity : AppCompatActivity() {
             BackHandler { setResult(Activity.RESULT_CANCELED); finish() }
 
             // Store the current page selected
-            val pagerState = rememberPagerState()
+            val pagerState = rememberPagerState { 2 }
 
             val customer by viewModel.customer.observeAsState()
             LaunchedEffect(customer) {
@@ -140,7 +140,7 @@ class AdminActivity : AppCompatActivity() {
                 val events by viewModel.events.observeAsState()
                 val customers by viewModel.customers.observeAsState()
 
-                HorizontalPager(pageCount = 2, state = pagerState) { page ->
+                HorizontalPager(state = pagerState) { page ->
                     Column(
                         Modifier
                             .padding(paddingValues)

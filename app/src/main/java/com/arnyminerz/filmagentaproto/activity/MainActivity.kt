@@ -492,7 +492,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 transactions?.let { transactionsList ->
-                    val pagerState = rememberPagerState()
+                    val pagerState = rememberPagerState { 4 }
 
                     LaunchedEffectFlow(pagerState, { it.currentPage }) { currentPage = it }
                     LaunchedEffectFlow(
@@ -501,7 +501,6 @@ class MainActivity : AppCompatActivity() {
                     ) { pagerState.scrollToPage(it) }
 
                     HorizontalPager(
-                        pageCount = 4,
                         state = pagerState,
                         modifier = Modifier
                             .fillMaxSize()

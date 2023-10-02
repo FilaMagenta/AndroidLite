@@ -3,6 +3,7 @@ package com.arnyminerz.filmagentaproto.ui.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Tab
@@ -34,7 +35,7 @@ fun TabsColumn(
     content: @Composable ColumnScope.(page: Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { tabs.size }
 
     var selectedTabIndex by remember { mutableStateOf(0) }
 
@@ -58,8 +59,13 @@ fun TabsColumn(
                 )
         }
         HorizontalPager(
-            pageCount = tabs.size,
             state = pagerState,
-        ) { page -> content(this, page) }
+        ) { page ->
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                content(this, page)
+            }
+        }
     }
 }
