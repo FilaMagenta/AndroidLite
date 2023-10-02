@@ -3,16 +3,25 @@ package com.arnyminerz.filmagentaproto.utils
 import android.accounts.AccountManager
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.arnyminerz.filamagenta.core.data.oauth.UserInformation
+import com.arnyminerz.filamagenta.core.security.AccessToken
 import com.arnyminerz.filmagentaproto.account.AccountHelper
+import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_DNI
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.Instant
+import java.time.LocalDateTime
 
 class AccountHelperTest {
     companion object {
         const val TEST_DNI = "12345678X"
-        const val TEST_PASSWORD = "password123"
-        const val TEST_TOKEN = "auth-token-for-testing"
+
+        val testUserInformation = UserInformation(
+            0, "", "", "", LocalDateTime.now(), 0, "", emptyList()
+        )
+
+        val testAccessToken = AccessToken("", Instant.now(), Int.MAX_VALUE, "")
     }
 
     private val context: Context by lazy {
@@ -27,13 +36,13 @@ class AccountHelperTest {
     fun testAdditionAndRemoval() {
         // Try adding the account without synchronization
         AccountHelper.addAccount(
-            am, TEST_DNI, TEST_PASSWORD, TEST_TOKEN, null
+            am, testUserInformation, testAccessToken, null
         )
 
         // Make sure the account was added
         assertNotNull(
             "The account was not added.",
-            AccountHelper.getAccountsList(am).find { it.name == TEST_DNI }
+            AccountHelper.getAccountsList(am).find { am.getUserData(it, USER_DATA_DNI) == TEST_DNI }
         )
 
         // Remove the account created
