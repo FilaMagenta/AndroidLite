@@ -156,7 +156,7 @@ class App : Application(), OnAccountsUpdateListener, FlowCollector<Int> {
         // Update the tracking user
         val user = User().apply {
             id = customerId
-            username = account.name
+            username = am.getUserData(account, Authenticator.USER_DATA_DNI)
         }
         Sentry.setUser(user)
 

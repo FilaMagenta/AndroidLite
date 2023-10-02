@@ -77,6 +77,8 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.AccountHelper
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.AuthTokenType
+import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_DISPLAY_NAME
+import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_DNI
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_VERSION
 import com.arnyminerz.filmagentaproto.exceptions.PaymentException
 import com.arnyminerz.filmagentaproto.storage.SELECTED_ACCOUNT
@@ -392,8 +394,9 @@ class MainActivity : AppCompatActivity() {
 
                                 // Account selection button
                                 account?.let {
+                                    val name = am.getUserData(it, USER_DATA_DISPLAY_NAME)
                                     ProfileImage(
-                                        name = it.name.uppercase(),
+                                        name = name.uppercase(),
                                         modifier = Modifier
                                             .clip(CircleShape)
                                             .clickable { onAccountsDialogRequested() },
@@ -460,7 +463,7 @@ class MainActivity : AppCompatActivity() {
                         LoginActivity::class.launch {
                             putExtra(LoginActivity.EXTRA_ACCOUNT_TYPE, account?.type)
                             putExtra(LoginActivity.EXTRA_AUTH_TOKEN_TYPE, account?.type)
-                            putExtra(LoginActivity.EXTRA_DNI, account?.name)
+                            putExtra(LoginActivity.EXTRA_DNI, am.getUserData(account, USER_DATA_DNI))
                         }
                         finish()
                     }
@@ -471,6 +474,7 @@ class MainActivity : AppCompatActivity() {
                     else
                         0.dp,
                     animationSpec = tween(durationMillis = 300),
+                    label = "animate top padding"
                 )
 
                 // Fetches associated accounts for the current one

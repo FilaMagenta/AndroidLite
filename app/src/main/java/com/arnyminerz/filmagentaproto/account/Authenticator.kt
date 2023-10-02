@@ -19,9 +19,15 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
 
         const val USER_DATA_VERSION = "version"
         const val USER_DATA_ID_SOCIO = "id_socio"
+        const val USER_DATA_REFRESH_TOKEN = "refresh_token"
+        const val USER_DATA_TOKEN_EXPIRATION = "token_expiration"
 
         const val USER_DATA_CUSTOMER_ID = "customer_id"
         const val USER_DATA_CUSTOMER_ADMIN = "customer_admin"
+
+        const val USER_DATA_DNI = "dni"
+        const val USER_DATA_DISPLAY_NAME = "display_name"
+        const val USER_DATA_EMAIL = "email"
 
         const val VERSION = 1
 
@@ -74,7 +80,7 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
 
             // If no token is found, try logging in with the stored password and dni
             if (token?.isNotEmpty() != true) {
-                val dni = account.name
+                val dni = am.getUserData(account, USER_DATA_DNI)
                 val password: String? = am.getPassword(account)
                 if (password != null)
                     try {

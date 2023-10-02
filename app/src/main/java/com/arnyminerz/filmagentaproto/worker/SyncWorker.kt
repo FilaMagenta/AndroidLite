@@ -38,6 +38,7 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_CUSTOMER_ADMIN
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_CUSTOMER_ID
+import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.USER_DATA_DNI
 import com.arnyminerz.filmagentaproto.activity.ShareMessageActivity
 import com.arnyminerz.filmagentaproto.database.local.AppDatabase
 import com.arnyminerz.filmagentaproto.database.local.RemoteDatabaseDao
@@ -271,7 +272,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         val accounts = am.getAccountsByType(Authenticator.AuthTokenType)
         for (account in accounts) {
             val authToken: String? = am.peekAuthToken(account, Authenticator.AuthTokenType)
-            val dni = account.name
+            val dni = am.getUserData(account, USER_DATA_DNI)
 
             if (authToken == null) {
                 Timber.e("Credentials for $dni are not valid, clearing password...")
@@ -464,8 +465,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
         account: Account,
     ) {
         val span = transaction?.startChild("fetchAndUpdateWooData")
-        val dni = account.name
 
+        val dni = am.getUserData(account, USER_DATA_DNI)
         var customerId: Long? = am.getUserData(account, USER_DATA_CUSTOMER_ID)?.toLongOrNull()
         var isAdmin: Boolean? = am.getUserData(account, USER_DATA_CUSTOMER_ADMIN)?.toBoolean()
 

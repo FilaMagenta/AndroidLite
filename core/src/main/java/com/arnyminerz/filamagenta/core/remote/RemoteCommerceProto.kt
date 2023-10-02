@@ -75,40 +75,27 @@ abstract class RemoteCommerceProto {
 
     protected abstract fun base64Encode(input: ByteArray): String
 
-    private fun <R> URI.openConnection(
+    private fun <R> URI.connect(
         method: String,
         beforeConnection: (HttpsURLConnection) -> Unit = {},
         block: (HttpsURLConnection) -> R,
     ): R {
-        Logger.d("$method > $this")
-        val url = toURL()
-        val connection = url.openConnection() as HttpsURLConnection
-        connection.requestMethod = method
-        connection.readTimeout = 45 * 1000
-        connection.connectTimeout = 20 * 1000
-        connection.instanceFollowRedirects = true
+        return openConnection(
+            method,
+            { connection ->
+                val auth = "$wooConsumerKey:$wooConsumerSecret"
+                val authBytes = auth.toByteArray(Charsets.UTF_8)
+                val encodedAuth = base64Encode(authBytes)
+                connection.setRequestProperty("Authorization", "Basic $encodedAuth")
 
-        val auth = "$wooConsumerKey:$wooConsumerSecret"
-        val authBytes = auth.toByteArray(Charsets.UTF_8)
-        val encodedAuth = base64Encode(authBytes)
-        connection.setRequestProperty("Authorization", "Basic $encodedAuth")
-
-        beforeConnection(connection)
-
-        return try {
-            connection.connect()
-
-            block(connection)
-        } catch (e: Exception) {
-            throw e
-        } finally {
-            connection.disconnect()
-        }
+                beforeConnection(connection)
+            },
+            block
+        )
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun get(endpoint: URI): String = io {
-        endpoint.openConnection("GET") { connection ->
+        endpoint.connect("GET") { connection ->
             when (connection.responseCode) {
                 in 200 until 300 -> connection.inputStream.bufferedReader().readText()
                 else -> {
@@ -124,12 +111,11 @@ abstract class RemoteCommerceProto {
     private suspend fun <T : Any> getList(endpoint: URI, serializer: JsonSerializer<T>): List<T> =
         JSONArray(get(endpoint)).mapObjects { serializer.fromJSON(it) }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun post(endpoint: URI, body: JSONObject): String = io {
         val bodyString = body.toString()
         val bodyBytes = bodyString.toByteArray()
 
-        endpoint.openConnection("POST", { connection ->
+        endpoint.connect("POST", { connection ->
             connection.setRequestProperty("Content-Type", "application/json")
             connection.setRequestProperty("Content-Length", bodyBytes.size.toString())
         }) { connection ->
@@ -142,9 +128,8 @@ abstract class RemoteCommerceProto {
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun delete(endpoint: URI): String = io {
-        endpoint.openConnection("POST", { connection ->
+        endpoint.connect("POST", { connection ->
             connection.setRequestProperty("X-HTTP-Method-Override", "DELETE")
         }) { connection ->
             when (connection.responseCode) {

@@ -29,8 +29,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
         android:windowSoftInputMode="adjustResize"
-        tools:replace="android:theme"
-        tools:ignore="UnusedAttribute">
+        tools:ignore="UnusedAttribute"
+        tools:replace="android:theme">
         <activity
             android:name=".activity.MainActivity"
             android:exported="true">
@@ -41,7 +41,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.LoginActivity" />
+        <activity
+            android:name=".activity.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="filamagenta"
+                    android:scheme="app" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".activity.EventActivity"

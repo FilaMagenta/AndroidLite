@@ -1,5 +1,6 @@
 package com.arnyminerz.filamagenta.core.utils
 
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Calendar
@@ -14,3 +15,5 @@ fun now(): Date {
 fun currentDate(): LocalDate = LocalDate.now()
 
 fun currentDateTime(): LocalDateTime = LocalDateTime.now()
+
+fun java.sql.Date.toJava8(): Instant = Instant.ofEpochMilli(time)

@@ -4,6 +4,7 @@ import android.accounts.AccountAuthenticatorResponse
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
@@ -25,12 +26,26 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.arnyminerz.filamagenta.core.remote.openConnection
+import com.arnyminerz.filamagenta.core.security.AccessToken
+import com.arnyminerz.filamagenta.core.utils.doAsync
+import com.arnyminerz.filamagenta.core.utils.ui
 import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.account.Authenticator.Companion.AuthTokenType
 import com.arnyminerz.filmagentaproto.account.credentials.Credentials
+import com.arnyminerz.filmagentaproto.ui.components.LoadingBox
 import com.arnyminerz.filmagentaproto.ui.screens.LoginScreen
 import com.arnyminerz.filmagentaproto.ui.theme.setContentThemed
 import com.arnyminerz.filmagentaproto.ui.viewmodel.LoginViewModel
+import com.arnyminerz.filmagentaproto.utils.toURL
+import com.arnyminerz.filmagentaproto.utils.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import timber.log.Timber
+import java.net.URI
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 class LoginActivity : AppCompatActivity() {
@@ -71,8 +86,6 @@ class LoginActivity : AppCompatActivity() {
         accountType = intent.getStringExtra(EXTRA_ACCOUNT_TYPE) ?: AuthTokenType
         authTokenType = intent.getStringExtra(EXTRA_AUTH_TOKEN_TYPE) ?: AuthTokenType
 
-        val initialDni = intent.getStringExtra(EXTRA_DNI)
-
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val accounts = viewModel.getAccounts()
@@ -84,6 +97,16 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         })
+
+        val url = intent.data
+        val code = url?.getQueryParameter("code")
+        if (code != null) {
+            viewModel.isRequestingToken.value = true
+
+            Timber.i("OAuth code: $code. Requesting token...")
+            viewModel.requestToken(this, code)
+                .invokeOnCompletion { viewModel.isRequestingToken.postValue(false) }
+        }
 
         setContentThemed {
             Scaffold(
@@ -100,23 +123,14 @@ class LoginActivity : AppCompatActivity() {
                     )
                 }
             ) { paddingValues ->
-                val credentials by viewModel.credentials.observeAsState()
+                val isRequestingToken by viewModel.isRequestingToken.observeAsState(initial = false)
 
-                LaunchedEffect(credentials) {
-                    snapshotFlow { credentials }
-                        .collect {
-                            // If credentials have been stored, move to the next page
-                            if (it != null)
-                                viewModel.addAccount(this@LoginActivity)
-                        }
-                }
-
-                LoginScreen(
-                    initialDni = initialDni,
-                    modifier = Modifier.padding(paddingValues),
-                ) { name, nif, token ->
-                    // Store the returned credentials
-                    viewModel.credentials.postValue(Credentials(name, nif, token))
+                if (isRequestingToken) {
+                    LoadingBox()
+                } else {
+                    LoginScreen(
+                        modifier = Modifier.padding(paddingValues),
+                    )
                 }
             }
         }

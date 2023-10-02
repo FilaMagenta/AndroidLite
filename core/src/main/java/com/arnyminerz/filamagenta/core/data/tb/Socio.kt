@@ -2,9 +2,11 @@ package com.arnyminerz.filamagenta.core.data.tb
 
 import androidx.room.Entity
 import com.arnyminerz.filamagenta.core.utils.capitalized
+import com.arnyminerz.filamagenta.core.utils.toJava8
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 @Entity(tableName = "socios", primaryKeys = ["idSocio"])
 data class Socio(
@@ -135,6 +137,11 @@ data class Socio(
             6,
         )
 
+        private fun ResultSet.getDateTime(index: Int) = getDate(index)
+            ?.toJava8()
+            ?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
+            ?.atStartOfDay()
+
         override fun parse(row: ResultSet): Socio = Socio(
             row.getLong(1),
             row.getString(2),
@@ -142,7 +149,7 @@ data class Socio(
             row.getString(4),
             row.getInt(5),
             row.getString(6),
-            row.getDate(7)?.toLocalDate()?.atStartOfDay(),
+            row.getDateTime(7),
             row.getString(8),
             row.getString(9),
             row.getString(10),
@@ -150,11 +157,11 @@ data class Socio(
             row.getInt(12),
             row.getInt(13),
             row.getBoolean(14),
-            row.getDate(15)?.toLocalDate()?.atStartOfDay(),
-            row.getDate(16)?.toLocalDate()?.atStartOfDay(),
+            row.getDateTime(15),
+            row.getDateTime(16),
             row.getInt(17),
             row.getInt(18),
-            row.getDate(19)?.toLocalDate()?.atStartOfDay(),
+            row.getDateTime(19),
             row.getInt(20),
             row.getBoolean(21),
             row.getBoolean(22),
@@ -177,7 +184,7 @@ data class Socio(
             row.getString(39),
             row.getInt(40),
             row.getBoolean(41),
-            row.getDate(42)?.toLocalDate()?.atStartOfDay(),
+            row.getDateTime(42),
             row.getBoolean(43),
             row.getInt(44),
             row.getBoolean(45),
@@ -194,7 +201,7 @@ data class Socio(
             row.getInt(56),
             row.getBoolean(57),
             row.getInt(58),
-            row.getDate(59)?.toLocalDate()?.atStartOfDay(),
+            row.getDateTime(59),
             row.getBoolean(60),
             row.getInt(61),
         )
