@@ -28,7 +28,9 @@ fun HtmlText(
             when (val char = text[counter]) {
                 '<' -> {
                     val closing = text.indexOf('>', counter)
-                    when (val tag = text.substring(counter, closing + 1)) {
+                    val tag = text.substring(counter, closing + 1)
+                        .replace(Regex(" ?.*=\".*\""), "")
+                    when (tag) {
                         "<b>", "<h3>", "<h4>" -> pushStyle(BoldStyle)
                         "</b>", "</h3>", "</h4>" -> pop()
                         "<em>", "<i>" -> pushStyle(ItalicStyle)
