@@ -38,9 +38,10 @@ import com.arnyminerz.filmagentaproto.ui.components.WheelNumberCard
 import com.arnyminerz.filmagentaproto.ui.theme.AppTheme
 import java.text.SimpleDateFormat
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-val DateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+val DateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
 
 @Composable
 @ExperimentalMaterial3Api

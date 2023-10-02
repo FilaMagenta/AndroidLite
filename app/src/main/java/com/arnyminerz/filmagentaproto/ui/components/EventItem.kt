@@ -33,10 +33,11 @@ import com.arnyminerz.filmagentaproto.R
 import com.arnyminerz.filmagentaproto.ui.dialogs.EventBottomSheet
 import com.arnyminerz.filmagentaproto.utils.launchCalendarInsert
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private val dateFormat: SimpleDateFormat
-    get() = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+private val dateFormat: DateTimeFormatter
+    get() = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.getDefault())
 
 @Composable
 @ExperimentalMaterial3Api
