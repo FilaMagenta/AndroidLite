@@ -13,6 +13,7 @@ import com.arnyminerz.filamagenta.core.data.oauth.UserInformation
 import com.arnyminerz.filamagenta.core.remote.openConnection
 import com.arnyminerz.filamagenta.core.security.AccessToken
 import com.arnyminerz.filamagenta.core.utils.ui
+import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.account.AccountHelper
 import com.arnyminerz.filmagentaproto.account.Authenticator
 import com.arnyminerz.filmagentaproto.account.credentials.Credentials
@@ -31,7 +32,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     val isRequestingToken = MutableLiveData(false)
 
     fun requestToken(activity: Activity, code: String) = async {
-        val uri = Uri.parse("https://filamagenta.com")
+        val uri = Uri.parse("https://${BuildConfig.HOST}")
             .buildUpon()
             .appendPath("oauth")
             .appendPath("token")
@@ -39,8 +40,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         val body = mapOf(
             "grant_type" to "authorization_code",
             "code" to code,
-            "client_id" to "QcQIPJWtmv8ViPdlJ8enJnMjH31HAOt5grgShShj",
-            "client_secret" to "UXPzFM956IhA0IUtrdZa3PHrFSVrsZDp4LQtDMs8",
+            "client_id" to BuildConfig.OAUTH_CLIENT_ID,
+            "client_secret" to BuildConfig.OAUTH_CLIENT_SECRET,
             "redirect_uri" to "app://filamagenta"
         )
             .map { (k, v) -> "$k=$v" }
@@ -97,7 +98,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private fun getUserInformation(token: AccessToken): UserInformation {
         if (token.isExpired()) throw IllegalStateException("The given token has expired.")
 
-        return Uri.parse("https://filamagenta.com")
+        return Uri.parse("https://${BuildConfig.HOST}")
             .buildUpon()
             .appendPath("oauth")
             .appendPath("me")

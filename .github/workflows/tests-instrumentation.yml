@@ -58,6 +58,8 @@ jobs:
           echo 'AES_KEY=${{ secrets.AES_KEY }}' >> local.properties
           echo 'AES_SALT=${{ secrets.AES_SALT }}' >> local.properties
           echo 'AES_IV=${{ secrets.AES_IV }}' >> local.properties
+          echo 'OAUTH_CLIENT_ID=${{ secrets.OAUTH_CLIENT_ID }}' >> local.properties
+          echo 'OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}' >> local.properties
           
           # And for Desktop
           echo 'SIGNING_KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}' >> desktop/src/main/resources/local.properties
@@ -75,6 +77,8 @@ jobs:
           echo 'AES_KEY=${{ secrets.AES_KEY }}' >> desktop/src/main/resources/local.properties
           echo 'AES_SALT=${{ secrets.AES_SALT }}' >> desktop/src/main/resources/local.properties
           echo 'AES_IV=${{ secrets.AES_IV }}' >> desktop/src/main/resources/local.properties
+          echo 'OAUTH_CLIENT_ID=${{ secrets.OAUTH_CLIENT_ID }}' >> desktop/src/main/resources/local.properties
+          echo 'OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}' >> desktop/src/main/resources/local.properties
 
       - name: Instrumentation Tests
         id: instrumentation_tests
