@@ -37,17 +37,22 @@ object AccountHelper {
         val added = am.addAccountExplicitly(account, dni, Bundle())
         if (!added) throw RuntimeException("There was an error while adding the account.")
 
-        am.setAuthToken(account, Authenticator.AuthTokenType, token.token)
+        updateAccountToken(am, account, token)
+
         am.setUserData(account, Authenticator.USER_DATA_VERSION, Authenticator.VERSION.toString())
         am.setUserData(account, Authenticator.USER_DATA_ID_SOCIO, idSocio.toString())
-        am.setUserData(account, Authenticator.USER_DATA_REFRESH_TOKEN, token.refreshToken)
-        am.setUserData(account, Authenticator.USER_DATA_TOKEN_EXPIRATION, token.expiration.toEpochMilli().toString())
         am.setUserData(account, Authenticator.USER_DATA_DNI, userInformation.login)
         am.setUserData(account, Authenticator.USER_DATA_DISPLAY_NAME, userInformation.displayName)
         am.setUserData(account, Authenticator.USER_DATA_EMAIL, userInformation.email)
 
         // If context is given, run synchronization
         if (context != null) SyncWorker.run(context)
+    }
+
+    fun updateAccountToken(am: AccountManager, account: Account, token: AccessToken) {
+        am.setAuthToken(account, Authenticator.AuthTokenType, token.token)
+        am.setUserData(account, Authenticator.USER_DATA_REFRESH_TOKEN, token.refreshToken)
+        am.setUserData(account, Authenticator.USER_DATA_TOKEN_EXPIRATION, token.expiration.toEpochMilli().toString())
     }
 
     /**

@@ -8,9 +8,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.arnyminerz.filamagenta.core.exception.WrongCredentialsException
+import com.arnyminerz.filamagenta.core.remote.RemoteAuthentication
+import com.arnyminerz.filamagenta.core.remote.result.auth.TokenResult
+import com.arnyminerz.filmagentaproto.BuildConfig
 import com.arnyminerz.filmagentaproto.activity.LoginActivity
 import com.arnyminerz.filmagentaproto.database.remote.RemoteDatabaseInterface
 import timber.log.Timber
+import java.time.Instant
 
 class Authenticator(private val context: Context) : AbstractAccountAuthenticator(context) {
     companion object {
@@ -35,6 +39,14 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
     }
 
     private val am = AccountManager.get(context)
+
+    private val remoteAuthentication by lazy {
+        RemoteAuthentication.getInstance(
+            BuildConfig.HOST,
+            BuildConfig.OAUTH_CLIENT_ID,
+            BuildConfig.OAUTH_CLIENT_SECRET
+        )
+    }
 
     private fun Bundle.putError(error: Pair<Int, String>) {
         val (code, message) = error
@@ -77,20 +89,21 @@ class Authenticator(private val context: Context) : AbstractAccountAuthenticator
             am.removeAccountExplicitly(account)
         } else {
             var token: String? = am.peekAuthToken(account, authTokenType)
+            val refreshToken: String? = am.getUserData(account, USER_DATA_REFRESH_TOKEN)
+            val tokenExpiration: Instant? = am.getUserData(account, USER_DATA_TOKEN_EXPIRATION)
+                ?.toLong()
+                ?.let(Instant::ofEpochMilli)
+            val now = Instant.now()
 
-            // If no token is found, try logging in with the stored password and dni
-            if (token?.isNotEmpty() != true) {
-                val dni = am.getUserData(account, USER_DATA_DNI)
-                val password: String? = am.getPassword(account)
-                if (password != null)
-                    try {
-                        token = RemoteAuthentication.login(dni, password)
-                    } catch (_: WrongCredentialsException) {
-                        Timber.w("Got wrong credentials stored for ${account.name}.")
-                    } catch (_: IllegalArgumentException) {
-                        Timber.w("Credentials for ${account.name} are not available on the server.")
-                    }
+            if (refreshToken != null && (tokenExpiration == null || tokenExpiration > now)) {
+                // token has expired, refresh it
+                val refreshedToken = remoteAuthentication.refreshToken(refreshToken)
+                if (refreshedToken is TokenResult.Success) {
+                    AccountHelper.updateAccountToken(am, account, refreshedToken.token)
+                    token = refreshedToken.token.token
+                }
             }
+
             if (token?.isNotEmpty() == true)
                 return Bundle().apply {
                     putString(AccountManager.KEY_ACCOUNT_NAME, account.name)
