@@ -2,7 +2,7 @@ buildscript {
     ext {
         compose_version = '1.5.3'
         mockk_version = '1.13.8'
-        kotlin_version = '1.9.10'
+        kotlin_version = '1.9.20'
         agp_version = '8.1.2'
         camerax_version = '1.2.3'
         room_version = '2.5.2'
