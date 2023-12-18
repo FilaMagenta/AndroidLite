@@ -90,7 +90,7 @@ jobs:
         id: build
         run: bash ./gradlew :desktop:packageDistributionForCurrentOS --stacktrace
       - name: Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Artifact
           path: ./desktop/build/compose/binaries/main/${{ matrix.os[2] }}/*

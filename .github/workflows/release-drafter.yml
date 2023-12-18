@@ -88,7 +88,7 @@ jobs:
           yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;33.0.2"
           bash ./gradlew assembleRelease --stacktrace
       - name: APK Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: APK Artifact
           path: ./app/build/outputs/apk/release/app-release.apk
@@ -106,7 +106,7 @@ jobs:
           bash ./gradlew :app:bundleRelease --stacktrace
       - name: AAB Artifact
         id: aab_artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: AAB Artifact
           path: ./app/build/outputs/bundle/release/app-release.aab
